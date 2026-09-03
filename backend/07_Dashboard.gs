@@ -89,11 +89,12 @@ function dashboardGet_(c) {
     });
 
   /* --- Top 5 productos por salidas del mes en curso --- */
-  var mes = Utilities.formatDate(fechaNow_(), APP.TZ, 'yyyy-MM');
+  var mes = fechaDiaStr_(fechaNow_()).slice(0, 7);
   var conteoSalidas = {};
   movimientos.forEach(function (m) {
     if (String(m.estado).toUpperCase() === 'ANULADO') return;
-    if (Utilities.formatDate(m.fecha, APP.TZ, 'yyyy-MM') !== mes) return;
+    var fStr = fechaDiaStr_(m.fecha);
+    if (!fStr || fStr.slice(0, 7) !== mes) return;
     if (m.tipo !== 'SALIDA' && m.tipo !== 'AJUSTE_NEGATIVO' && m.tipo !== 'TRANSFERENCIA') return;
     if (!conteoSalidas[m.productoId]) conteoSalidas[m.productoId] = { productoId: m.productoId, cantidad: 0 };
     conteoSalidas[m.productoId].cantidad += numero_(m.cantidad);

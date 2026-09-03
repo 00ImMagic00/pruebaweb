@@ -134,12 +134,15 @@ function fechaNow_() { return new Date(); }
 function fechaStr_(d) {
   if (!d) return '';
   if (Object.prototype.toString.call(d) !== '[object Date]') d = new Date(d);
+  if (isNaN(d.getTime())) return String(d);
   return Utilities.formatDate(d, APP.TZ, 'yyyy-MM-dd HH:mm:ss');
 }
 
 function fechaDiaStr_(d) {
   if (!d) return '';
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.substring(0, 10);
   if (Object.prototype.toString.call(d) !== '[object Date]') d = new Date(d);
+  if (isNaN(d.getTime())) return '';
   return Utilities.formatDate(d, APP.TZ, 'yyyy-MM-dd');
 }
 
