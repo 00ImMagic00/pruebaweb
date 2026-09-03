@@ -12,7 +12,7 @@
  *       API_URL: 'https://script.google.com/macros/s/AKfy.../exec'
  */
 var CONFIG_APP = {
-  API_URL: '',                       // <-- URL del Web App de Google Apps Script
+  API_URL: 'https://script.google.com/macros/s/AKfycby10uueNeE3iYodjGm0sRZo5YKrAYLhiKiya53h480iUsZz7Y0Iqf8_UQnEGTgcTro5/exec',
   NOMBRE_APP: 'NexoERP',
   VERSION: '1.4.0',
   TOKEN_CLAVE: 'nexoerp_token',
