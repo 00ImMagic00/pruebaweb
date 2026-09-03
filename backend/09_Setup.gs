@@ -308,6 +308,12 @@ function crearHojaSiFalta_(ss, nombre, cabeceras) {
 }
 
 function sembrarCatalogos_() {
+  if (dbLeer_(APP.SHEETS.PRODUCTOS).length > 0) {
+    var mapExistente = {};
+    dbLeer_(APP.SHEETS.PRODUCTOS).forEach(function (p) { mapExistente[p.sku] = p.id; });
+    return mapExistente;
+  }
+
   // Config
   Object.keys(CONFIG_CLAVES).forEach(function (k) { configGuardar_(k, CONFIG_CLAVES[k]); });
 
@@ -383,9 +389,15 @@ function sembrarCajaDemo_() {
 
 /** Reproduce los movimientos semilla (ordenados por día) con el motor real. */
 function sembrarMovimientos_() {
+  if (dbLeer_(APP.SHEETS.MOVIMIENTOS).length > 0) return;
+
   var prods = dbLeer_(APP.SHEETS.PRODUCTOS);
   var skuAId = {};
-  prods.forEach(function (p) { skuAId[p.sku] = p.id; });
+  var skuAProd = {};
+  prods.forEach(function (p) {
+    skuAId[p.sku] = p.id;
+    skuAProd[p.sku] = p;
+  });
 
   var todos = SEED_MOVIMIENTOS.concat(SEED_MOVIMIENTOS_EXTRA);
   todos.sort(function (a, b) {
@@ -406,9 +418,14 @@ function sembrarMovimientos_() {
       venc = Utilities.formatDate(new Date(fechaMov.getTime() + vencDias * 86400000), APP.TZ, 'yyyy-MM-dd');
     }
 
+    var prod = skuAProd[sku] || dbPorId_(APP.SHEETS.PRODUCTOS, skuAId[sku]);
+    var reqLote = prod ? boolStr_(prod.requiereLote) : false;
+    var reqSerie = prod ? boolStr_(prod.requiereSerie) : false;
+
     var datos = {
       tipo: tipo,
       productoId: skuAId[sku],
+      producto: prod,
       cantidad: cantidad,
       costoUnitario: costo,
       lote: lote || '',
@@ -419,7 +436,10 @@ function sembrarMovimientos_() {
       documentoRef: docRef || '',
       observaciones: 'Carga inicial de demostración',
       motivo: tipo === 'AJUSTE_NEGATIVO' ? 'Merma por unidades dañadas' : (tipo === 'AJUSTE_POSITIVO' ? 'Ajuste por conteo físico' : ''),
-      fechaOverride: fechaMov
+      fechaOverride: fechaMov,
+      requiereLote: reqLote,
+      requiereSerie: reqSerie,
+      permitirNegativo: true
     };
 
     var sesU = Object.assign({}, sesSeed, { usuario: usuario });

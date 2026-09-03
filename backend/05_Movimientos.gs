@@ -126,6 +126,22 @@ function ejecutarMovimiento_(d, ses) {
   var esSalidaTipo  = (d.tipo === 'SALIDA' || d.tipo === 'AJUSTE_NEGATIVO');
   var esTransf      = (d.tipo === 'TRANSFERENCIA');
 
+  if (!d.producto && d.productoId) {
+    d.producto = dbPorId_(APP.SHEETS.PRODUCTOS, d.productoId);
+  }
+  if (!d.producto) {
+    throw new ApiError_('Producto no encontrado para el movimiento: ' + d.productoId, 'NOT_FOUND');
+  }
+  if (d.requiereLote === undefined) {
+    d.requiereLote = boolStr_(d.producto.requiereLote);
+  }
+  if (d.requiereSerie === undefined) {
+    d.requiereSerie = boolStr_(d.producto.requiereSerie);
+  }
+  if (d.permitirNegativo === undefined) {
+    d.permitirNegativo = true;
+  }
+
   var costoStd = numero_(d.producto.costoStd);
   var loteConsumos = [];
 
