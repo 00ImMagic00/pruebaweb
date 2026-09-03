@@ -1,0 +1,15 @@
+# Comprimidos y respaldos
+*.tar
+*.zip
+*.gz
+*.rar
+*.7z
+
+# Instaladores
+*.msi
+*.exe
+
+# Logs y temporales
+*.log
+.DS_Store
+Thumbs.db

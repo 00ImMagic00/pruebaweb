@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexoERP — Sistema ERP/WMS</title>
+  <meta name="description" content="Sistema ERP y WMS integrado sobre Vercel + Google Apps Script + Google Sheets. Inventario multi-almacén, kardex valorizado, lotes y trazabilidad.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232563eb'/><path d='M28 38l22-13 22 13v24L50 75 28 62z' fill='none' stroke='white' stroke-width='6' stroke-linejoin='round'/><path d='M28 38l22 13 22-13M50 51v24' stroke='white' stroke-width='6' stroke-linejoin='round' fill='none'/></svg>">
+
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind (runtime CDN, autocontenido en vendor/) -->
+  <script src="assets/vendor/tailwind.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { DEFAULT: '#2563eb', dark: '#1d4ed8', light: '#dbeafe' } },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'] }
+        }
+      }
+    };
+  </script>
+
+  <!-- Vue 3 + Chart.js + jsPDF (proformas PDF A4, adenda 1.4) -->
+  <script src="assets/vendor/vue.global.prod.js"></script>
+  <script src="assets/vendor/chart.umd.js"></script>
+  <script src="assets/vendor/jspdf.umd.min.js"></script>
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body class="bg-slate-100 antialiased">
+  <div id="app"></div>
+
+  <!-- Núcleo de la aplicación (orden de dependencias) -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/demo-data.js"></script>
+  <script src="assets/js/demo-store.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/receipts.js"></script>
+
+  <!-- Vistas -->
+  <script src="assets/js/views/view-login.js"></script>
+  <script src="assets/js/views/view-dashboard.js"></script>
+  <script src="assets/js/views/view-pos.js"></script>
+  <script src="assets/js/views/view-ventas.js"></script>
+  <script src="assets/js/views/view-cotizaciones.js"></script>
+  <script src="assets/js/views/view-fiados.js"></script>
+  <script src="assets/js/views/view-caja.js"></script>
+  <script src="assets/js/views/view-clientes.js"></script>
+  <script src="assets/js/views/view-productos.js"></script>
+  <script src="assets/js/views/view-almacenes.js"></script>
+  <script src="assets/js/views/view-stock.js"></script>
+  <script src="assets/js/views/view-lotes.js"></script>
+  <script src="assets/js/views/view-movimientos.js"></script>
+  <script src="assets/js/views/view-kardex.js"></script>
+  <script src="assets/js/views/view-alertas.js"></script>
+  <script src="assets/js/views/view-usuarios.js"></script>
+  <script src="assets/js/views/view-reportes.js"></script>
+  <script src="assets/js/views/view-rentabilidad.js"></script>
+  <script src="assets/js/views/view-panel.js"></script>
+  <script src="assets/js/views/view-auditoria.js"></script>
+  <script src="assets/js/views/view-config.js"></script>
+  <script src="assets/js/views/view-categorias.js"></script>
+
+  <!-- Arranque -->
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
