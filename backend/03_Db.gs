@@ -37,9 +37,12 @@ function dbLeer_(nombre) {
   return filas;
 }
 
-/** Fechas -> texto ISO local; el resto pasa tal cual (JSON-safe). */
+/** Fechas -> texto ISO local; si es solo hora (año 1899 de Sheets), texto HH:mm; el resto pasa tal cual. */
 function normalizarCelda_(v) {
-  if (Object.prototype.toString.call(v) === '[object Date]') return fechaStr_(v);
+  if (Object.prototype.toString.call(v) === '[object Date]') {
+    if (v.getFullYear() <= 1900) return Utilities.formatDate(v, APP.TZ, 'HH:mm');
+    return fechaStr_(v);
+  }
   return v;
 }
 
@@ -113,7 +116,15 @@ function dbSiguienteId_(nombre, prefijo, padding) {
 function configLeer_() {
   var filas = dbLeer_(APP.SHEETS.CONFIG);
   var out = {};
-  for (var i = 0; i < filas.length; i++) out[String(filas[i].clave)] = String(filas[i].valor);
+  for (var i = 0; i < filas.length; i++) {
+    var k = String(filas[i].clave);
+    var v = String(filas[i].valor);
+    if ((k === 'HORARIO_INICIO' || k === 'HORARIO_FIN') && v) {
+      var m = v.match(/(\d{1,2}:\d{2})/);
+      if (m) v = (m[1].length === 4 ? '0' + m[1] : m[1]);
+    }
+    out[k] = v;
+  }
   // Rellena claves faltantes con valores por defecto.
   Object.keys(CONFIG_CLAVES).forEach(function (k) {
     if (out[k] === undefined || out[k] === '') out[k] = CONFIG_CLAVES[k];

@@ -117,12 +117,23 @@
         var r = parseFloat(this.montoRecibido);
         return !isNaN(r) && r > 0 && r < this.totales.total;
       },
+      horarioInicioTxt: function () {
+        var m = String(this.cfg.HORARIO_INICIO || '').match(/(\d{1,2}:\d{2})/);
+        return m ? (m[1].length === 4 ? '0' + m[1] : m[1]) : (this.cfg.HORARIO_INICIO || '08:00');
+      },
+      horarioFinTxt: function () {
+        var m = String(this.cfg.HORARIO_FIN || '').match(/(\d{1,2}:\d{2})/);
+        return m ? (m[1].length === 4 ? '0' + m[1] : m[1]) : (this.cfg.HORARIO_FIN || '22:00');
+      },
       fueraHorario: function () {
-        var ini = String(this.cfg.HORARIO_INICIO || ''), fin = String(this.cfg.HORARIO_FIN || '');
+        var ini = this.horarioInicioTxt, fin = this.horarioFinTxt;
         if (!ini || !fin) return false;
         var ahora = new Date();
         var mins = ahora.getHours() * 60 + ahora.getMinutes();
-        var p = function (s) { var t = String(s).split(':'); return (parseInt(t[0], 10) || 0) * 60 + (parseInt(t[1], 10) || 0); };
+        var p = function (s) {
+          var m = String(s).match(/(\d{1,2}):(\d{2})/);
+          return m ? (parseInt(m[1], 10) || 0) * 60 + (parseInt(m[2], 10) || 0) : 0;
+        };
         return mins < p(ini) || mins > p(fin);
       },
       /* Líneas que exigen autorización de admin/gerente según política */
@@ -447,7 +458,7 @@
 
   <div v-if="fueraHorario" class="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 ring-1 ring-inset ring-amber-600/20 px-4 py-2.5 text-sm text-amber-800">
     <icon name="warning" clase="w-5 h-5 shrink-0"></icon>
-    Está fuera del horario de atención configurado ({{ cfg.HORARIO_INICIO }} – {{ cfg.HORARIO_FIN }}). Puede vender, pero se registrará fuera de hora.
+    Está fuera del horario de atención configurado ({{ horarioInicioTxt }} – {{ horarioFinTxt }}). Puede vender, pero se registrará fuera de hora.
   </div>
 
   <div v-if="requiereAutorizacion" class="mb-4 rounded-xl bg-rose-50 ring-1 ring-inset ring-rose-600/20 px-4 py-3 text-sm text-rose-800">

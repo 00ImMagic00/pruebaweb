@@ -328,7 +328,10 @@ function panelControl_(c) {
       /* Venta fuera del horario de atención configurado. */
       if (horarioInicio && horarioFin) {
         var mins = parseInt(fechaStr_(v.fecha).substring(11, 13), 10) * 60 + parseInt(fechaStr_(v.fecha).substring(14, 16), 10);
-        var p = function (s) { var t2 = String(s).split(':'); return (parseInt(t2[0], 10) || 0) * 60 + (parseInt(t2[1], 10) || 0); };
+        var p = function (s) {
+          var m = String(s).match(/(\d{1,2}):(\d{2})/);
+          return m ? (parseInt(m[1], 10) || 0) * 60 + (parseInt(m[2], 10) || 0) : 0;
+        };
         if (mins < p(horarioInicio) || mins > p(horarioFin)) {
           fueraHorarioMes++;
           alertas.push({ severidad: 'media', tipo: 'HORARIO', texto: v.boleta + ' emitida fuera del horario (' + horarioInicio + '–' + horarioFin + ') por ' + v.usuario, fecha: fechaStr_(v.fecha) });
