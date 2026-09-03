@@ -48,8 +48,9 @@ function dashboardGet_(c) {
   var dias = 14;
   var serieDias = [];
   var mapaSerie = {};
+  var hoyMs = new Date(hoy).getTime();
   for (var i = dias - 1; i >= 0; i--) {
-    var d = new Date(fechaDiaStr_(fechaNow_()).getTime() - i * 86400000);
+    var d = new Date(hoyMs - i * 86400000);
     var clave = fechaDiaStr_(d);
     mapaSerie[clave] = { fecha: clave, etiqueta: Utilities.formatDate(d, APP.TZ, 'dd MMM'), entradas: 0, salidas: 0 };
     serieDias.push(mapaSerie[clave]);
