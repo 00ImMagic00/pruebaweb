@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>NexoERP — Documentación completa v1.6.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+@page { size: 794px 1123px; margin: 0; }
+:root{
+  --c-bg:#f8faff; --c-primary:#2563eb; --c-primary-d:#172554; --c-primary-mid:#1d4ed8;
+  --c-tint:#eef3ff; --c-tint2:#e0eaff; --c-text:#1f2937; --c-muted:#5b6b81;
+  --c-border:#dfe6f1; --c-code:#0f172a; --c-code-tx:#dbe4f0;
+}
+html,body{margin:0;padding:0;width:794px;background:var(--c-bg);color:var(--c-text);
+  font-family:'Inter',-apple-system,'Segoe UI',sans-serif;font-size:13.5px;line-height:1.62;}
+@media screen{
+  html{height:auto;display:flex;justify-content:center;background:#dbe3ef;}
+  body{margin:24px auto;box-shadow:0 8px 40px rgba(23,37,84,.18);}
+}
+p{margin:0 0 10px;text-align:justify;hyphens:auto;overflow-wrap:break-word;}
+strong{color:var(--c-primary-d);}
+/* ---------- Portada ---------- */
+.cover{width:794px;height:1123px;position:relative;break-after:page;overflow:hidden;background:var(--c-bg);}
+.cov-l1{position:absolute;inset:0;overflow:hidden;z-index:1;}
+.cov-grid{position:absolute;inset:0;
+  background-image:repeating-linear-gradient(0deg,rgba(37,99,235,.045) 0,rgba(37,99,235,.045) 1px,transparent 1px,transparent 52px),
+                   repeating-linear-gradient(90deg,rgba(37,99,235,.045) 0,rgba(37,99,235,.045) 1px,transparent 1px,transparent 52px);}
+.cov-ghost{position:absolute;left:168px;bottom:112px;font-size:92px;font-weight:900;letter-spacing:-2px;
+  color:rgba(23,37,84,.055);line-height:1;white-space:nowrap;}
+.cov-l2{position:absolute;inset:0;z-index:2;}
+.cov-line{position:absolute;left:72px;top:112px;bottom:112px;width:6px;background:var(--c-primary);border-radius:3px;}
+.cov-l3{position:absolute;inset:0;z-index:3;}
+.cov-kicker{position:absolute;left:168px;top:170px;font-size:12.5px;font-weight:600;letter-spacing:3.5px;
+  text-transform:uppercase;color:var(--c-muted);}
+.cov-hero{position:absolute;left:164px;top:262px;font-size:82px;font-weight:900;letter-spacing:-2.5px;
+  line-height:1.04;color:var(--c-primary-d);}
+.cov-hero span{color:var(--c-primary);}
+.cov-sub{position:absolute;left:168px;top:392px;font-size:21px;font-weight:600;color:var(--c-text);max-width:520px;line-height:1.35;}
+.cov-summary{position:absolute;left:168px;top:520px;max-width:470px;font-size:14.5px;line-height:1.7;color:var(--c-muted);text-align:left;}
+.cov-meta{position:absolute;left:168px;top:796px;}
+.cov-chips{display:flex;flex-wrap:wrap;gap:8px;max-width:520px;}
+.chip{border:1px solid var(--c-border);background:#fff;border-radius:999px;padding:5px 14px;
+  font-size:11.5px;font-weight:600;color:var(--c-primary-mid);}
+.cov-ver{margin-top:22px;font-size:13px;color:var(--c-muted);}
+.cov-ver b{color:var(--c-primary-d);font-weight:700;}
+.cov-footer{position:absolute;left:168px;bottom:54px;font-size:11px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--c-muted);opacity:.75;}
+/* ---------- Contenido ---------- */
+.main-content{padding:58px 64px 42px;}
+.chapter-header{break-after:avoid;break-inside:avoid;margin-top:26px;margin-bottom:14px;}
+.chapter-header:first-child{margin-top:0;}
+.ch-tag{display:inline-block;background:var(--c-primary);color:#fff;border-radius:6px;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;padding:3px 10px;text-transform:uppercase;}
+.ch-title{font-size:24px;font-weight:800;color:var(--c-primary-d);letter-spacing:-.4px;margin:8px 0 4px;line-height:1.22;}
+.ch-lead{font-size:13.5px;color:var(--c-muted);text-align:left;}
+.divider{height:7px;width:64px;background:linear-gradient(90deg,var(--c-primary),var(--c-primary-mid));border-radius:4px;margin:12px 0 14px;}
+h3{font-size:15.5px;font-weight:700;color:var(--c-primary-d);margin:20px 0 8px;break-after:avoid;}
+h4{font-size:13.5px;font-weight:700;color:var(--c-text);margin:14px 0 6px;break-after:avoid;}
+/* índice */
+.toc-card{background:#fff;border:1px solid var(--c-border);border-radius:12px;padding:22px 26px;}
+.toc-row{display:flex;align-items:baseline;gap:10px;padding:6.5px 0;border-bottom:1px dashed var(--c-border);}
+.toc-row:last-child{border-bottom:none;}
+.toc-num{font-weight:800;color:var(--c-primary);min-width:26px;font-size:13px;}
+.toc-name{font-weight:600;color:var(--c-text);}
+.toc-dots{flex:1;height:9px;margin:0 4px;align-self:center;
+  background-image:radial-gradient(circle,#b9c6dd 1.2px,transparent 1.6px);
+  background-size:7px 9px;background-repeat:repeat-x;background-position:center;}
+.toc-page{font-weight:700;color:var(--c-primary-mid);font-size:12.5px;min-width:20px;text-align:right;}
+.toc-sub{padding-left:36px;font-size:12px;color:var(--c-muted);font-weight:500;}
+.toc-sub .toc-dots{background-image:radial-gradient(circle,#d7dfeb 1px,transparent 1.4px);}
+/* componentes */
+.card{background:#fff;border:1px solid var(--c-border);border-radius:10px;padding:14px 16px;
+  break-inside:avoid;margin-bottom:12px;}
+.card-tint{background:var(--c-tint);border:1px solid var(--c-tint2);}
+.callout{border-left:4px solid var(--c-primary);background:var(--c-tint);border-radius:0 10px 10px 0;
+  padding:11px 14px;font-size:12.5px;break-inside:avoid;margin:12px 0;text-align:left;}
+.callout.warn{border-left-color:#b45309;background:#fdf6ec;}
+.callout.ok{border-left-color:#15803d;background:#f0faf3;}
+.callout b{color:var(--c-primary-d);}
+.grid2{display:flex;flex-wrap:wrap;gap:12px;max-width:100%;}
+.grid2>*{flex:1 1 300px;min-width:280px;max-width:100%;}
+.kpis{display:flex;flex-wrap:wrap;gap:10px;max-width:100%;margin:12px 0;}
+.kpi{flex:1 1 150px;min-width:140px;background:#fff;border:1px solid var(--c-border);border-radius:10px;
+  padding:12px 14px;break-inside:avoid;}
+.kpi b{display:block;font-size:19px;color:var(--c-primary-mid);letter-spacing:-.3px;}
+.kpi span{font-size:11px;color:var(--c-muted);}
+ul.lista{margin:6px 0 12px;padding-left:20px;}
+ul.lista li{margin-bottom:5px;text-align:left;}
+ol.pasos{margin:6px 0 12px;padding-left:22px;counter-reset:paso;}
+ol.pasos li{margin-bottom:7px;text-align:left;}
+/* tablas */
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11.5px;margin:10px 0 14px;background:#fff;
+  border:1px solid var(--c-border);border-radius:8px;overflow:hidden;}
+thead{display:table-header-group;}
+th{background:#e7edf9;color:var(--c-primary-d);font-weight:700;text-align:left;padding:7px 9px;
+  border-bottom:2px solid var(--c-border);font-size:11px;letter-spacing:.2px;overflow-wrap:break-word;}
+td{padding:6px 9px;border-bottom:1px solid var(--c-border);vertical-align:top;overflow-wrap:break-word;text-align:left;}
+tr{break-inside:avoid;}
+tbody tr:nth-child(even) td{background:#f4f7fd;}
+td b{color:var(--c-primary-d);}
+/* código */
+.code{background:var(--c-code);color:var(--c-code-tx);border-radius:10px;padding:13px 15px;
+  font-family:'JetBrains Mono','Liberation Mono',monospace;font-size:10.6px;line-height:1.6;
+  font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0;
+  white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;margin:10px 0 14px;break-inside:avoid;}
+.code .cm{color:#7d93b5;}
+.code .kw{color:#8ab4f8;}
+.code .st{color:#a5d6a7;}
+.code-head{display:flex;align-items:center;gap:8px;background:#1d2a44;color:#9fb2d0;border-radius:10px 10px 0 0;
+  padding:6px 14px;font-size:10.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;break-after:avoid;break-inside:avoid;margin:10px 0 -14px;}
+.code-head + .code{border-radius:0 0 10px 10px;}
+code.inline{background:var(--c-tint2);color:var(--c-primary-d);border-radius:4px;padding:1px 5px;
+  font-family:'JetBrains Mono','Liberation Mono',monospace;font-size:10.8px;
+  font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0;}
+/* figuras */
+figure{display:block;width:100%;margin:14px 0 16px;break-inside:avoid;}
+figure img{display:block;width:100%;height:auto;max-height:470px;object-fit:contain;
+  border:1px solid var(--c-border);border-radius:10px;background:#fff;}
+figcaption{font-size:11px;color:var(--c-muted);margin-top:6px;text-align:center;}
+/* diagrama de arquitectura */
+.arch{display:flex;flex-direction:column;gap:10px;break-inside:avoid;margin:12px 0;}
+.arch-row{display:flex;flex-wrap:wrap;gap:10px;max-width:100%;}
+.arch-box{flex:1 1 200px;min-width:170px;background:#fff;border:1.5px solid var(--c-primary);
+  border-radius:10px;padding:11px 13px;}
+.arch-box h5{margin:0 0 4px;font-size:12.5px;font-weight:800;color:var(--c-primary-d);}
+.arch-box p{margin:0;font-size:11px;color:var(--c-muted);text-align:left;}
+.arch-box.ext{border-style:dashed;border-color:#94a3b8;}
+.arch-box.ext h5{color:#475569;}
+.arch-arrow{text-align:center;color:var(--c-primary);font-size:11px;font-weight:700;letter-spacing:.5px;}
+/* árbol de archivos */
+.tree{background:#fff;border:1px solid var(--c-border);border-radius:10px;padding:13px 16px;
+  font-family:'JetBrains Mono','Liberation Mono',monospace;font-size:10.6px;line-height:1.65;
+  font-variant-ligatures:none;font-feature-settings:'liga' 0,'calt' 0;
+  white-space:pre;overflow:hidden;break-inside:avoid;margin:10px 0 14px;color:#334155;}
+.tree b{color:var(--c-primary-mix,#1d4ed8);font-weight:600;}
+.tree .cm{color:#8ea0bd;}
+/* final */
+.ending{width:794px;height:1123px;position:relative;break-before:page;overflow:hidden;background:var(--c-primary-d);}
+.end-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:0 90px;color:#fff;}
+.end-logo{font-size:52px;font-weight:900;letter-spacing:-1.5px;}
+.end-logo span{color:#7ea6ff;}
+.end-txt{font-size:14.5px;line-height:1.75;color:#c4d3f2;max-width:460px;margin-top:26px;text-align:center;}
+.end-meta{margin-top:44px;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#8ba4d8;}
+.end-line{width:64px;height:7px;background:#7ea6ff;border-radius:4px;margin:30px auto 0;}
+</style>
+</head>
+<body>
+<span class="katex" style="display:none"></span>
+
+<!-- ==================== PORTADA ==================== -->
+<div class="cover">
+  <div class="cov-l1"><div class="cov-grid"></div><div class="cov-ghost">NexoERP</div></div>
+  <div class="cov-l2"><div class="cov-line"></div></div>
+  <div class="cov-l3">
+    <div class="cov-kicker">Manual técnico · Guía de uso y desarrollo</div>
+    <div class="cov-hero">Nexo<span>ERP</span></div>
+    <div class="cov-sub">Documentación completa del sistema ERP/WMS para MYPE de Perú y Sudamérica</div>
+    <div class="cov-summary">Todo lo necesario para instalar, operar y modificar NexoERP: arquitectura de costo cero
+      sobre Vercel, Google Apps Script y Google Sheets; manual de uso módulo a módulo con capturas reales;
+      integración paso a paso con la facturación electrónica SUNAT; y la guía del desarrollador para
+      extender el sistema con sus propios módulos.</div>
+    <div class="cov-meta">
+      <div class="cov-chips">
+        <span class="chip">Vercel</span><span class="chip">Google Apps Script</span><span class="chip">Google Sheets</span>
+        <span class="chip">Vue 3 + Tailwind</span><span class="chip">SUNAT · UBL 2.1</span><span class="chip">PWA offline</span>
+      </div>
+      <p class="cov-ver"><b>Versión 1.6.1</b> · Septiembre 2026 · Modo demo incluido para práctica sin riesgo</p>
+    </div>
+    <div class="cov-footer">NexoERP · Documentación v1.6.1 · es-PE · 2026</div>
+  </div>
+</div>
+
+<!-- ==================== CONTENIDO ==================== -->
+<div class="main-content">
+
+<!-- ÍNDICE -->
+<div class="chapter-header">
+  <span class="ch-tag">Índice</span>
+  <div class="ch-title">Contenido del documento</div>
+  <div class="divider"></div>
+</div>
+<div class="toc-card">
+  <div class="toc-row"><span class="toc-num">1</span><span class="toc-name">Introducción y visión general</span><span class="toc-dots"></span><span class="toc-page" data-toc="c1">1</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Qué es NexoERP · a quién sirve · mapa funcional · costos reales</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">2</span><span class="toc-name">Cómo funciona: arquitectura y desarrollo</span><span class="toc-dots"></span><span class="toc-page" data-toc="c2">3</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Diagrama general · frontend · backend GAS · base de datos · seguridad · modo demo · contrato API</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">3</span><span class="toc-name">Instalación completa desde cero</span><span class="toc-dots"></span><span class="toc-page" data-toc="c3">11</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Google Sheets · Apps Script · Web App · Vercel · primer acceso · asistente de inicio</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">4</span><span class="toc-name">Manual de uso módulo a módulo</span><span class="toc-dots"></span><span class="toc-page" data-toc="c4">14</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">POS · ventas · comprobantes · fiados · cobranzas · caja · inventario · compras · gastos · reportes · RRHH · ajustes · PWA · catálogo</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">5</span><span class="toc-name">Facturación electrónica SUNAT paso a paso</span><span class="toc-dots"></span><span class="toc-page" data-toc="c5">27</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Conceptos SUNAT · certificado y clave SOL · despliegue del API (Render/hosting) · los 3 modos · flujo diario · NC/ND · RDD · PLE 8.1</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">6</span><span class="toc-name">Guía para desarrolladores: modificar y extender</span><span class="toc-dots"></span><span class="toc-page" data-toc="c6">33</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Estructura del código · agregar acciones, vistas y pestañas · motor de ventas · convenciones · pruebas · release</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">7</span><span class="toc-name">Problemas frecuentes y soluciones</span><span class="toc-dots"></span><span class="toc-page" data-toc="c7">38</span></div>
+  <div class="toc-row toc-sub"><span class="toc-name">Tabla de errores con causa y solución · recuperación de acceso · cómo depurar</span><span class="toc-dots"></span></div>
+  <div class="toc-row"><span class="toc-num">A</span><span class="toc-name">Anexos: referencia de Config · glosario · casos prácticos · utilidades</span><span class="toc-dots"></span><span class="toc-page" data-toc="cx">40</span></div>
+</div>
+<div class="callout">Este manual se corresponde con la versión <b>1.6.1</b> del sistema (frontend y backend).
+Los datos de las capturas provienen del <b>modo demostración</b>; en su instalación real verá sus propios datos.
+La versión técnica versionable en GitHub vive en <code class="inline">DOCUMENTACION.md</code>, dentro del proyecto.</div>
+<!-- ==================== CAP 1: INTRODUCCIÓN ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 1</span>
+  <div class="ch-title">Introducción y visión general</div>
+  <p class="ch-lead">Qué es NexoERP, para quién fue diseñado, qué problemas resuelve y cuánto cuesta operarlo de verdad.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>1.1 · Qué es NexoERP</h3>
+<p><strong>NexoERP</strong> es un sistema ERP/WMS (planificación de recursos empresariales y gestión de almacenes)
+diseñado específicamente para <strong>micro y pequeñas empresas (MYPE) de Perú y Sudamérica</strong>. Cubre el ciclo
+completo del negocio de comercio: comprar mercadería, controlar inventario por almacén, vender en mostrador o por
+WhatsApp, cobrar (incluido el crédito a clientes — <em>fiados</em> — y las ventas a plazos), registrar gastos,
+cumplir con la facturación electrónica de SUNAT y entender la rentabilidad real de cada producto.</p>
+<p>La diferencia central frente a otros sistemas de escritorio o suscripciones mensuales es el
+<strong>modelo de costo cero</strong>: el sistema corre íntegramente sobre servicios gratuitos de Google y Vercel,
+y <strong>la base de datos es una hoja de Google Sheets que pertenece al dueño del negocio</strong>. No hay servidor
+que pagar, no hay licencia anual y no hay dependencia de un proveedor: si mañana quisiera dejar de usar NexoERP,
+sus datos siguen ahí, en una hoja de cálculo que puede abrir con cualquier navegador.</p>
+
+<div class="kpis">
+  <div class="kpi"><b>S/ 0</b><span>costo fijo mensual de infraestructura</span></div>
+  <div class="kpi"><b>28</b><span>vistas/módulos operativos</span></div>
+  <div class="kpi"><b>110+</b><span>acciones de API documentadas</span></div>
+  <div class="kpi"><b>33</b><span>pestañas de base de datos</span></div>
+  <div class="kpi"><b>8</b><span>países con plantilla fiscal</span></div>
+</div>
+
+<h3>1.2 · A quién sirve</h3>
+<p>El diseño responde a la realidad operativa de una bodega, farmacia, ferretería, distribuidora o taller de la
+región: muchos productos vendidos al por mayor <em>y</em> al detalle (fraccionamiento de cajas), ventas al crédito
+de confianza del barrio (fiados), pagos mezclados en efectivo, <strong>Yape</strong> y <strong>Plin</strong>,
+clientes que piden por WhatsApp, un contador que pide el libro de ventas y, en Perú, la obligación de emitir
+comprobantes electrónicos aceptados por SUNAT. El sistema funciona igual de bien en la computadora de la oficina
+que en el celular del vendedor (es una <strong>PWA instalable</strong>, y el punto de venta sigue operando
+sin internet sincronizando después).</p>
+<p>También fue pensado para dos perfiles técnicos adicionales. El <strong>usuario avanzado</strong>, que sin saber
+programar puede configurar todo desde <em>Ajustes</em> (país, impuestos, series de comprobantes, respaldos,
+notificaciones, catálogo público). Y el <strong>desarrollador</strong>, que encontrará en el capítulo 6 la guía
+completa para agregar módulos propios: el código es JavaScript plano sin compilación, deliberadamente fácil de
+leer y modificar.</p>
+
+<figure><img src="docs-img/02-dashboard.png" alt="Dashboard de NexoERP"><figcaption>El dashboard comparativo: ventas del período contra el anterior, métodos de pago, horas pico y alertas.</figcaption></figure>
+
+<h3>1.3 · Mapa funcional completo</h3>
+<table>
+  <colgroup><col style="width:22%"><col style="width:44%"><col style="width:34%"></colgroup>
+  <thead><tr><th>Grupo</th><th>Módulos</th><th>Lo que resuelve</th></tr></thead>
+  <tbody>
+    <tr><td><b>Ventas</b></td><td>POS de mostrador · Ventas y Boletas · Cotizaciones/Proformas · Comprobantes SUNAT · Fiados · Cobranzas y CxC · Cuadre de Caja</td><td>Vender rápido con escalas y fraccionamiento, emitir comprobantes oficiales, cobrar al crédito y cerrar caja sin planillas</td></tr>
+    <tr><td><b>Inventario</b></td><td>Productos · Categorías · Almacenes · Stock por almacén · Lotes y vencimientos · Kardex · Movimientos · Órdenes de Compra</td><td>Costo promedio ponderado real, política FEFO, transferencias entre tiendas, reabastecimiento sugerido</td></tr>
+    <tr><td><b>Finanzas</b></td><td>Gastos y Flujo de Caja · Presupuesto vs real · Punto de equilibrio · Cuentas por Pagar</td><td>Saber cuánto dinero entra y sale de verdad, no solo cuánto se vendió</td></tr>
+    <tr><td><b>Inteligencia</b></td><td>Dashboard comparativo · Reportes (ABC Pareto, productos muertos, libro de ventas) · Rentabilidad real · Panel de control</td><td>Decisiones con datos: qué empuja el margen, qué está muerto en el estante</td></tr>
+    <tr><td><b>Personas</b></td><td>Clientes (con puntos de fidelización) · Usuarios y roles · RRHH: asistencia y comisiones</td><td>Control del crédito, incentivos por vendedor y control de personal básico</td></tr>
+    <tr><td><b>Sistema</b></td><td>Ajustes (país, SUNAT, QR, recordatorios, respaldo, catálogo) · Centro de Alertas · Auditoría · Asistente de Inicio · PWA offline · Catálogo público</td><td>Adaptar el sistema al negocio, no al revés</td></tr>
+  </tbody>
+</table>
+
+<h3>1.4 · Costos reales de operación</h3>
+<p>Los tres servicios núcleo tienen capa gratuita suficiente para una MYPE típica (decenas de movimientos diarios):
+<strong>Vercel Hobby</strong> hospeda el sitio estático sin límite práctico de visitas; <strong>Google Apps Script</strong>
+permite ~20.000 lecturas de celdas y ~90 minutos de ejecución diarios; <strong>Google Sheets</strong> soporta 10
+millones de celdas por hoja, muy por encima de lo que una tienda pequeña genera en años. Los únicos gastos
+inevitables del lado SUNAT (capítulo 5) son el <strong>certificado digital</strong> (S/ 70–150 por año) y, si se
+elige el modo API automático, el hospedaje del API de facturación (desde S/ 0 en el plan gratuito de Render hasta
+~S/ 15 al mes en un hosting compartido con PHP). Nada de esto lo cobra NexoERP: son servicios externos.</p>
+
+<div class="callout"><b>Regla de oro de los datos:</b> la hoja de cálculo es la base de datos y debe permanecer
+<b>privada</b> (compartida solo con quien corresponda). El día a día ocurre por la Web App — que valida usuario,
+rol y sesión en cada acción — nunca editando la hoja a mano, salvo para consultas puntuales del contador.</div>
+
+<!-- ==================== CAP 2: ARQUITECTURA ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 2</span>
+  <div class="ch-title">Cómo funciona: arquitectura y desarrollo</div>
+  <p class="ch-lead">Cómo fue construido el sistema, pieza por pieza: transporte, backend, base de datos, seguridad y el modo demo.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>2.1 · Diagrama general</h3>
+<p>NexoERP es una <strong>aplicación de página única (SPA) sin servidor propio</strong>. El navegador descarga la
+aplicación desde Vercel; toda la lógica de negocio vive en un Web App de Google Apps Script; y todos los datos se
+persisten en una hoja de Google Sheets. Cuando el país es Perú y el modo SUNAT es <code class="inline">api</code>,
+el backend además habla con un API externa de facturación (Laravel + Greenter) que firma y envía los comprobantes.</p>
+
+<div class="arch">
+  <div class="arch-row">
+    <div class="arch-box"><h5>Navegador · SPA (Vercel)</h5><p>Vue 3 + Tailwind vía CDN local (vendor/), sin build. Vistas en <code>view-*.js</code>. PWA con service worker y cola de ventas offline.</p></div>
+    <div class="arch-box ext"><h5>Catálogo público · catalogo.html</h5><p>Página independiente con token compartible: los clientes arman el pedido y lo envían por WhatsApp.</p></div>
+  </div>
+  <div class="arch-arrow">▼ &nbsp;POST JSON { action, token, …payload } — Content-Type text/plain (sin preflight CORS)&nbsp; ▼</div>
+  <div class="arch-row">
+    <div class="arch-box"><h5>Google Apps Script · Web App</h5><p>Router de 110+ acciones, validación de sesión y rol en cada acción, LockService para concurrencia, triggers nocturnos (avisos, respaldo, tipo de cambio).</p></div>
+    <div class="arch-box ext"><h5>API de facturación (opcional)</h5><p>Laravel 12 + Greenter 5.1 en Render/Railway/hosting PHP. Firma el XML UBL 2.1, envía a SUNAT y devuelve el CDR.</p></div>
+  </div>
+  <div class="arch-arrow">▼ &nbsp;dbLeer_ / dbInsertar_ / dbActualizar_ (capa 03_Db.gs)&nbsp; ▼</div>
+  <div class="arch-row">
+    <div class="arch-box" style="flex:1 1 100%;"><h5>Google Sheets — base de datos (33 pestañas)</h5><p>Config · Usuarios · Sesiones · Productos · Stock · Lotes · Kardex · Ventas · VentaDetalle · Comprobantes · Cuotas · Gastos · OrdenesCompra · CuentasPagar · Auditoria · … La hoja es del dueño del negocio.</p></div>
+  </div>
+</div>
+
+<h3>2.2 · Frontend: una SPA sin build</h3>
+<p>El frontend se entrega como archivos estáticos: <strong>no hay npm, ni webpack, ni paso de compilación</strong>.
+Vue 3 (build de producción), Tailwind CSS, Chart.js y jsPDF viven descargados en <code class="inline">assets/vendor/</code>,
+por lo que la aplicación funciona <em>incluso sin acceso a CDNs</em> y es trivial de hospedar en cualquier lado.
+Cada pantalla es un archivo <code class="inline">view-*.js</code> que se autorregistra en el objeto global
+<code class="inline">NEXO_VISTAS</code> con un template de texto; <code class="inline">app.js</code> dibuja el
+layout (barra lateral por rol, campana de notificaciones, indicador offline) y monta la vista activa según la ruta
+hash (<code class="inline">#/pos</code>, <code class="inline">#/config</code>…).</p>
+<p>La capa de transporte es única: <code class="inline">api.js</code>. Ninguna vista hace <code class="inline">fetch</code>
+directo; todas llaman a métodos semánticos (<code class="inline">Api.registrarVenta(...)</code>,
+<code class="inline">Api.comprobantes({...})</code>). Eso permite que la misma llamada viaje al backend real o al
+modo demostración sin cambiar una línea, y es donde vive la <strong>cola offline</strong>: si no hay conexión al
+vender, la venta se guarda cifrada en el navegador y se reenvía sola al reconectar.</p>
+<p>Los documentos compartibles se generan <strong>en el navegador</strong>: la boleta como imagen PNG con canvas
+(nítida en celulares, lista para WhatsApp con Web Share API), la proforma como PDF A4 con jsPDF y el ticket térmico
+de 80 mm abriendo una ventana de impresión formateada. Cero costo de servidor y cero cuota extra de Apps Script.</p>
+
+<h3>2.3 · Backend: 24 módulos de Apps Script</h3>
+<p>El backend son archivos <code class="inline">.gs</code> (JavaScript ES5 + servicios de Google) que se pegan en el
+editor de Apps Script. El prefijo numérico ordena mentalmente las responsabilidades:</p>
+<table>
+  <colgroup><col style="width:26%"><col style="width:74%"></colgroup>
+  <thead><tr><th>Módulo</th><th>Responsabilidad</th></tr></thead>
+  <tbody>
+    <tr><td><b>00_Config</b></td><td>Constantes <code>APP</code>, mapa <code>SHEETS</code> (33 pestañas), roles y permisos, claves de configuración del negocio</td></tr>
+    <tr><td><b>01_WebApp</b></td><td><code>doGet/doPost</code>, router de acciones, guardas <code>requiereSesion_</code> / <code>requierePermiso_</code></td></tr>
+    <tr><td><b>02_Auth</b></td><td>Login SHA-256+salt (estirado 50 iteraciones), tokens TTL 8 h, límite de intentos, política de contraseñas, <code>restablecerAdmin()</code></td></tr>
+    <tr><td><b>03_Db</b></td><td>Capa de datos: cada pestaña se lee como array de objetos; insertar/actualizar por <code>id</code>; formato texto garantizado para salt/hash</td></tr>
+    <tr><td><b>04_Catalogos</b></td><td>Productos (escalas, fracción, código de barras), clientes (puntos, límite de fiado), categorías, almacenes, proveedores</td></tr>
+    <tr><td><b>05_Movimientos</b></td><td>Motor de stock: entrada, salida, transferencia, devolución, ajuste; lotes FEFO; descarga atómica con LockService</td></tr>
+    <tr><td><b>06_Kardex</b></td><td>Kardex físico y valorizado (promedio ponderado), consulta por producto/almacén, reportes</td></tr>
+    <tr><td><b>07_Dashboard</b></td><td>KPIs y series del dashboard principal</td></tr>
+    <tr><td><b>08_Reportes</b></td><td>Listados de configuración y auditoría</td></tr>
+    <tr><td><b>09_Setup</b></td><td><code>setupSystem</code> (demo), <code>setupDesdeCero</code> (empresa real), <code>borrarDatosDemo</code>, <code>sistema_estado</code>, migraciones idempotentes</td></tr>
+    <tr><td><b>10_Ventas</b></td><td>El corazón del POS: política de precios, autorizaciones, fiado, crédito con cuotas, costo real por línea, hooks post-venta</td></tr>
+    <tr><td><b>11_Caja</b></td><td>Cuadre de caja por método de pago (efectivo/Yape/Plin/tarjeta), integra cobros de cuotas y egresos de gastos</td></tr>
+    <tr><td><b>12_Fiados</b></td><td>Cartera de fiados con antigüedad, abonos parciales, historial</td></tr>
+    <tr><td><b>13_Cotizaciones</b></td><td>Proformas <code>COT-</code> con precios congelados y conversión a venta por el mismo motor del POS</td></tr>
+    <tr><td><b>14_Analitica</b></td><td>Dashboard comparativo, rentabilidad por producto, panel de control, ABC Pareto, productos muertos</td></tr>
+    <tr><td><b>15_Pais</b></td><td>8 plantillas de país (moneda, impuesto, prefijo WhatsApp) y tipo de cambio de referencia SUNAT (apis.net.pe)</td></tr>
+    <tr><td><b>16_Comprobantes</b></td><td>Series y correlativos oficiales, payload UBL para el API, cliente del API (login/crear/enviar/CDR), NC/ND, guía, libro PLE 8.1, resumen diario</td></tr>
+    <tr><td><b>17_Gastos</b></td><td>Gastos con categorías, flujo de caja por método, presupuesto vs real, punto de equilibrio</td></tr>
+    <tr><td><b>18_Compras</b></td><td>Órdenes de compra con comparador de ofertas, recepción parcial al kardex, cuentas por pagar</td></tr>
+    <tr><td><b>19_Creditos</b></td><td>Plan de cuotas de ventas a crédito, cobros, aging combinado con fiados</td></tr>
+    <tr><td><b>20_Fidelizacion</b></td><td>Acumulación y canje de puntos, ajustes manuales, historial, ranking</td></tr>
+    <tr><td><b>21_RRHH</b></td><td>Asistencia (entrada/salida), vendedores con % de comisión, reporte mensual</td></tr>
+    <tr><td><b>22_Tareas</b></td><td>Triggers diarios gratuitos: avisos de fiados/cuotas/stock/comprobantes, correo al dueño (MailApp), respaldo a Drive, tipo de cambio</td></tr>
+    <tr><td><b>23_Catalogo</b></td><td>Catálogo público protegido por token regenerable</td></tr>
+  </tbody>
+</table>
+
+<h3>2.4 · Base de datos: la hoja como BD</h3>
+<p>Cada pestaña es una tabla cuya <strong>fila 1 son los nombres de columna</strong>; la capa
+<code class="inline">03_Db.gs</code> convierte filas en objetos JS y viceversa. Las relaciones se llevan por
+<code class="inline">id</code> textual (<code class="inline">PRD-0001</code>, <code class="inline">VEN-0042</code>,
+<code class="inline">CMP-000017</code>…). El esquema completo (33 pestañas) está en el mapa
+<code class="inline">APP.SHEETS</code> de <code class="inline">00_Config.gs</code>; los grupos principales:</p>
+<table>
+  <colgroup><col style="width:30%"><col style="width:70%"></colgroup>
+  <thead><tr><th>Familia</th><th>Pestañas</th></tr></thead>
+  <tbody>
+    <tr><td><b>Núcleo</b></td><td>Config · Usuarios · Sesiones · Auditoria · Numeracion</td></tr>
+    <tr><td><b>Inventario</b></td><td>Categorias · Almacenes · Productos · Stock · Lotes · Movimientos · Kardex</td></tr>
+    <tr><td><b>Comercial</b></td><td>Proveedores · Clientes · Ventas · VentaDetalle · Caja · PagosFiado · Cotizaciones · CotizacionDetalle</td></tr>
+    <tr><td><b>v1.6</b></td><td>Comprobantes · Cuotas · Gastos · GastosCategorias · OrdenesCompra · OcItems · OcOfertas · CuentasPagar · Notificaciones · Asistencia · Vendedores · FidHistorial · Presupuesto</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><b>No edite la hoja a mano</b> en operación normal: los IDs, correlativos y totales tienen
+reglas (formato de celdas, locks, auditoría). El contador puede <em>consultar</em> con libertad; para cambios de
+estructura existen las migraciones idempotentes (sección 6.3), que crean pestañas/columnas sin tocar datos.</div>
+
+<h3>2.5 · Seguridad</h3>
+<p>La seguridad se diseñó bajo un principio simple: <strong>el frontend es cosmético, el backend manda</strong>.
+Ocultar un botón a un rol no es seguridad; cada acción del GAS revalida sesión y permiso. Sobre ese principio se
+apilan las capas siguientes:</p>
+<table>
+  <colgroup><col style="width:24%"><col style="width:76%"></colgroup>
+  <thead><tr><th>Capa</th><th>Mecanismo</th></tr></thead>
+  <tbody>
+    <tr><td><b>Contraseñas</b></td><td>Nunca texto plano: SHA-256 con salt aleatorio por usuario; desde v1.5.1 el hash se <b>estira 50 iteraciones</b> (formato <code>v2$50$…</code>, aplicado en forma transparente al iniciar sesión). Salt/hash se escriben con formato texto para que Sheets no los corrompa convirtiéndolos en número</td></tr>
+    <tr><td><b>Sesiones</b></td><td>Token UUID con vigencia de 8 h en pestaña <code>Sesiones</code>; se purga al expirar, al cerrar sesión, al cambiar contraseña o desactivar el usuario</td></tr>
+    <tr><td><b>Fuerza bruta</b></td><td>5 intentos fallidos bloquean al usuario 5 minutos (CacheService), tanto en login como en la autorización de supervisor del POS</td></tr>
+    <tr><td><b>Roles</b></td><td><code>admin</code> (todo) · <code>gerente</code> (operación + informes + autorizar) · <code>operador</code> (POS/movimientos/caja) · <code>consulta</code> (solo lectura). El sistema impide dejar al negocio sin ningún admin activo</td></tr>
+    <tr><td><b>Transporte</b></td><td>HTTPS extremo a extremo (Vercel + Google). Por GET solo pasan los health-checks <code>ping</code>/<code>apiInfo</code>: token y contraseñas nunca van en la URL</td></tr>
+    <tr><td><b>Concurrencia</b></td><td>LockService al vender, anular y emitir comprobantes: dos cajeros no pueden duplicar correlativo ni pisar stock</td></tr>
+    <tr><td><b>Errores</b></td><td><code>ApiError_(mensaje, código)</code> controla lo esperado; lo inesperado devuelve un mensaje genérico al cliente y el detalle solo al log del servidor</td></tr>
+    <tr><td><b>Auditoría</b></td><td>Logins, movimientos, anulaciones, cambios de configuración y de usuarios quedan registrados con usuario, rol y detalle</td></tr>
+  </tbody>
+</table>
+
+<h3>2.6 · El modo demostración (DemoStore)</h3>
+<p>Cuando <code class="inline">CONFIG_APP.API_URL</code> está vacío, <code class="inline">api.js</code> enruta
+<strong>todas</strong> las llamadas a <code class="inline">DemoStore</code>, un espejo del backend que corre 100 % en
+el navegador sobre <code class="inline">localStorage</code> (clave <code class="inline">nexoerp_demo_db_v6</code>).
+Implementa el mismo contrato y la misma lógica de negocio —kardex promedio ponderado, FEFO, tokens, permisos e
+incluso el hashing v2 con <code class="inline">crypto.subtle</code>— con la semilla de datos de
+<code class="inline">demo-data.js</code>. Así la vista previa del proyecto funciona sin backend, y un dueño puede
+capacitar a su personal sin riesgo de tocar datos reales.</p>
+<p>Desde la v1.6.1 la pantalla de login incluye un botón <strong>“Restablecer demostración”</strong> que borra la
+base local, desregistra service workers viejos y regenera la demo con <code class="inline">admin / admin123</code>
+—la solución estándar cuando el asistente de inicio cambió la contraseña inicial en una sesión anterior.</p>
+<div class="callout"><b>Regla de mantenimiento:</b> cada acción nueva que se agregue al GAS debe tener su handler
+espejado <code class="inline">H.nombre_accion</code> en <code class="inline">demo-store.js</code>. Si falta, la demo
+responde <code class="inline">UNKNOWN_ACTION</code>. Este es el único costo real del modo demo y está documentado en
+la guía del desarrollador (capítulo 6).</div>
+
+<h3>2.7 · Contrato de la API</h3>
+<p>Una petición es siempre <code class="inline">POST</code> con JSON
+<code class="inline">{ action, token, …payload }</code> y <code class="inline">Content-Type:
+text/plain;charset=utf-8</code> —el tipo “simple” evita el preflight CORS que Apps Script no atiende—. La respuesta
+es <code class="inline">{ ok, data, error, code }</code>. El catálogo de las 110+ acciones está en el objeto
+<code class="inline">ROUTER_()</code> de <code class="inline">01_WebApp.gs</code>, organizado así:</p>
+<table>
+  <colgroup><col style="width:24%"><col style="width:76%"></colgroup>
+  <thead><tr><th>Grupo</th><th>Acciones (resumen)</th></tr></thead>
+  <tbody>
+    <tr><td>Sesión y usuarios</td><td><code>login · logout · usuarios_list/save/delete</code></td></tr>
+    <tr><td>Catálogos</td><td><code>productos_list/get/save/delete · categorias_* · almacenes_* · proveedores_list/save · clientes_list/save</code></td></tr>
+    <tr><td>Inventario</td><td><code>stock_list · lotes_list · movimientos_list/registrar/anular · kardex · reporte_stock · reporte_movimientos</code></td></tr>
+    <tr><td>POS y ventas</td><td><code>ventas_registrar/list/get/anular/resumen · ventas_autorizar · ventas_marcar_whatsapp</code></td></tr>
+    <tr><td>Caja y fiados</td><td><code>caja_estado/abrir/cerrar/historial · fiados_cartera · fiado_abono · fiado_pagos</code></td></tr>
+    <tr><td>Cotizaciones</td><td><code>cotizaciones_registrar/list/get/convertir/anular</code></td></tr>
+    <tr><td>Analítica</td><td><code>dashboard · ventas_analitica · rentabilidad_producto · panel_control · analitica_abc · analitica_muertos</code></td></tr>
+    <tr><td>País y SUNAT</td><td><code>paises_list · pais_aplicar · tc_consultar</code></td></tr>
+    <tr><td>Comprobantes</td><td><code>comprobantes_list/json/crear_api/enviar/estado/nota/guia/libro/resumen_diario/series</code></td></tr>
+    <tr><td>Finanzas</td><td><code>gastos_list/registrar/anular · gastos_categorias_* · finanzas_resumen · presupuesto_list/save/resumen</code></td></tr>
+    <tr><td>Compras y CxP</td><td><code>oc_list/get/save/estado/oferta_agregar/oferta_elegir/recepcionar/sugeridas · cxp_list · cxp_pago</code></td></tr>
+    <tr><td>Créditos</td><td><code>cuotas_list · cuota_pagar · creditos_aging · creditos_de_venta</code></td></tr>
+    <tr><td>Fidelización y RRHH</td><td><code>fidel_ajuste/historial/ranking · rrhh_vendedores · rrhh_vendedor_save · rrhh_asistencia_* · rrhh_comisiones</code></td></tr>
+    <tr><td>Tareas y sistema</td><td><code>notificaciones_list/leer · tareas_instalar/ejecutar · backup_ahora · sistema_estado · sistema_pestanas · config_get/save · auditoria_list</code></td></tr>
+    <tr><td>Catálogo público</td><td><code>catalogo_estado · catalogo_token · catalogo_publico</code></td></tr>
+  </tbody>
+</table>
+<p>Los códigos de error normalizados son: <code class="inline">VALIDATION</code>, <code class="inline">UNAUTHORIZED</code>,
+<code class="inline">FORBIDDEN</code>, <code class="inline">SESSION_EXPIRED</code>, <code class="inline">NOT_FOUND</code>,
+<code class="inline">RATE_LIMIT</code>, <code class="inline">SUNAT_API</code>, <code class="inline">UNKNOWN_ACTION</code>,
+<code class="inline">METHOD_NOT_ALLOWED</code> e <code class="inline">INTERNAL</code>. El frontend los usa para
+mostrar la ayuda correcta en cada caso (por ejemplo, la caja de recuperación del login).</p>
+
+<h3>2.8 · Un día en la vida de una petición (walk-through real)</h3>
+<p>Nada ilustra mejor la arquitectura que seguir una petición de punta a punta. Cuando el cajero pulsa
+<em>Cobrar</em>, el POS arma el payload con las líneas del carrito y llama a
+<code class="inline">Api.registrarVenta(payload)</code>. En modo real esto produce un POST así:</p>
+<div class="code"><span class="cm">// POST https://script.google.com/…/exec   (Content-Type: text/plain)</span>
+{
+  "action": "ventas_registrar",
+  "token":  "3f9c2e7a-…-1693824000000",
+  "venta": {
+    "clienteId": "CLI-0004", "metodo": "Efectivo",
+    "lineas": [
+      { "productoId": "PRD-0003", "cantidad": 2, "precioUnit": 3.5, "descuentoPct": 0 },
+      { "productoId": "PRD-0011", "cantidad": 1, "precioUnit": 89.9, "descuentoPct": 5,
+        "autorizacion": { "usuario": "admin", "password": "•••" } }
+    ]
+  }
+}</div>
+<p>En el backend (<code class="inline">01_WebApp.gs</code>) el router despacha a
+<code class="inline">ventasRegistrar_</code> (10_Ventas.gs), que dentro de un <strong>LockService</strong> ejecuta
+en orden: valida el token contra <em>Sesiones</em> y el permiso <code class="inline">ventas:registrar</code>;
+verifica stock (y lote FEFO si el producto lo exige); aplica la política de precios —el 5 % de descuento de la
+segunda línea exige autorización de supervisor, que se revalida en el servidor con
+<code class="inline">validarAutorizacion_</code>—; calcula totales con el IGV de Config; descarga stock y escribe
+el kardex con el <strong>costo promedio vigente</strong> por línea; e inserta la venta, su detalle y la boleta
+correlativa. La respuesta vuelve por la misma vía:</p>
+<div class="code"><span class="cm">// Respuesta estándar</span>
+{ "ok": true,
+  "data": { "ventaId": "VEN-0042", "numero": "BV-000042", "total": 95.24,
+            "avisos": ["PRD-0011 quedó con stock 2 (mínimo 3)"],
+            "comprobante": null },
+  "error": null, "code": null }</div>
+<p>Observación clave: los <strong>avisos</strong> viajan en la respuesta (stock crítico, CDR, puntos ganados) y el
+frontend los convierte en toasts y notificaciones de campana. Si algo falla a mitad del camino, el lock garantiza
+que no quede una venta “a medias”: o se completa todo, o nada se descuenta. Y si el navegador estaba
+<em>offline</em>, <code class="inline">api.js</code> guardó el payload en la cola local y lo reenviará igual al
+reconectar — la venta nace con la fecha de la venta, no de la sincronización.</p>
+
+<h3>2.8 · Un día en la vida de una petición (walk-through real)</h3>
+<p>Nada ilustra mejor la arquitectura que seguir una petición de punta a punta. Cuando el cajero pulsa
+<em>Cobrar</em>, el POS arma el payload con las líneas del carrito y llama a
+<code class="inline">Api.registrarVenta(payload)</code>. En modo real esto produce un POST así:</p>
+<div class="code"><span class="cm">// POST https://script.google.com/…/exec   (Content-Type: text/plain)</span>
+{
+  "action": "ventas_registrar",
+  "token":  "3f9c2e7a-…-1693824000000",
+  "venta": {
+    "clienteId": "CLI-0004", "metodo": "Efectivo",
+    "lineas": [
+      { "productoId": "PRD-0003", "cantidad": 2, "precioUnit": 3.5, "descuentoPct": 0 },
+      { "productoId": "PRD-0011", "cantidad": 1, "precioUnit": 89.9, "descuentoPct": 5,
+        "autorizacion": { "usuario": "admin", "password": "•••" } }
+    ]
+  }
+}</div>
+<p>En el backend (<code class="inline">01_WebApp.gs</code>) el router despacha a
+<code class="inline">ventasRegistrar_</code> (10_Ventas.gs), que dentro de un <strong>LockService</strong> ejecuta
+en orden: valida el token contra <em>Sesiones</em> y el permiso <code class="inline">ventas:registrar</code>;
+verifica stock (y lote FEFO si el producto lo exige); aplica la política de precios —el 5 % de descuento de la
+segunda línea exige autorización de supervisor, que se revalida en el servidor con
+<code class="inline">validarAutorizacion_</code>—; calcula totales con el IGV de Config; descarga stock y escribe
+el kardex con el <strong>costo promedio vigente</strong> por línea; e inserta la venta, su detalle y la boleta
+correlativa. La respuesta vuelve por la misma vía:</p>
+<div class="code"><span class="cm">// Respuesta estándar</span>
+{ "ok": true,
+  "data": { "ventaId": "VEN-0042", "numero": "BV-000042", "total": 95.24,
+            "avisos": ["PRD-0011 quedó con stock 2 (mínimo 3)"],
+            "comprobante": null },
+  "error": null, "code": null }</div>
+<p>Observación clave: los <strong>avisos</strong> viajan en la respuesta (stock crítico, CDR, puntos ganados) y el
+frontend los convierte en toasts y notificaciones de campana. Si algo falla a mitad del camino, el lock garantiza
+que no quede una venta “a medias”: o se completa todo, o nada se descuenta. Y si el navegador estaba
+<em>offline</em>, <code class="inline">api.js</code> guardó el payload en la cola local y lo reenviará igual al
+reconectar — la venta nace con la fecha de la venta, no de la sincronización.</p>
+
+<h3>2.8 · Un día en la vida de una petición (walk-through real)</h3>
+<p>Nada ilustra mejor la arquitectura que seguir una petición de punta a punta. Cuando el cajero pulsa
+<em>Cobrar</em>, el POS arma el payload con las líneas del carrito y llama a
+<code class="inline">Api.registrarVenta(payload)</code>. En modo real esto produce un POST así:</p>
+<div class="code"><span class="cm">// POST https://script.google.com/…/exec   (Content-Type: text/plain)</span>
+{
+  "action": "ventas_registrar",
+  "token":  "3f9c2e7a-…-1693824000000",
+  "venta": {
+    "clienteId": "CLI-0004", "metodo": "Efectivo",
+    "lineas": [
+      { "productoId": "PRD-0003", "cantidad": 2, "precioUnit": 3.5, "descuentoPct": 0 },
+      { "productoId": "PRD-0011", "cantidad": 1, "precioUnit": 89.9, "descuentoPct": 5,
+        "autorizacion": { "usuario": "admin", "password": "•••" } }
+    ]
+  }
+}</div>
+<p>En el backend (<code class="inline">01_WebApp.gs</code>) el router despacha a
+<code class="inline">ventasRegistrar_</code> (10_Ventas.gs), que dentro de un <strong>LockService</strong> ejecuta
+en orden: valida el token contra <em>Sesiones</em> y el permiso <code class="inline">ventas:registrar</code>;
+verifica stock (y lote FEFO si el producto lo exige); aplica la política de precios —el 5 % de descuento de la
+segunda línea exige autorización de supervisor, que se revalida en el servidor con
+<code class="inline">validarAutorizacion_</code>—; calcula totales con el IGV de Config; descarga stock y escribe
+el kardex con el <strong>costo promedio vigente</strong> por línea; e inserta la venta, su detalle y la boleta
+correlativa. La respuesta vuelve por la misma vía:</p>
+<div class="code"><span class="cm">// Respuesta estándar</span>
+{ "ok": true,
+  "data": { "ventaId": "VEN-0042", "numero": "BV-000042", "total": 95.24,
+            "avisos": ["PRD-0011 quedó con stock 2 (mínimo 3)"],
+            "comprobante": null },
+  "error": null, "code": null }</div>
+<p>Observación clave: los <strong>avisos</strong> viajan en la respuesta (stock crítico, CDR, puntos ganados) y el
+frontend los convierte en toasts y notificaciones de campana. Si algo falla a mitad del camino, el lock garantiza
+que no quede una venta “a medias”: o se completa todo, o nada se descuenta. Y si el navegador estaba
+<em>offline</em>, <code class="inline">api.js</code> guardó el payload en la cola local y lo reenviará igual al
+reconectar — la venta nace con la fecha de la venta, no de la sincronización.</p>
+
+<!-- ==================== CAP 3: INSTALACIÓN ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 3</span>
+  <div class="ch-title">Instalación completa desde cero</div>
+  <p class="ch-lead">De cero a sistema propio en 20–30 minutos, sin instalar nada en su computadora: solo copiar, pegar y desplegar.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>3.1 · Qué necesita antes de empezar</h3>
+<ul class="lista">
+  <li>Una <strong>cuenta de Google</strong> (para la hoja de cálculo y Apps Script).</li>
+  <li>Una <strong>cuenta gratuita en Vercel</strong> (puede crearse con Google en un clic, en <code class="inline">vercel.com</code>).</li>
+  <li>La carpeta del proyecto con <code class="inline">backend/</code> (24 archivos .gs) y <code class="inline">frontend/</code> (sitio estático).</li>
+  <li>Nada más: no se instala PHP, ni Node, ni bases de datos en su equipo.</li>
+</ul>
+
+<h3>3.2 · Parte 1 — Crear la base de datos (Google Sheets)</h3>
+<ol class="pasos">
+  <li>Entre a <code class="inline">sheets.new</code> con su cuenta de Google y nombre la hoja, por ejemplo <strong>NexoERP-DB</strong>.</li>
+  <li><strong>No cree pestañas manualmente</strong>: en el paso siguiente la función de instalación genera las 33 pestañas con sus cabeceras exactas.</li>
+  <li>En <em>Archivo → Configuración</em> fije la <strong>zona horaria (GMT-05:00) Lima</strong>. Así boletas, caja y reportes usan su hora local.</li>
+</ol>
+
+<h3>3.3 · Parte 2 — Instalar el backend (Apps Script)</h3>
+<ol class="pasos">
+  <li>En su hoja: <em>Extensiones → Apps Script</em>. Renombre el proyecto a <strong>NexoERP-Backend</strong>.</li>
+  <li>Por cada archivo de <code class="inline">backend/</code> (del <code class="inline">00_Config</code> al <code class="inline">23_Catalogo</code>): cree un script con <em>exactamente el mismo nombre sin extensión</em> y pegue el contenido completo. Guarde todo con Ctrl+S.</li>
+  <li>Seleccione en el desplegable superior y ejecute <strong>una sola vez</strong>:
+    <div class="callout" style="margin:8px 0 2px;"><b><code class="inline">setupDesdeCero</code></b> — empresa real:
+    crea la estructura, configuración por defecto, numeración en cero y el usuario <code class="inline">admin</code>.
+    Sin datos falsos. &nbsp;·&nbsp; <b><code class="inline">setupSystem</code></b> — demostración: además carga
+    usuarios demo, 18 productos y ventas de 30 días para evaluar o capacitar.</div></li>
+  <li>Autorice los permisos la primera vez (es su propio código actuando sobre su propia hoja; el aviso “Google no ha verificado esta app” se resuelve con <em>Configuración avanzada → Ir a NexoERP-Backend</em>).</li>
+  <li>Espere 1–3 minutos: el registro debe decir <code class="inline">setupDesdeCero OK: …</code>. En la hoja aparecerán las pestañas.</li>
+</ol>
+<p>¿Instaló la demo y ahora quiere operar real? Ejecute <code class="inline">borrarDatosDemo</code>: vacía los datos
+de prueba, conserva usuarios y configuración, reinicia numeración y deja activo el asistente de inicio.
+¿Actualiza desde una versión anterior? Reemplace los .gs y ejecute la migración correspondiente
+(<code class="inline">migrarAdendaV16</code> para pasar a v1.6: es idempotente y no toca sus datos).</p>
+
+<h3>3.4 · Parte 3 — Desplegar la API (Web App)</h3>
+<ol class="pasos">
+  <li><em>Implementar → Nueva implementación</em> → tipo <strong>Aplicación web</strong>.</li>
+  <li>Configure: <em>Ejecutar como: <strong>Yo</strong></em> y <em>Quién tiene acceso: <strong>Cualquier usuario</strong></em> (el sistema valida token y rol en el código; “cualquier usuario” solo evita el login de Google del navegador).</li>
+  <li>Implemente y copie la URL que termina en <strong><code class="inline">/exec</code></strong>. Pruébela en el navegador: debe responder JSON <code class="inline">{"ok":true,...}</code>.</li>
+</ol>
+<div class="callout warn"><b>Regla de oro:</b> tras editar código de Apps Script, la URL <code class="inline">/exec</code>
+sigue sirviendo la versión anterior hasta que publique <em>Implementar → Gestionar implementaciones → ✏️ →
+Nueva versión → Implementar</em>. Es la causa #1 del clásico “cambié el código y no pasa nada”.</div>
+
+<h3>3.5 · Parte 4 — Conectar el frontend</h3>
+<div class="code"><span class="cm">// frontend/assets/js/config.js</span>
+var CONFIG_APP = {
+  API_URL: <span class="st">'https://script.google.com/macros/s/AKfycb…/exec'</span>,  <span class="cm">// ← su URL aquí</span>
+  NOMBRE_APP: 'NexoERP',
+  VERSION: '1.6.1',
+  TOKEN_CLAVE: 'nexoerp_token',
+  DB_DEMO: 'nexoerp_demo_db_v6',
+  TTL_TOKEN_HORAS: 8
+};</div>
+<p>Con <code class="inline">API_URL</code> lleno, el login autentica contra la pestaña <em>Usuarios</em> y todo vive
+en su hoja. Si lo deja vacío, el sistema arranca en <strong>modo demostración</strong> (capítulo 2.6).</p>
+
+<h3>3.6 · Parte 5 — Desplegar en Vercel</h3>
+<table>
+  <colgroup><col style="width:20%"><col style="width:52%"><col style="width:28%"></colgroup>
+  <thead><tr><th>Opción</th><th>Pasos</th><th>Cuándo conviene</th></tr></thead>
+  <tbody>
+    <tr><td><b>A · GitHub</b> (recomendada)</td><td>Suba el contenido de <code>frontend/</code> a un repo → Vercel → Add New Project → importe → Framework Preset: <b>Other</b> (sin build) → Deploy. Actualizaciones futuras con un simple <code>git push</code></td><td>Quiere actualizar sin tocar Vercel</td></tr>
+    <tr><td><b>B · Vercel CLI</b></td><td><code>npm i -g vercel</code> → dentro de <code>frontend/</code>: <code>vercel login</code> y <code>vercel --prod</code></td><td>Usuario cómodo con terminal</td></tr>
+    <tr><td><b>C · Arrastrar y soltar</b></td><td>Arrastre la carpeta <code>frontend/</code> completa en <code>vercel.com/new</code></td><td>La más rápida; repetir el arrastre en cada actualización</td></tr>
+  </tbody>
+</table>
+<p>En ~30 segundos tendrá una URL HTTPS tipo <code class="inline">https://nexoerp-tuusuario.vercel.app</code>.</p>
+
+<h3>3.7 · Parte 6 — Primer arranque: el asistente de inicio</h3>
+<p>Con <code class="inline">setupDesdeCero</code>, al entrar con <code class="inline">admin / admin123</code> el
+sistema detecta que está vacío y abre automáticamente el <strong>asistente de 7 pasos</strong> que carga su
+operación real usando los mismos endpoints auditados del sistema:</p>
+<ol class="pasos">
+  <li><strong>Datos de su empresa</strong>: razón social, RUC, dirección, teléfono, logo, moneda, IGV y horario —exactamente lo que imprimirán sus comprobantes.</li>
+  <li><strong>Su contraseña definitiva</strong>: reemplaza <code class="inline">admin123</code> (se guarda como hash; su sesión no se cierra). ⚠️ Recuerde esta contraseña o use la recuperación del capítulo 7.</li>
+  <li><strong>Almacén principal</strong>: queda como almacén de despacho del POS.</li>
+  <li><strong>Categorías</strong> propias (con sugerencias listas).</li>
+  <li><strong>Productos con stock inicial</strong>: en tabla manual o <strong>pegando desde Excel/Sheets</strong> (columnas: sku ; nombre ; categoría ; unidad ; costo ; precio ; stock ; stock mín). Cada fila crea el producto y su ENTRADA con costo → kardex valorizado desde el día uno.</li>
+  <li><strong>Clientes</strong> (opcional): con WhatsApp y límite de fiado.</li>
+  <li><strong>Fondo de caja inicial</strong> + resumen → “Finalizar y empezar a vender”.</li>
+</ol>
+<figure><img src="docs-img/asistente.png" alt="Asistente de inicio"><figcaption>El asistente de inicio guía la carga inicial: empresa, contraseña, almacén, categorías, productos con stock, clientes y caja.</figcaption></figure>
+<p>Cada paso puede omitirse, y el asistente completo puede relanzarse desde <em>Sistema → Asistente de Inicio</em> o el botón
+en <em>Configuración</em>. El camino manual equivalente (almacenes → categorías → productos → entradas → clientes)
+queda descrito en el README y produce exactamente el mismo resultado.</p>
+
+<figure><img src="docs-img/01-login.png" alt="Pantalla de login"><figcaption>Login real (conectado a su hoja): sin el aviso ámbar de demostración. La tarjeta “¿No puede ingresar?” solo existe en modo demo.</figcaption></figure>
+
+<h3>3.8 · Actualizaciones de versión</h3>
+<ul class="lista">
+  <li><strong>Solo frontend</strong>: edite y suba a GitHub (Vercel redespliega solo) o repita el arrastre. Si su navegador insiste en la versión vieja, recarga forzada (Ctrl+F5) — el service worker refresca el caché en segundo plano.</li>
+  <li><strong>Backend</strong>: pegue el/los .gs modificados → <em>Implementar → Gestionar implementaciones → ✏️ → Nueva versión</em>. La URL <code class="inline">/exec</code> <strong>no cambia</strong>.</li>
+  <li><strong>Con migración</strong>: si la versión lo indica (p. ej. <code class="inline">migrarAdendaV16</code>), ejecútela una vez en el editor; es idempotente — puede repetirse sin daño.</li>
+</ul>
+
+<!-- ==================== CAP 4: MANUAL DE USO ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 4</span>
+  <div class="ch-title">Manual de uso módulo a módulo</div>
+  <p class="ch-lead">El recorrido completo por cada pantalla, con las capturas reales del sistema y las prácticas recomendadas del día a día.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>4.1 · Roles y sesiones</h3>
+<p>El acceso es con usuario y contraseña (las cuatro credenciales de la demo aparecen en el aviso ámbar del login).
+Tras iniciar sesión, el menú lateral se adapta al rol: el <strong>operador</strong> ve venta, movimientos y caja;
+el <strong>gerente</strong> añade informes, auditoría y autorizaciones; el <strong>admin</strong> ve todo, incluido
+Usuarios y Ajustes; <strong>consulta</strong> solo lee. La sesión dura 8 horas y cualquier acción crítica vuelve a
+validar rol <em>en el servidor</em>, así que aunque alguien manipule el menú en el navegador, el backend lo bloquea.</p>
+
+<h3>4.2 · Dashboard</h3>
+<p>El panel de entrada resume el negocio con selector de período (hoy, ayer, 7 días, este mes, mes pasado o
+personalizado) y <strong>comparación automática contra el período anterior</strong>: facturación, tickets, ticket
+promedio, utilidad bruta estimada, donut por método de pago, <strong>horas pico</strong>, ventas por día de la
+semana (marca el día débil), tendencia diaria, top de productos con margen y el fiado pendiente de cobro. Es la
+pantalla para responder “¿estoy vendiendo más o menos que antes, y de dónde viene el cambio?”.</p>
+
+<h3>4.3 · POS de mostrador</h3>
+<p>El POS es el módulo más usado y concentra la operativa del mostrador. Su flujo básico: buscar producto (o
+<strong>escanear el código de barras con la cámara</strong> del celular), agregar al carrito, elegir método de pago
+y cobrar. Sobre ese flujo hay funciones potentes, todas opcionales:</p>
+<ul class="lista">
+  <li><strong>Escalas mayoristas</strong>: si el producto definió precio 2/3 con cantidad mínima, el POS aplica el precio mayorista solo, al alcanzar la cantidad.</li>
+  <li><strong>Fraccionamiento</strong>: el stock se lleva en la unidad menor (p. ej. unidades de una caja); el POS alterna entre vender por <em>Unidad</em> o por <em>Caja×N</em> con precio y consumo de stock calculados.</li>
+  <li><strong>Descuentos y regalos con política</strong>: precio editable con mínimo, descuento por línea limitado por <code class="inline">DESCUENTO_MAX_PCT</code>, producto regalo (precio 0, descuenta stock); fuera de política exigen <strong>autorización de supervisor</strong> admin/gerente validada en el servidor e impresa en la boleta.</li>
+  <li><strong>Fiado</strong>: exige cliente registrado y respeta su límite de crédito con vista en vivo del saldo resultante.</li>
+  <li><strong>Crédito con plan de cuotas</strong>: define cuotas y vencimientos visibles antes de cobrar (van a <em>Cobranzas</em>).</li>
+  <li><strong>Fidelización</strong>: acumula puntos al vender y permite canjearlos como descuento.</li>
+  <li><strong>QR de Yape/Plin</strong> impreso en la boleta/ticket cuando el pago corresponde.</li>
+  <li><strong>Ventas en espera</strong> (apartados), atajos F2/F4/F8, botones de billetes y vendedor asignado por venta (alimenta comisiones).</li>
+  <li><strong>Offline</strong>: sin internet, la venta se guarda en la cola local y se sincroniza sola al reconectar (indicador en la barra superior).</li>
+</ul>
+<figure><img src="docs-img/pos.png" alt="POS de mostrador"><figcaption>POS: carrito con escalas y fracción, métodos de pago, QR Yape/Plin, autorización de supervisor y ticket.</figcaption></figure>
+
+<h3>4.4 · Ventas y Boletas</h3>
+<p>Historial completo de ventas con filtros y detalle por ticket. Desde cada venta puede <strong>reimprimir la
+boleta</strong>, generarla como <strong>imagen PNG</strong> estilo ticket, enviarla por <strong>WhatsApp</strong>
+(en celular comparte directo; en PC descarga el archivo y abre el chat redactado), anular con motivo (revierte
+stock, fiado y caja) o lanzar la venta a <strong>Cotización</strong> inversa cuando aplique. Las boletas correlativas
+usando la numeración interna <code class="inline">BV-</code> cuando SUNAT está desactivado, o las series oficiales
+del capítulo 5 cuando está activo.</p>
+<figure><img src="docs-img/ventas.png" alt="Ventas y boletas"><figcaption>Ventas y Boletas: detalle, reimpresión, WhatsApp y anulación con reversión.</figcaption></figure>
+
+<h3>4.5 · Cotizaciones / Proformas</h3>
+<p>Constructor de cotizaciones con precios congelados y validez, correlativo <code class="inline">COT-</code> y
+descarga como <strong>PDF A4 profesional</strong> (banda azul con logo/RUC, tabla de ítems, condiciones). Con
+<strong>“Convertir en venta”</strong> un clic pasa la proforma por el mismo motor del POS: valida stock, política de
+precios y emite la boleta. Estados: VIGENTE / VENCIDA / CONVERTIDA / ANULADA.</p>
+
+<h3>4.6 · Comprobantes SUNAT</h3>
+<p>La vista que acompaña al capítulo 5: lista todos los comprobantes oficiales (boletas 03, facturas 01, NC 07,
+ND 08) con su serie, correlativo, cliente, estado del CDR (<strong>PENDIENTE / ENVIADO / ACEPTADO / RECHAZADO /
+ERROR</strong>) y botones de acción: crear en el API, <strong>enviar a SUNAT</strong>, registrar/actualizar estado,
+ver el <strong>JSON</strong> del payload, emitir <strong>Nota de Crédito/Débito</strong>, asignar guía de remisión,
+descargar el <strong>Libro de Ventas</strong> (PLE 8.1 TXT y CSV) y generar el <strong>Resumen Diario de
+Boletas</strong> (RDD).</p>
+<figure><img src="docs-img/comprobantes.png" alt="Comprobantes SUNAT"><figcaption>Comprobantes SUNAT: estados de CDR, reenvío, notas, PLE 8.1 y resumen diario.</figcaption></figure>
+
+<h3>4.7 · Fiados y Cobranzas</h3>
+<p><em>Fiados</em> muestra la cartera al crédito por cliente con antigüedad, permite abonos parciales
+(Efectivo/Yape/Plin/Tarjeta — los efectivos integran el arqueo del día), envía recordatorio por WhatsApp y marca
+PAGADO al saldar. <em>Cobranzas y CxC</em> agrega la capa formal: las cuotas de las ventas a crédito con sus
+vencimientos, cobros totales o parciales, y el <strong>aging</strong> de saldos (por vencer, 1-30, 31-60, 61-90 y
++90 días) combinando cuotas y fiados, con top de deudores para priorizar la cobranza de la semana.</p>
+<figure><img src="docs-img/cobranzas.png" alt="Cobranzas y CxC"><figcaption>Cobranzas: cuotas por vencer, aging de saldos y top de deudores.</figcaption></figure>
+
+<h3>4.8 · Cuadre de Caja</h3>
+<p>Abra caja con fondo inicial al empezar el día y ciérrela con el conteo por método de pago: el sistema compara
+<strong>contado vs esperado</strong> (ventas en efectivo + cobros de fiados/cuotas en efectivo − gastos en efectivo)
+y deja la diferencia registrada. El historial de turnos queda disponible para el panel de control, que alerta
+diferencias recurrentes.</p>
+<figure><img src="docs-img/caja.png" alt="Cuadre de caja"><figcaption>Cuadre de caja: esperado por método vs contado, con diferencias visibles.</figcaption></figure>
+
+<h3>4.9 · Clientes y fidelización</h3>
+<p>Ficha por cliente con documento (DNI/RUC — el tipo decide boleta o factura), teléfono de WhatsApp, dirección,
+<strong>límite de fiado</strong> y <strong>puntos</strong>. Desde el POS se acumulan puntos por compra y se canjean
+como descuento; desde Clientes puede ver el historial de puntos y hacer ajustes manuales (p. ej. puntos de
+cumpleaños o compensación). El ranking de clientes está en <em>Fidelización</em>.</p>
+
+<h3>4.10 · Inventario: productos, stock, lotes y kardex</h3>
+<ul class="lista">
+  <li><strong>Productos</strong>: SKU, código de barras (para el escáner), categoría, unidad de venta, costo estándar, precio (con precio 2/3 para escalas), precio mínimo, stock mínimo, factor de fraccionamiento y marca “exige lote”.</li>
+  <li><strong>Categorías y Almacenes</strong>: CRUD completo; el POS organiza por categorías y cada tienda/depósito es un almacén con transferencias entre ellos.</li>
+  <li><strong>Stock por almacén</strong>: cantidades disponibles en tiempo real.</li>
+  <li><strong>Lotes y vencimientos</strong>: trazabilidad por lote con política FEFO (sale primero el más próximo a vencer) y alertas de vencimiento próximo.</li>
+  <li><strong>Movimientos</strong>: entrada, salida, transferencia, devolución y ajuste — cada uno con su validación y posibilidad de anulación con reversión.</li>
+  <li><strong>Kardex</strong>: el libro mayor del inventario, físico y valorizado con <strong>promedio ponderado</strong>: cada salida valora al costo real vigente, que es el mismo costo que después usa el reporte de rentabilidad.</li>
+</ul>
+<figure><img src="docs-img/productos.png" alt="Productos"><figcaption>Productos: precios por escala, fraccionamiento, código de barras y exige-lote.</figcaption></figure>
+<figure><img src="docs-img/kardex.png" alt="Kardex valorizado"><figcaption>Kardex: entradas, salidas y saldo con costo promedio ponderado.</figcaption></figure>
+
+<h3>4.11 · Órdenes de Compra</h3>
+<p>Cree la OC al proveedor con correlativo propio; agregue <strong>2–3 cotizaciones de proveedores</strong> y use el
+comparador para elegir la mejor (el sistema puede actualizar los costos con un clic). La <strong>recepción</strong>
+puede ser total o parcial: cada recepción ingresa al kardex real (con lote/vencimiento si el producto lo exige) y
+genera la <strong>cuenta por pagar</strong>, cuyo pago se registra total o parcialmente generando el egreso de caja.
+El <em>Centro de Alertas</em> propone OCs de reabastecimiento con las cantidades sugeridas por stock mínimo y
+rotación, precargadas.</p>
+<figure><img src="docs-img/compras.png" alt="Órdenes de compra"><figcaption>Órdenes de compra: estados, comparador de ofertas y recepción parcial.</figcaption></figure>
+
+<h3>4.12 · Gastos y Flujo de Caja</h3>
+<p>Registre gastos por categoría (alquiler, luz, transporte, sueldos…) y método de pago; el módulo arma el
+<strong>flujo de caja</strong> del mes (ingresos por método menos egresos), el <strong>presupuesto vs real</strong>
+por categoría y el <strong>punto de equilibrio</strong> estimado con el margen bruto promedio: cuánto debe vender al
+mes para no perder. Los gastos en efectivo descuentan automáticamente del cuadre del día.</p>
+<figure><img src="docs-img/gastos.png" alt="Gastos y flujo de caja"><figcaption>Gastos: KPIs del mes, flujo por método, presupuesto y punto de equilibrio.</figcaption></figure>
+
+<h3>4.13 · Reportes, Rentabilidad y Panel de Control</h3>
+<ul class="lista">
+  <li><strong>Reportes</strong>: análisis ABC/Pareto (qué pocos productos generan el grueso del ingreso), productos muertos sin rotación, libro de ventas y exportaciones CSV.</li>
+  <li><strong>Rentabilidad real</strong>: margen bruto por producto usando el costo del kardex al momento de cada venta (los regalos se descuentan como costo puro). Rol admin/gerente también en el servidor.</li>
+  <li><strong>Panel de control</strong>: KPIs del día/mes, fiado vencido, descuentos y regalos del período, anulaciones, ventas fuera de horario, diferencias de caja, stock crítico y auditoría en vivo.</li>
+</ul>
+<figure><img src="docs-img/reportes.png" alt="Reportes"><figcaption>Reportes: ABC Pareto, productos muertos y libro de ventas.</figcaption></figure>
+
+<h3>4.14 · RRHH y Comisiones</h3>
+<p>Marca de <strong>entrada/salida</strong> con minutos trabajados por usuario, y <strong>comisiones</strong>: asigne
+un porcentaje a cada vendedor; cuando el POS atribuye la venta a un vendedor, el reporte mensual calcula la
+comisión de cada uno sobre lo vendido (base configurable: ventas brutas o margen).</p>
+<figure><img src="docs-img/rrhh.png" alt="RRHH y comisiones"><figcaption>RRHH: asistencia del día, vendedores con % y reporte de comisiones.</figcaption></figure>
+
+<h3>4.15 · Centro de Alertas, Auditoría y Usuarios</h3>
+<p>El <strong>Centro de Alertas</strong> concentra stock crítico, lotes por vencer, fiados antiguos, cuotas vencidas
+y OCs sugeridas con acciones directas. La <strong>Auditoría</strong> lista cada acción sensible con usuario, rol y
+detalle (filtrable). En <strong>Usuarios y Roles</strong> el admin crea usuarios, cambia contraseñas y desactiva
+cuentas —con la guardia que impide dejar el sistema sin ningún administrador activo—.</p>
+<figure><img src="docs-img/usuarios.png" alt="Usuarios y roles"><figcaption>Usuarios y roles con estado y último acceso.</figcaption></figure>
+
+<h3>4.16 · Ajustes: el centro de configuración</h3>
+<p>Todo lo configurable del sistema vive en <em>Configuración</em>, organizado por secciones:</p>
+<ul class="lista">
+  <li><strong>Identidad fiscal</strong>: razón social, RUC, dirección, teléfono, logo (URL o subida en Base64), horario, mensaje de boleta, prefijo WhatsApp.</li>
+  <li><strong>País e impuestos</strong>: 8 países (Perú por defecto) — al aplicar se autocompleta moneda, símbolo, nombre y tasa del impuesto, inclusión en precios y prefijo WhatsApp; todo editable después. Perú activa el módulo SUNAT; los demás países operan con comprobantes internos.</li>
+  <li><strong>Facturación SUNAT</strong>: modo (desactivado/manual/api), series por tipo de comprobante, RUC→Factura automática, URL y credenciales del API, Company/Branch ID y método de envío — el detalle completo está en el capítulo 5.</li>
+  <li><strong>Pagos QR</strong>: celulares Yape y Plin + banco/CCI opcionales; se imprimen con el importe exacto en la boleta y el ticket térmico.</li>
+  <li><strong>Fidelización</strong>: activación, puntos por consumo, valor del punto al canjear y mínimo para canjear.</li>
+  <li><strong>Política de POS</strong>: descuento máximo, autorizaciones de descuento/regalo, permitir exceder fiado, días de alerta.</li>
+  <li><strong>Recordatorios y respaldo</strong>: activación de los triggers nocturnos, correo del dueño, retención de respaldos y botones “Probar avisos ahora” / “Respaldar ahora”.</li>
+  <li><strong>Catálogo público</strong>: activación, token regenerable y enlace para compartir.</li>
+</ul>
+<figure><img src="docs-img/config-general.png" alt="Configuración — identidad"><figcaption>Ajustes: identidad fiscal y datos que imprimen los comprobantes.</figcaption></figure>
+<figure><img src="docs-img/config-pais.png" alt="Configuración — país"><figcaption>Selector de país: al aplicar, completa moneda e impuestos (todo editable).</figcaption></figure>
+<figure><img src="docs-img/config-sunat.png" alt="Configuración — SUNAT"><figcaption>Facturación SUNAT: modo, series oficiales, URL y credenciales del API de facturación.</figcaption></figure>
+
+<h3>4.17 · PWA: instalar en el celular y trabajar sin internet</h3>
+<p>NexoERP es una <strong>PWA instalable</strong>: desde el navegador del celular, “Agregar a pantalla de inicio”
+instala la app con su ícono. El <strong>service worker</strong> cachea el shell de la aplicación (interfaz, librerías,
+vistas), de modo que sin internet el POS sigue funcionando: las ventas se guardan en una cola local y
+<strong>se sincronizan solas</strong> al reconectar. La barra superior muestra el estado (<em>Offline</em>, contador
+de pendientes) y la campana notifica cada evento importante —venta emitida, CDR aceptado o rechazado, stock crítico
+tras vender, conexión perdida/restablecida—.</p>
+
+<h3>4.18 · Catálogo público con pedidos por WhatsApp</h3>
+<p><code class="inline">catalogo.html</code> es una página independiente protegida por token (regenerable desde
+Ajustes) que muestra el catálogo con disponibilidad. Su cliente arma el pedido y obtiene un
+<strong>mensaje de WhatsApp listo</strong> con los productos y el total aproximado, dirigido al número del negocio.
+Ideal para pegar el enlace en estados de WhatsApp, Instagram o el sticker de la vitrina.</p>
+<figure><img src="docs-img/catalogo.png" alt="Catálogo público"><figcaption>Catálogo público: pedido armado por el cliente y enviado como mensaje de WhatsApp.</figcaption></figure>
+
+<h3>4.19 · Rutina recomendada del día</h3>
+<p>El sistema se lleva bien con cualquier costumbre, pero esta rutina de 10 minutos explota todo lo que ya tiene:</p>
+<table>
+  <colgroup><col style="width:16%"><col style="width:44%"><col style="width:40%"></colgroup>
+  <thead><tr><th>Momento</th><th>Rutina</th><th>Dónde</th></tr></thead>
+  <tbody>
+    <tr><td><b>Apertura</b></td><td>Abrir caja con el fondo inicial; mirar las alertas del día (fiados por cobrar, cuotas que vencen hoy, stock crítico, lotes por vencer)</td><td>Cuadre de Caja · Centro de Alertas</td></tr>
+    <tr><td><b>Durante el turno</b></td><td>Vender en el POS (F2 buscar, F4 cobrar, F8 apartar si el cliente va a pagar luego); registrar gastos de caja chica al instante</td><td>POS · Gastos</td></tr>
+    <tr><td><b>Cierre</b></td><td>Contar la caja por método y cerrar turno (el sistema calcula la diferencia); si hubo facturas pendientes de envío, revisar la vista Comprobantes</td><td>Cuadre de Caja · Comprobantes SUNAT</td></tr>
+    <tr><td><b>Semanal</b></td><td>Revisar aging de cobranzas y llamar los top deudores; lanzar la OC sugerida de reabastecimiento; mirar productos muertos</td><td>Cobranzas · Órdenes de Compra · Reportes</td></tr>
+    <tr><td><b>Mensual</b></td><td>Descargar libro de ventas (PLE/CSV) para el contador; reporte de comisiones; presupuesto vs real; comprobar que el respaldo de Drive existe</td><td>Comprobantes · RRHH · Gastos · Ajustes</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Atajos del POS</b> (v1.2+): <b>F2</b> buscar producto · <b>F4</b> cobrar · <b>F8</b> apartar
+venta en espera · <b>Esc</b> cerrar el modal activo. En celular, todo es táctil: los botones de billetes y el
+escáner por cámara hacen el mismo trabajo.</div>
+
+<h3>4.19 · Rutina recomendada del día</h3>
+<p>El sistema se lleva bien con cualquier costumbre, pero esta rutina de 10 minutos explota todo lo que ya tiene:</p>
+<table>
+  <colgroup><col style="width:16%"><col style="width:44%"><col style="width:40%"></colgroup>
+  <thead><tr><th>Momento</th><th>Rutina</th><th>Dónde</th></tr></thead>
+  <tbody>
+    <tr><td><b>Apertura</b></td><td>Abrir caja con el fondo inicial; mirar las alertas del día (fiados por cobrar, cuotas que vencen hoy, stock crítico, lotes por vencer)</td><td>Cuadre de Caja · Centro de Alertas</td></tr>
+    <tr><td><b>Durante el turno</b></td><td>Vender en el POS (F2 buscar, F4 cobrar, F8 apartar si el cliente va a pagar luego); registrar gastos de caja chica al instante</td><td>POS · Gastos</td></tr>
+    <tr><td><b>Cierre</b></td><td>Contar la caja por método y cerrar turno (el sistema calcula la diferencia); si hubo facturas pendientes de envío, revisar la vista Comprobantes</td><td>Cuadre de Caja · Comprobantes SUNAT</td></tr>
+    <tr><td><b>Semanal</b></td><td>Revisar aging de cobranzas y llamar los top deudores; lanzar la OC sugerida de reabastecimiento; mirar productos muertos</td><td>Cobranzas · Órdenes de Compra · Reportes</td></tr>
+    <tr><td><b>Mensual</b></td><td>Descargar libro de ventas (PLE/CSV) para el contador; reporte de comisiones; presupuesto vs real; comprobar que el respaldo de Drive existe</td><td>Comprobantes · RRHH · Gastos · Ajustes</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Atajos del POS</b> (v1.2+): <b>F2</b> buscar producto · <b>F4</b> cobrar · <b>F8</b> apartar
+venta en espera · <b>Esc</b> cerrar el modal activo. En celular, todo es táctil: los botones de billetes y el
+escáner por cámara hacen el mismo trabajo.</div>
+
+<h3>4.19 · Rutina recomendada del día</h3>
+<p>El sistema se lleva bien con cualquier costumbre, pero esta rutina de 10 minutos explota todo lo que ya tiene:</p>
+<table>
+  <colgroup><col style="width:16%"><col style="width:44%"><col style="width:40%"></colgroup>
+  <thead><tr><th>Momento</th><th>Rutina</th><th>Dónde</th></tr></thead>
+  <tbody>
+    <tr><td><b>Apertura</b></td><td>Abrir caja con el fondo inicial; mirar las alertas del día (fiados por cobrar, cuotas que vencen hoy, stock crítico, lotes por vencer)</td><td>Cuadre de Caja · Centro de Alertas</td></tr>
+    <tr><td><b>Durante el turno</b></td><td>Vender en el POS (F2 buscar, F4 cobrar, F8 apartar si el cliente va a pagar luego); registrar gastos de caja chica al instante</td><td>POS · Gastos</td></tr>
+    <tr><td><b>Cierre</b></td><td>Contar la caja por método y cerrar turno (el sistema calcula la diferencia); si hubo facturas pendientes de envío, revisar la vista Comprobantes</td><td>Cuadre de Caja · Comprobantes SUNAT</td></tr>
+    <tr><td><b>Semanal</b></td><td>Revisar aging de cobranzas y llamar los top deudores; lanzar la OC sugerida de reabastecimiento; mirar productos muertos</td><td>Cobranzas · Órdenes de Compra · Reportes</td></tr>
+    <tr><td><b>Mensual</b></td><td>Descargar libro de ventas (PLE/CSV) para el contador; reporte de comisiones; presupuesto vs real; comprobar que el respaldo de Drive existe</td><td>Comprobantes · RRHH · Gastos · Ajustes</td></tr>
+  </tbody>
+</table>
+<div class="callout"><b>Atajos del POS</b> (v1.2+): <b>F2</b> buscar producto · <b>F4</b> cobrar · <b>F8</b> apartar
+venta en espera · <b>Esc</b> cerrar el modal activo. En celular, todo es táctil: los botones de billetes y el
+escáner por cámara hacen el mismo trabajo.</div>
+<!-- ==================== CAP 5: SUNAT ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 5</span>
+  <div class="ch-title">Facturación electrónica SUNAT paso a paso</div>
+  <p class="ch-lead">Cómo integrar la emisión electrónica de su sistema con la SUNAT de Perú, desde el certificado digital hasta el CDR aceptado.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>5.1 · Los conceptos mínimos que debe conocer</h3>
+<table>
+  <colgroup><col style="width:24%"><col style="width:76%"></colgroup>
+  <thead><tr><th>Término</th><th>Significado práctico</th></tr></thead>
+  <tbody>
+    <tr><td><b>Comprobante electrónico (CDE)</b></td><td>La factura o boleta generada como XML con el estándar <b>UBL 2.1</b> que exige SUNAT. NexoERP construye el JSON y el API lo convierte en XML firmado</td></tr>
+    <tr><td><b>CDR</b></td><td><i>Constancia de Recepción</i>: la respuesta oficial de SUNAT. Código <b>0</b> = ACEPTADO; otros códigos indican rechazo u observaciones</td></tr>
+    <tr><td><b>Serie y correlativo</b></td><td>Identificador del comprobante: <b>B001-00000001</b> (boleta), <b>F001-00000001</b> (factura), FC01 (nota de crédito), FD01 (nota de débito). El correlativo es correlativo legal: nunca se reutiliza ni se retrocede</td></tr>
+    <tr><td><b>Tipo de documento</b></td><td>01 Factura (cliente con RUC) · 03 Boleta (DNI u ocio) · 07 Nota de Crédito (anula/descuenta) · 08 Nota de Débito (aumenta). NexoERP elige 01/03 automáticamente según el RUC del cliente</td></tr>
+    <tr><td><b>Resumen Diario (RDD)</b></td><td>Las <b>boletas</b> (y notas) se envían agrupadas en un resumen al día siguiente. Las facturas van una por una en línea. El campo “método de envío” refleja esto</td></tr>
+    <tr><td><b>PLE 8.1</b></td><td>El registro de ventas en el formato TXT que solicita SUNAT/ su contador. NexoERP lo exporta con un botón</td></tr>
+    <tr><td><b>CLAVE SOL</b></td><td>El usuario y contraseña con que su empresa se presenta ante SUNAT. El API la usa para autenticarse al enviar</td></tr>
+    <tr><td><b>Certificado digital (.pfx)</b></td><td>Firma cada XML en nombre de su RUC. Lo emite una autoridad certificadora autorizada (Sgstel, Nubefact, etc.) por S/ 70–150 al año</td></tr>
+  </tbody>
+</table>
+
+<h3>5.2 · Requisitos previos (checklist)</h3>
+<div class="card card-tint">
+  <ul class="lista" style="margin-bottom:0;">
+    <li>✅ <strong>RUC activo</strong> con la condición de emisor electrónico habilitada (o dispuesto a habilitarla en el portal SUNAT con su CLAVE SOL).</li>
+    <li>✅ <strong>CLAVE SOL</strong> del RUC funcionando (usuario y contraseña).</li>
+    <li>✅ <strong>Certificado digital .pfx vigente</strong> y su contraseña.</li>
+    <li>✅ Decidir el <strong>modo</strong> de emisión (sección 5.5): manual (costo 0) o API automático.</li>
+    <li>✅ (Solo modo API) Un hosting para el API de facturación — sección 5.4.</li>
+  </ul>
+</div>
+
+<h3>5.3 · El API de facturación compatible</h3>
+<p>NexoERP genera y consume el contrato exacto del proyecto de código abierto
+<code class="inline">github.com/yorchavez9/Api-de-facturacion-electronica-sunat-Peru</code>: una API escrita en
+<strong>Laravel 12</strong> que usa la librería <strong>Greenter 5.1</strong> para construir el XML UBL 2.1,
+firmarlo con su certificado, enviarlo a los servicios SOAP de SUNAT y devolver el CDR. Sus endpoints que NexoERP
+utiliza son:</p>
+<table>
+  <colgroup><col style="width:38%"><col style="width:62%"></colgroup>
+  <thead><tr><th>Endpoint del API</th><th>Para qué</th></tr></thead>
+  <tbody>
+    <tr><td><code>POST /api/auth/login</code></td><td>Autenticación (token Sanctum) con el email/contraseña del API</td></tr>
+    <tr><td><code>POST /api/v1/boletas</code></td><td>Crear comprobante tipo 03 (devuelve su id en el API)</td></tr>
+    <tr><td><code>POST /api/v1/invoices</code></td><td>Crear comprobante tipo 01 (factura)</td></tr>
+    <tr><td><code>POST /api/v1/boletas|invoices/{id}/send-sunat</code></td><td>Firmar y enviar a SUNAT; devuelve el CDR con código y descripción</td></tr>
+  </tbody>
+</table>
+<p>El payload que NexoERP envía usa los campos del API (<code class="inline">serie</code>,
+<code class="inline">fecha_emision</code>, <code class="inline">client</code>, <code class="inline">detalles</code>
+con <code class="inline">mto_valor_unitario</code> <strong>sin IGV</strong>, <code class="inline">tip_afe_igv: 10</code>,
+unidad SUNAT por ítem, forma de pago Contado/Crédito y tipo de operación 0101). Puede verlo exacto con el botón
+<em>“Ver JSON”</em> de cada comprobante — útil también en modo manual para enviarlo con Postman.</p>
+
+<h3>5.4 · Desplegar el API (solo modo automático)</h3>
+<p>El API es PHP y necesita su propio hosting — <strong>no</strong> puede correr en Apps Script ni en Vercel.
+Tres opciones de menor a mayor esfuerzo:</p>
+<h4>Opción A · Hosting compartido con PHP 8.2+ (recomendada para producción estable)</h4>
+<ol class="pasos">
+  <li>Contrate un hosting compartido económico (los hay desde ~S/ 10/mes) con SSH o gestor de archivos.</li>
+  <li>Suba el repositorio del API y en la raíz ejecute: <code class="inline">composer install --no-dev</code>.</li>
+  <li>Copie <code class="inline">.env.example</code> a <code class="inline">.env</code>, genere la clave
+  (<code class="inline">php artisan key:generate</code>) y configure la base de datos del API (SQLite basta o MySQL del propio hosting).</li>
+  <li>Ejecute <code class="inline">php artisan migrate --seed</code> — crea las tablas y el usuario administrador del API.</li>
+  <li>Suba su certificado <strong>.pfx</strong> a la carpeta <code class="inline">storage/certificates/</code> (protegida) y registre en el panel del API su empresa: RUC, razón social, usuario y clave SOL, usuario de segundo Sol opcional.</li>
+  <li>Cree un <strong>usuario del API</strong> (email + contraseña) y anote el <strong>Company ID</strong> y <strong>Branch ID</strong> asignados a su empresa/sucursal.</li>
+</ol>
+<h4>Opción B · Render (plan gratuito, con Docker)</h4>
+<ol class="pasos">
+  <li>Haga fork del repositorio del API en su GitHub.</li>
+  <li>En Render: <em>New → Web Service</em> → seleccione el fork → Runtime <strong>Docker</strong>.</li>
+  <li>Agregue las variables de entorno del <code class="inline">.env</code> (base de datos, clave de app) y despliegue.</li>
+  <li>Para el certificado y la persistencia, use un disco persistente de Render o suba el .pfx por el panel del API.</li>
+</ol>
+<div class="callout warn"><b>Sobre el plan gratuito de Render:</b> el servicio “duerme” tras minutos de inactividad;
+la primera factura del día puede tardar 40–60 segundos mientras despierta (NexoERP la marca ERROR/PENDIENTE y puede
+reenviarse con un clic). Para una tienda con facturación continua, el hosting compartido (Opción A) es más
+predecible. Railway tiene una alternativa similar con crédito mensual gratuito.</div>
+
+<h3>5.5 · Los tres modos de NexoERP</h3>
+<table>
+  <colgroup><col style="width:16%"><col style="width:42%"><col style="width:42%"></colgroup>
+  <thead><tr><th>Modo</th><th>Qué hace</th><th>Para quién</th></tr></thead>
+  <tbody>
+    <tr><td><b>desactivado</b></td><td>Solo boleta interna <code>BV-</code>, como siempre. Nada cambia</td><td>Negocios sin obligación o que aún no quieren emitir electrónico</td></tr>
+    <tr><td><b>manual</b></td><td><b>Costo 0 y sin API</b>: el sistema lleva las <b>series oficiales</b> y correlativos (B001/F001/FC01/FD01 configurables), decide Factura cuando hay RUC (<code>COMPROBANTE_AUTO</code>) y genera el <b>JSON exacto</b> del comprobante. Usted lo envía (Postman o el portal del API) y registra el resultado del CDR en la vista Comprobantes</td><td>Empezar a emitir legal hoy mismo, con volumen bajo o para probar el circuito completo</td></tr>
+    <tr><td><b>api</b></td><td><b>Todo automático</b>: al cobrar en el POS, el backend hace login → crea el documento → envía a SUNAT → guarda el CDR (ACEPTADO/RECHAZADO con código y descripción). Reintentos con un clic desde la vista</td><td>Operación diaria real con volumen; requiere el API desplegada</td></tr>
+  </tbody>
+</table>
+
+<h3>5.6 · Configuración en Ajustes (checklist final)</h3>
+<ol class="pasos">
+  <li><em>Ajustes → País e impuestos</em>: país <strong>Perú</strong> (deja IGV 18 % con impuesto incluido en precios — revise <code class="inline">IGV_INCLUIDO</code> si sus precios son sin impuesto).</li>
+  <li><em>Identidad fiscal</em>: RUC de 11 dígitos y razón social exactos (van en el XML).</li>
+  <li><em>Facturación SUNAT</em>: elija modo; si es <strong>api</strong> complete: URL del API (sin barra final), usuario (email) y contraseña del API, <strong>Company ID</strong> y <strong>Branch ID</strong>, y método de envío (<code class="inline">resumen_diario</code> para el flujo estándar de boletas; las facturas viajan igual en línea).</li>
+  <li>Defina las <strong>series</strong> (deben existir en el API con el mismo nombre): B001/F001 por defecto; NC/ND (FC01/FD01) para notas.</li>
+  <li>Guarde y pruebe con una venta pequeña real: verá el comprobante en la vista <em>Comprobantes SUNAT</em> con estado y CDR.</li>
+</ol>
+<figure><img src="docs-img/config-sunat.png" alt="Configuración SUNAT"><figcaption>El bloque de facturación SUNAT en Ajustes: modo, series, URL, credenciales del API y IDs de empresa/sucursal.</figcaption></figure>
+
+<h3>5.7 · El flujo operativo día a día</h3>
+<ol class="pasos">
+  <li><strong>Vende en el POS</strong> → si el cliente tiene RUC, nace F001-00000XXX; si no, B001-00000XXX.</li>
+  <li><strong>Modo api</strong>: el comprobante se crea y envía al instante; el POS muestra “CDR ACEPTADO” en el toast y la campana. <strong>Modo manual</strong>: queda PENDIENTE; copie el JSON (botón), envíelo por su vía y registre el resultado con “Actualizar estado”.</li>
+  <li><strong>Boletas</strong> se acumulan para el <strong>Resumen Diario</strong>: al día siguiente genere el RDD (botón en la vista) y actívelo — en modo api el envío por lotes usa el mismo mecanismo.</li>
+  <li><strong>Si algo sale mal</strong> (RECHAZADO/ERROR): lea la <code class="inline">cdrDescripcion</code>, corrija (datos del cliente, serie, certificado vencido) y pulse <strong>Enviar a SUNAT</strong> de nuevo — el correlativo no se desperdicia: el comprobante se reenvía con su propio número.</li>
+  <li><strong>Anulaciones</strong>: emita <strong>Nota de Crédito</strong> (07) sobre la venta — con la opción “devolución total” re-ingresa el stock al kardex, descuenta el saldo del fiado si lo había y opcionalmente anula la venta original. La <strong>Nota de Débito</strong> (08) aumenta el importe (p. ej. cargos omitidos).</li>
+  <li><strong>Fin de mes</strong>: descargue el <strong>Libro de Ventas PLE 8.1</strong> (TXT) y el CSV para su contador; verifique el tipo de cambio del día en Ajustes si vende en USD.</li>
+</ol>
+
+<div class="callout ok"><b>Checklist de cumplimiento:</b> el CDR y el XML son el respaldo legal — el API los
+almacena y permite descargarlos; archive además los respaldos de Drive que NexoERP genera cada noche. Los
+comprobantes se conservan <b>5 años</b> según la normativa vigente. Ante cualquier duda de obligaciones
+(emitente desde cuándo, RDD, PLE), confirme con su contador: este capítulo documenta el <i>uso del sistema</i>, no
+asesoría tributaria.</div>
+
+<h3>5.8 · Tipo de cambio automático</h3>
+<p>El botón <em>“Consultar tipo de cambio”</em> (y el trigger nocturno) traen la referencia SUNAT publicada vía
+<code class="inline">apis.net.pe</code> y la guardan en Config. Las ventas registradas en USD usan la tasa del día,
+y el libro de ventas la refleja. Si el servicio público está caído, el valor puede fijarse a mano en Ajustes.</p>
+
+<h3>5.9 · Preguntas frecuentes de SUNAT</h3>
+<h4>¿Puedo empezar sin API externa y luego pasar al modo automático?</h4>
+<p>Sí, y es el camino recomendado. Active el modo <strong>manual</strong> hoy: el sistema empieza a llevar las
+series y correlativos oficiales desde la primera boleta (eso no se puede retroceder), genera el JSON de cada
+comprobante y usted lo envía como pueda. Cuando el volumen lo justifique, despliegue el API y cambie a modo
+<code class="inline">api</code>: la numeración continúa donde iba y los comprobantes históricos quedan en la misma
+vista. Ninguna reconfiguración de series es necesaria si usó los mismos códigos.</p>
+<h4>¿Qué pasa si se cae internet mientras vendo?</h4>
+<p>En modo <strong>manual</strong>, nada: el comprobante nace local con su número oficial y lo envía cuando pueda
+(el JSON espera en la vista). En modo <strong>api</strong>, la venta igual se registra (el POS funciona offline con
+cola de sincronización); el comprobante queda <em>PENDIENTE</em> y se envía con un clic al volver la conexión. La
+numeración es correlativa legal: un retraso en el envío no “quema” el número, pero no debe pasar del plazo legal
+del resumen diario para boletas.</p>
+<h4>¿El correlativo se pierde si un comprobante es rechazado?</h4>
+<p>No. Un comprobante RECHAZADO conserva su número; se corrige la causa y se reenvía el <strong>mismo</strong>
+comprobante. Lo que no se puede es “saltarse” números o reiniciar la serie — por eso el sistema no lo permite.</p>
+<h4>¿Emito boletas y facturas con la misma instalación?</h4>
+<p>Sí, es el flujo normal: series separadas (B001/F001) con correlativos independientes. El sistema elige el tipo
+por el documento del cliente y puede forzarse caso por caso desde el POS.</p>
+<h4>¿Y si trabajo también con clientes del extranjero?</h4>
+<p>El país de la plantilla define moneda e impuestos; el tipo de cambio SUNAT (consultado a diario) permite facturar
+en USD. Para clientes sin documento peruano, el tipo de documento “0” (no domiciliado) del payload cubre el caso —
+confirme el tratamiento con su contador.</p>
+<h4>¿El sistema firma el XML?</h4>
+<p>La firma la realiza la <strong>API de facturación</strong> (Greenter) con su certificado .pfx. NexoERP construye
+el JSON conforme y administra series, estados y CDR. La ruta futura de firmar dentro de Apps Script está en el
+roadmap (capítulo 6.8), pero hoy el modo api/manual con el API es la vía soportada.</p>
+
+<h3>5.9 · Preguntas frecuentes de SUNAT</h3>
+<h4>¿Puedo empezar sin API externa y luego pasar al modo automático?</h4>
+<p>Sí, y es el camino recomendado. Active el modo <strong>manual</strong> hoy: el sistema empieza a llevar las
+series y correlativos oficiales desde la primera boleta (eso no se puede retroceder), genera el JSON de cada
+comprobante y usted lo envía como pueda. Cuando el volumen lo justifique, despliegue el API y cambie a modo
+<code class="inline">api</code>: la numeración continúa donde iba y los comprobantes históricos quedan en la misma
+vista. Ninguna reconfiguración de series es necesaria si usó los mismos códigos.</p>
+<h4>¿Qué pasa si se cae internet mientras vendo?</h4>
+<p>En modo <strong>manual</strong>, nada: el comprobante nace local con su número oficial y lo envía cuando pueda
+(el JSON espera en la vista). En modo <strong>api</strong>, la venta igual se registra (el POS funciona offline con
+cola de sincronización); el comprobante queda <em>PENDIENTE</em> y se envía con un clic al volver la conexión. La
+numeración es correlativa legal: un retraso en el envío no “quema” el número, pero no debe pasar del plazo legal
+del resumen diario para boletas.</p>
+<h4>¿El correlativo se pierde si un comprobante es rechazado?</h4>
+<p>No. Un comprobante RECHAZADO conserva su número; se corrige la causa y se reenvía el <strong>mismo</strong>
+comprobante. Lo que no se puede es “saltarse” números o reiniciar la serie — por eso el sistema no lo permite.</p>
+<h4>¿Emito boletas y facturas con la misma instalación?</h4>
+<p>Sí, es el flujo normal: series separadas (B001/F001) con correlativos independientes. El sistema elige el tipo
+por el documento del cliente y puede forzarse caso por caso desde el POS.</p>
+<h4>¿Y si trabajo también con clientes del extranjero?</h4>
+<p>El país de la plantilla define moneda e impuestos; el tipo de cambio SUNAT (consultado a diario) permite facturar
+en USD. Para clientes sin documento peruano, el tipo de documento “0” (no domiciliado) del payload cubre el caso —
+confirme el tratamiento con su contador.</p>
+<h4>¿El sistema firma el XML?</h4>
+<p>La firma la realiza la <strong>API de facturación</strong> (Greenter) con su certificado .pfx. NexoERP construye
+el JSON conforme y administra series, estados y CDR. La ruta futura de firmar dentro de Apps Script está en el
+roadmap (capítulo 6.8), pero hoy el modo api/manual con el API es la vía soportada.</p>
+
+<h3>5.9 · Preguntas frecuentes de SUNAT</h3>
+<h4>¿Puedo empezar sin API externa y luego pasar al modo automático?</h4>
+<p>Sí, y es el camino recomendado. Active el modo <strong>manual</strong> hoy: el sistema empieza a llevar las
+series y correlativos oficiales desde la primera boleta (eso no se puede retroceder), genera el JSON de cada
+comprobante y usted lo envía como pueda. Cuando el volumen lo justifique, despliegue el API y cambie a modo
+<code class="inline">api</code>: la numeración continúa donde iba y los comprobantes históricos quedan en la misma
+vista. Ninguna reconfiguración de series es necesaria si usó los mismos códigos.</p>
+<h4>¿Qué pasa si se cae internet mientras vendo?</h4>
+<p>En modo <strong>manual</strong>, nada: el comprobante nace local con su número oficial y lo envía cuando pueda
+(el JSON espera en la vista). En modo <strong>api</strong>, la venta igual se registra (el POS funciona offline con
+cola de sincronización); el comprobante queda <em>PENDIENTE</em> y se envía con un clic al volver la conexión. La
+numeración es correlativa legal: un retraso en el envío no “quema” el número, pero no debe pasar del plazo legal
+del resumen diario para boletas.</p>
+<h4>¿El correlativo se pierde si un comprobante es rechazado?</h4>
+<p>No. Un comprobante RECHAZADO conserva su número; se corrige la causa y se reenvía el <strong>mismo</strong>
+comprobante. Lo que no se puede es “saltarse” números o reiniciar la serie — por eso el sistema no lo permite.</p>
+<h4>¿Emito boletas y facturas con la misma instalación?</h4>
+<p>Sí, es el flujo normal: series separadas (B001/F001) con correlativos independientes. El sistema elige el tipo
+por el documento del cliente y puede forzarse caso por caso desde el POS.</p>
+<h4>¿Y si trabajo también con clientes del extranjero?</h4>
+<p>El país de la plantilla define moneda e impuestos; el tipo de cambio SUNAT (consultado a diario) permite facturar
+en USD. Para clientes sin documento peruano, el tipo de documento “0” (no domiciliado) del payload cubre el caso —
+confirme el tratamiento con su contador.</p>
+<h4>¿El sistema firma el XML?</h4>
+<p>La firma la realiza la <strong>API de facturación</strong> (Greenter) con su certificado .pfx. NexoERP construye
+el JSON conforme y administra series, estados y CDR. La ruta futura de firmar dentro de Apps Script está en el
+roadmap (capítulo 6.8), pero hoy el modo api/manual con el API es la vía soportada.</p>
+
+<!-- ==================== CAP 6: DESARROLLADORES ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 6</span>
+  <div class="ch-title">Guía para desarrolladores: modificar y extender</div>
+  <p class="ch-lead">Todo lo necesario para agregar funciones propias con seguridad: convenciones, recetas con código y el ciclo de una versión.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>6.1 · Reglas del juego</h3>
+<ul class="lista">
+  <li><strong>Sin build</strong>: ES5/ES6 plano; cada archivo se verifica con <code class="inline">node --check</code>.</li>
+  <li><strong>Un solo contrato</strong>: <code class="inline">{ action, token, …payload } → { ok, data, error, code }</code>; toda acción pasa por el router y valida sesión/permiso.</li>
+  <li><strong>Doble implementación</strong>: cada acción existe en el GAS y en <code class="inline">demo-store.js</code>; la demo responde <code class="inline">UNKNOWN_ACTION</code> si falta el espejo.</li>
+  <li><strong>Identidad visual</strong>: azul corporativo <code class="inline">#2563EB</code> y las clases utilitarias propias (<code class="inline">btn-primario</code>, <code class="inline">input-texto</code>, <code class="inline">tabla-gen</code>, <code class="inline">card-gen</code>).</li>
+</ul>
+
+<h3>6.2 · Receta 1 — Agregar una acción de backend</h3>
+<p>Ejemplo: una búsqueda propia de productos por texto libre.</p>
+<div class="code-head">backend/04_Catalogos.gs — nueva acción</div>
+<div class="code"><span class="kw">function</span> productosBuscar_(c) {
+  var ses = requiereSesion_(c);                 <span class="cm">// 1) sesión válida obligatoria</span>
+  requierePermiso_(ses, 'catalogos:read');      <span class="cm">// 2) permiso del rol</span>
+  var q = String(c.q || '').toLowerCase();
+  var res = dbLeer_(APP.SHEETS.PRODUCTOS).filter(<span class="kw">function</span> (p) {
+    <span class="kw">return</span> String(p.nombre).toLowerCase().indexOf(q) !== -1;
+  });
+  registrarAuditoria_(ses.usuarioId, ses.usuario, ses.rol, 'PRODUCTO', 'Buscó "' + q + '"');
+  <span class="kw">return</span> appOk_(res);                          <span class="cm">// 3) envoltorio estándar</span>
+}</div>
+<p>Regístrela en el router (<code class="inline">01_WebApp.gs</code>) y expóngala en el frontend:</p>
+<div class="code"><span class="cm">// 01_WebApp.gs → ROUTER_()</span>
+productos_buscar: productosBuscar_,
+
+<span class="cm">// frontend/assets/js/api.js → metodos</span>
+buscarProducto: <span class="kw">function</span> (q) { <span class="kw">return</span> llamar('productos_buscar', { q: q }); },
+
+<span class="cm">// demo-store.js → handler espejo</span>
+H.productos_buscar = <span class="kw">function</span> (c) {
+  var s = sesionDe(c); permiso(s, 'catalogos:read');
+  var q = String(c.q || '').toLowerCase();
+  <span class="kw">return</span> db.productos.filter(<span class="kw">function</span> (p) {
+    <span class="kw">return</span> String(p.nombre).toLowerCase().indexOf(q) !== -1;
+  });
+};</div>
+
+<h3>6.3 · Receta 2 — Agregar una vista de frontend</h3>
+<div class="code-head">frontend/assets/js/views/view-mimodulo.js</div>
+<div class="code">(<span class="kw">function</span> () {
+  window.NEXO_VISTAS = window.NEXO_VISTAS || {};
+  window.NEXO_VISTAS['mimodulo'] = {
+    data: <span class="kw">function</span> () { <span class="kw">return</span> { filas: [], cargando: <span class="kw">false</span> }; },
+    methods: {
+      cargar: <span class="kw">async function</span> () {
+        <span class="kw">this</span>.cargando = <span class="kw">true</span>;
+        <span class="kw">try</span> { <span class="kw">this</span>.filas = <span class="kw">await</span> Api.buscarProducto(<span class="kw">this</span>.q || ''); }
+        <span class="kw">catch</span> (e) { AppStore.toast(e.message, 'error'); }
+        <span class="kw">finally</span> { <span class="kw">this</span>.cargando = <span class="kw">false</span>; }
+      }
+    },
+    mounted: <span class="kw">function</span> () { <span class="kw">this</span>.cargar(); },
+    template: `
+      &lt;div&gt;
+        &lt;h1 class="text-2xl font-bold text-slate-900"&gt;Mi módulo&lt;/h1&gt;
+        &lt;table class="tabla-gen mt-4"&gt;
+          &lt;thead&gt;&lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Nombre&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+          &lt;tbody&gt;&lt;tr v-for="f in filas" :key="f.id"&gt;
+            &lt;td&gt;{{ f.id }}&lt;/td&gt;&lt;td&gt;{{ f.nombre }}&lt;/td&gt;
+          &lt;/tr&gt;&lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;`
+  };
+})();</div>
+<p>Tres pasos para activarla: ① cargar el script en <code class="inline">index.html</code> (después de
+<code class="inline">api.js</code>/components), ② agregar la entrada en el menú del sidebar
+(<code class="inline">app.js</code>) con el rol/permiso que la verá, ③ si necesita acción de backend, usar la receta
+6.2. Para persistir datos nuevos, la receta 6.4.</p>
+
+<h3>6.4 · Receta 3 — Agregar una pestaña a Google Sheets</h3>
+<p>Suma la constante en <code class="inline">00_Config.gs</code> (<code class="inline">APP.SHEETS</code>), define sus
+cabeceras en <code class="inline">09_Setup.gs</code> y extiende la <strong>migración idempotente</strong> — el patrón
+que garantiza que los usuarios existentes se actualicen sin perder datos:</p>
+<div class="code"><span class="kw">function</span> asegurarHoja_(nombre, cabeceras) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hoja = ss.getSheetByName(nombre);
+  <span class="kw">if</span> (!hoja) { hoja = ss.insertSheet(nombre); hoja.appendRow(cabeceras); <span class="kw">return</span>; }
+  var actuales = hoja.getRange(1, 1, 1, hoja.getLastColumn()).getValues()[0];
+  cabeceras.forEach(<span class="kw">function</span> (col) {
+    <span class="kw">if</span> (actuales.indexOf(col) === -1) hoja.getRange(1, actuales.length + 1).setValue(col);
+  });
+}
+<span class="cm">// migrarAdendaV17_() → llama asegurarHoje_('Marcas', ['id','nombre','estado'])</span>
+<span class="cm">// …y avisa a sus usuarios: ejecutar UNA vez en el editor (o auto-desde config_save).</span></div>
+
+<h3>6.5 · Tocar el motor de ventas sin romperlo</h3>
+<p><code class="inline">ventasRegistrar_</code> (10_Ventas.gs) es transaccional y su orden importa: ① sesión y
+permiso, ② stock/lotes y política de precios (con <code class="inline">validarAutorizacion_</code> para fuera de
+política), ③ totales con IGV, canje de puntos, escala y fracción, ④ descarga de stock + kardex con
+<code class="inline">costoUnit</code> real por línea, ⑤ efectos según método (fiado suma saldo con límite; crédito
+genera cuotas), ⑥ inserción venta+detalle+boleta, ⑦ <strong>hooks post-venta</strong> (comprobante SUNAT, puntos,
+alertas de stock). Si agrega un hook, hágalo en el paso ⑦ con captura de error propia para no abortar la venta —
+es el patrón que usa <code class="inline">comprobanteRegistrarDespuesDeVenta_</code>:</p>
+<div class="code"><span class="kw">try</span> {
+  var res = miHookPostVenta_(ses, cfg, venta, detalle);
+  <span class="kw">if</span> (res) avisos.push(res.descripcion);
+} <span class="kw">catch</span> (e) {
+  <span class="cm">// el hook no puede tumbar la venta: queda logueado y avisado</span>
+  avisos.push('Mi módulo: ' + (e.message || e));
+}</div>
+
+<h3>6.6 · Estructura del repositorio</h3>
+<div class="tree">erp-wms/
+├── frontend/                  <span class="cm">← desplegar en VERCEL (estático, sin build)</span>
+│   ├── index.html · catalogo.html · manifest.json · sw.js · vercel.json
+│   └── assets/
+│       ├── css/custom.css     <span class="cm">← estilos sobre Tailwind</span>
+│       ├── vendor/            <span class="cm">← vue · tailwind · chart.js · jspdf (local)</span>
+│       └── js/
+│           ├── config.js      <span class="cm">← ⚠️ API_URL del Web App ('' = demo)</span>
+│           ├── api.js · store.js · app.js · components.js · receipts.js
+│           ├── utils.js · demo-data.js · demo-store.js
+│           └── views/         <span class="cm">← 28 vistas view-*.js</span>
+├── backend/                   <span class="cm">← pegar en APPS SCRIPT (mismo nombre sin .gs)</span>
+│   ├── 00_Config · 01_WebApp · 02_Auth · 03_Db
+│   ├── 04_Catalogos · 05_Movimientos · 06_Kardex · 07_Dashboard · 08_Reportes
+│   ├── 09_Setup · 10_Ventas · 11_Caja · 12_Fiados · 13_Cotizaciones · 14_Analitica
+│   └── 15_Pais · 16_Comprobantes · 17_Gastos · 18_Compras · 19_Creditos
+│       · 20_Fidelizacion · 21_RRHH · 22_Tareas · 23_Catalogo
+├── DOCUMENTACION.md           <span class="cm">← esta documentación (versión GitHub)</span>
+└── README.md                  <span class="cm">← guía de instalación y changelog</span></div>
+
+<h3>6.7 · Probar y liberar una versión</h3>
+<div class="code"><span class="cm"># 1) sintaxis de todos los módulos</span>
+for f in backend/*.gs frontend/assets/js/*.js frontend/assets/js/views/*.js; do
+  node --check "$f" || echo "ERROR en $f"
+done
+
+<span class="cm"># 2) pruebas de humo con shims de GAS (40 aserciones, scripts/test_v16.js)</span>
+node scripts/test_v16.js
+
+<span class="cm"># 3) empaquetar y desplegar</span>
+zip -r erp-wms-vX.Y.Z.zip erp-wms -x "*.DS_Store"
+<span class="cm"># backend: pegar .gs → Implementar → Nueva versión (la URL /exec no cambia)</span>
+<span class="cm"># frontend: git push (Vercel redespliega) o re-arrastre</span></div>
+<p><strong>Checklist de release</strong>: bump de versión en <code class="inline">APP.VERSION</code> (00_Config) y
+<code class="inline">CONFIG_APP.VERSION</code> (config.js) · migración idempotente si hay pestañas/columnas nuevas ·
+handlers espejados en demo-store · README actualizado · prueba E2E rápida en demo (login → venta → comprobante).</p>
+
+<h3>6.8 · Ideas de extensión ya preparadas por la arquitectura</h3>
+<ul class="lista">
+  <li><strong>Multi-empresa</strong>: una hoja por RUC; el despliegue se copia entero (contadores con 30 clientes = 30 hojas + 1 frontend compartido con distinto <code class="inline">API_URL</code> por empresa).</li>
+  <li><strong>Firma UBL dentro de GAS</strong>: eliminar la dependencia del API externa firmando XMLDSig en Apps Script (trabajo medio; el payload ya es UBL-ready).</li>
+  <li><strong>PLE de compras (8.2)</strong> espejando el módulo 16 sobre las OC/CxP.</li>
+  <li><strong>App de reparto</strong>: la cola offline y el catálogo público ya dan la base para un repartidor que cobra y sincroniza.</li>
+</ul>
+
+<h3>6.9 · Depurar en producción con seguridad</h3>
+<p>Cuando un usuario reporta “no funciona”, este es el orden que evita ensañarse con la producción:</p>
+<ol class="pasos">
+  <li><strong>Reproduzca en demo</strong>: si el fallo ocurre también en modo demo, es del código; si no, es del entorno (datos, versión, conexión).</li>
+  <li><strong>Compare versiones</strong>: <code class="inline">ping</code> devuelve la versión del backend
+  (<code class="inline">{"action":"ping"}</code>) y el pie del login muestra la del frontend. La #1 de las causas
+  sigue siendo el backend sin publicar.</li>
+  <li><strong>Mire el POST crudo</strong>: F12 → Network → la petición al <code class="inline">/exec</code> muestra
+  payload y respuesta exactos; el <code class="inline">code</code> de error le dice qué guardas falló.</li>
+  <li><strong>Logs del servidor</strong>: <em>Ver → Registro de ejecuciones</em> en Apps Script para el stack
+  completo de los INTERNAL.</li>
+  <li><strong>Pruebe en copia</strong>: duplique la hoja (<em>Hacer una copia</em>) y apunte un despliegue de prueba
+  (<code class="inline">/dev</code>) a esa copia antes de tocar la versión productiva.</li>
+</ol>
+<h3>6.9 · Depurar en producción con seguridad</h3>
+<p>Cuando un usuario reporta “no funciona”, este es el orden que evita ensañarse con la producción:</p>
+<ol class="pasos">
+  <li><strong>Reproduzca en demo</strong>: si el fallo ocurre también en modo demo, es del código; si no, es del entorno (datos, versión, conexión).</li>
+  <li><strong>Compare versiones</strong>: <code class="inline">ping</code> devuelve la versión del backend
+  (<code class="inline">{"action":"ping"}</code>) y el pie del login muestra la del frontend. La #1 de las causas
+  sigue siendo el backend sin publicar.</li>
+  <li><strong>Mire el POST crudo</strong>: F12 → Network → la petición al <code class="inline">/exec</code> muestra
+  payload y respuesta exactos; el <code class="inline">code</code> de error le dice qué guardas falló.</li>
+  <li><strong>Logs del servidor</strong>: <em>Ver → Registro de ejecuciones</em> en Apps Script para el stack
+  completo de los INTERNAL.</li>
+  <li><strong>Pruebe en copia</strong>: duplique la hoja (<em>Hacer una copia</em>) y apunte un despliegue de prueba
+  (<code class="inline">/dev</code>) a esa copia antes de tocar la versión productiva.</li>
+</ol>
+<h3>6.9 · Depurar en producción con seguridad</h3>
+<p>Cuando un usuario reporta “no funciona”, este es el orden que evita ensañarse con la producción:</p>
+<ol class="pasos">
+  <li><strong>Reproduzca en demo</strong>: si el fallo ocurre también en modo demo, es del código; si no, es del entorno (datos, versión, conexión).</li>
+  <li><strong>Compare versiones</strong>: <code class="inline">ping</code> devuelve la versión del backend
+  (<code class="inline">{"action":"ping"}</code>) y el pie del login muestra la del frontend. La #1 de las causas
+  sigue siendo el backend sin publicar.</li>
+  <li><strong>Mire el POST crudo</strong>: F12 → Network → la petición al <code class="inline">/exec</code> muestra
+  payload y respuesta exactos; el <code class="inline">code</code> de error le dice qué guardas falló.</li>
+  <li><strong>Logs del servidor</strong>: <em>Ver → Registro de ejecuciones</em> en Apps Script para el stack
+  completo de los INTERNAL.</li>
+  <li><strong>Pruebe en copia</strong>: duplique la hoja (<em>Hacer una copia</em>) y apunte un despliegue de prueba
+  (<code class="inline">/dev</code>) a esa copia antes de tocar la versión productiva.</li>
+</ol>
+<!-- ==================== CAP 7: FAQ ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Capítulo 7</span>
+  <div class="ch-title">Problemas frecuentes y soluciones</div>
+  <p class="ch-lead">Los síntomas más comunes con su causa real y la solución paso a paso — incluyendo la recuperación de acceso.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>7.1 · Tabla de solución rápida</h3>
+<table>
+  <colgroup><col style="width:30%"><col style="width:30%"><col style="width:40%"></colgroup>
+  <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+  <tbody>
+    <tr><td>“Credenciales inválidas” <b>en la demo</b> aunque la clave es correcta</td><td>El asistente de inicio reemplazó <code>admin123</code> en una visita anterior, o quedaron datos viejos en el navegador</td><td>Botón <b>“Restablecer demostración”</b> en la propia pantalla de login: borra la base local, limpia service workers y regenera <code>admin/admin123</code></td></tr>
+    <tr><td>“Credenciales inválidas” <b>en su instalación real</b></td><td>① Nunca se ejecutó el setup en esa hoja · ② olvidó la contraseña · ③ salt/hash corruptos en la pestaña Usuarios</td><td>① Ejecute <code>setupDesdeCero()</code> o <code>setupSystem()</code> en el editor · ②③ ejecute <code>restablecerAdmin()</code> — restaura <code>admin/admin123</code> sin borrar datos</td></tr>
+    <tr><td>“Demasiados intentos fallidos… 5 minutos”</td><td>Limitador de fuerza bruta (5 errores)</td><td>Espere 5 minutos; en demo basta recargar la página</td></tr>
+    <tr><td>“No se pudo conectar con el backend”</td><td><code>API_URL</code> mal copiada o despliegue no público</td><td>La URL debe terminar en <code>/exec</code> y el acceso ser “Cualquier usuario”</td></tr>
+    <tr><td>“La respuesta del backend no es JSON válido”</td><td>Editó código sin publicar versión</td><td><em>Implementar → Gestionar implementaciones → ✏️ → Nueva versión</em></td></tr>
+    <tr><td>“Acción no reconocida: X” en la demo</td><td>Falta el handler espejo en <code>demo-store.js</code></td><td>Agregar <code>H.x = …</code> (receta 6.2)</td></tr>
+    <tr><td>El frontend sigue mostrando la versión vieja</td><td>Service worker con caché previa</td><td>Recarga forzada (Ctrl+F5); el botón de restablecer demo también desregistra SWs</td></tr>
+    <tr><td>“Este usuario está inactivo”</td><td>Columna <code>estado ≠ ACTIVO</code></td><td>Reactive desde Usuarios y Roles (otro admin) o en la hoja</td></tr>
+    <tr><td>“Sesión expirada” frecuente</td><td>TTL del token: 8 horas</td><td>Inicie sesión de nuevo (comportamiento esperado)</td></tr>
+    <tr><td>Comprobante queda <b>PENDIENTE</b> en modo api</td><td>El API no respondió (hosting dormido, red)</td><td>Botón “Enviar a SUNAT” en la vista Comprobantes (usa el id ya creado)</td></tr>
+    <tr><td>CDR <b>RECHAZADO</b> (código ≠ 0)</td><td>Datos del cliente, serie inexistente en el API o certificado vencido</td><td>Lea <code>cdrDescripcion</code>, corrija y reenvíe; verifique vigencia del .pfx y las series</td></tr>
+    <tr><td>Fechas desplazadas unas horas</td><td>Zona horaria de la hoja</td><td><em>Archivo → Configuración → (GMT-05:00) Lima</em></td></tr>
+    <tr><td>La boleta no muestra el logo</td><td>URL caída o sin HTTPS</td><td>Use URL HTTPS estable o suba el archivo desde Ajustes (Base64)</td></tr>
+    <tr><td>El correo nocturno de avisos no llega</td><td>Trigger no instalado o correo sin activar</td><td>Ajustes → Recordatorios: “Activar avisos” y “Probar avisos ahora”</td></tr>
+  </tbody>
+</table>
+
+<h3>7.2 · Recuperación de acceso, paso a paso</h3>
+<ol class="pasos">
+  <li>Abra la hoja <strong>NexoERP-DB</strong> → <em>Extensiones → Apps Script</em>.</li>
+  <li>En el desplegable de funciones elija <code class="inline">restablecerAdmin</code> y pulse <strong>Ejecutar</strong> (o escriba una clave propia: <code class="inline">restablecerAdmin('MiNuevaClave1')</code>).</li>
+  <li>El registro confirmará: usuario <code class="inline">admin</code>, rol admin, estado ACTIVO, sesiones abiertas cerradas.</li>
+  <li>Entre al sistema con <code class="inline">admin / admin123</code> (o su clave) y cámbiela enseguida desde <em>Usuarios y Roles</em>.</li>
+</ol>
+<div class="callout"><b>En la demo</b> no necesita editor: el botón “Restablecer demostración” de la pantalla de
+login hace lo equivalente en el navegador (borra la base local y vuelve a la semilla).</div>
+
+<h3>7.3 · Cómo depurar como profesional</h3>
+<ul class="lista">
+  <li><strong>Log del servidor</strong>: en Apps Script, <em>Ver → Registro de ejecuciones</em>. Los errores inesperados dejan el detalle completo ahí (al cliente solo llega el mensaje genérico, por seguridad).</li>
+  <li><strong>Consola del navegador</strong> (F12 → Console/Network): la pestaña Network muestra el POST al <code class="inline">/exec</code> y la respuesta JSON cruda — indispensable para diagnosticar errores de API/SUNAT.</li>
+  <li><strong>Auditoría interna</strong>: la vista Auditoría registra quién hizo qué y cuándo, con el detalle exacto del payload.</li>
+  <li><strong>Probar sin riesgo</strong>: el modo demo y el botón de restablecimiento permiten experimentar libremente; también puede duplicar la hoja (<em>Hacer una copia</em>) para un entorno de pruebas real.</li>
+</ul>
+<div class="callout ok"><b>Soporte entre usted y el código:</b> al ser un sistema abierto, cada tabla de este
+capítulo apunta a un archivo concreto del proyecto. Si algo no cuadra con este manual, el README del repositorio y
+<code class="inline">DOCUMENTACION.md</code> se actualizan junto con el código: son la fuente de verdad.</div>
+
+<!-- ==================== ANEXOS ==================== -->
+<div class="chapter-header">
+  <span class="ch-tag">Anexos</span>
+  <div class="ch-title">Anexos de referencia rápida</div>
+  <p class="ch-lead">Material de consulta permanente: todas las claves de configuración, un glosario en cristiano y tres casos prácticos guiados.</p>
+  <div class="divider"></div>
+</div>
+
+<h3>Anexo A · Referencia completa de claves de Config</h3>
+<p>La pestaña <code class="inline">Config</code> guarda pares clave/valor que controlan el comportamiento del sistema.
+Se editan desde <em>Configuración</em> con rol admin (la vista las valida), o directamente en la hoja en casos
+excepcionales. Estas son todas las claves activas en v1.6.1:</p>
+<table>
+  <colgroup><col style="width:30%"><col style="width:50%"><col style="width:20%"></colgroup>
+  <thead><tr><th>Clave</th><th>Qué controla</th><th>Por defecto</th></tr></thead>
+  <tbody>
+    <tr><td><b>Identidad</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Datos que imprimen boletas, proformas y comprobantes</td></tr>
+    <tr><td><code>RAZON_SOCIAL / NOMBRE_EMPRESA</code></td><td>Razón social oficial y nombre comercial mostrado</td><td>—</td></tr>
+    <tr><td><code>RUC</code></td><td>RUC de 11 dígitos; decide Factura vs Boleta y va en el XML SUNAT</td><td>—</td></tr>
+    <tr><td><code>DIRECCION_EMPRESA / TELEFONO_EMPRESA</code></td><td>Domicilio y teléfono en cabeceras de documentos</td><td>—</td></tr>
+    <tr><td><code>LOGO_URL / LOGO_BASE64</code></td><td>Logo impreso (URL HTTPS pública o imagen subida en Base64)</td><td>—</td></tr>
+    <tr><td><code>HORARIO_INICIO / HORARIO_FIN</code></td><td>Horario de atención; las ventas fuera de horario se alertan en el Panel</td><td>—</td></tr>
+    <tr><td><code>MENSAJE_BOLETA</code></td><td>Pie de boleta (p. ej. “¡Gracias por su compra!”)</td><td>—</td></tr>
+    <tr><td><b>Impuestos y moneda</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Definidos por el selector de país; editables</td></tr>
+    <tr><td><code>IGV_INCLUIDO</code></td><td>Sí = los precios de productos ya traen el impuesto (cálculo hacia atrás)</td><td>Sí (PE)</td></tr>
+    <tr><td><code>IGV_TASA</code></td><td>Tasa del impuesto: 18 (PE/BO), 15 (EC), 19 (CO/CL), 21 (AR)…</td><td>18</td></tr>
+    <tr><td><code>MONEDA_CODIGO / MONEDA_SIMBOLO</code></td><td>ISO (PEN, BOB, USD…) y símbolo impreso (S/, Bs, $…)</td><td>PEN · S/</td></tr>
+    <tr><td><code>PAIS</code></td><td>Código del país activo (PER, BOL, ECU, COL, CHL, ARG, PRY, URY); PER activa SUNAT</td><td>PER</td></tr>
+    <tr><td><code>TC_VENTA / TC_FECHA</code></td><td>Tipo de cambio de referencia cacheado (trigger diario o botón en Ajustes)</td><td>—</td></tr>
+    <tr><td><b>POS y políticas</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Reglas del mostrador y autorizaciones</td></tr>
+    <tr><td><code>PREFIJO_BOLETA</code></td><td>Prefijo de boleta interna cuando SUNAT está desactivado</td><td>BV</td></tr>
+    <tr><td><code>ALMACEN_VENTA</code></td><td>ID del almacén que despacha el POS</td><td>ALM-0001</td></tr>
+    <tr><td><code>METODO_PAGO_DEFAULT</code></td><td>Método preseleccionado en el POS</td><td>Efectivo</td></tr>
+    <tr><td><code>DESCUENTO_MAX_PCT</code></td><td>% máximo de descuento por línea sin autorización de supervisor</td><td>10</td></tr>
+    <tr><td><code>DESCUENTO_REQUIERE_AUTORIZACION / REGALO_REQUIERE_AUTORIZACION</code></td><td>Exigen usuario admin/gerente validado en servidor (queda en boleta y auditoría)</td><td>Sí</td></tr>
+    <tr><td><code>FIADO_PERMITIR_EXCEDER</code></td><td>Permitir vender al fiado por encima del límite del cliente</td><td>No</td></tr>
+    <tr><td><code>FIADO_DIAS_ALERTA</code></td><td>Días de antigüedad que disparan la alerta de fiado</td><td>30</td></tr>
+    <tr><td><code>WHATSAPP_PREFIJO</code></td><td>Prefijo país para enlaces wa.me</td><td>51</td></tr>
+    <tr><td><b>Inventario</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Valuación y vencimientos</td></tr>
+    <tr><td><code>METODO_VALUACION</code></td><td>Promedio ponderado (PP); el kardex y la rentabilidad usan este costo</td><td>PP</td></tr>
+    <tr><td><code>PERMITIR_STOCK_NEGATIVO</code></td><td>Vender sin existencia (se registra con saldo en rojo)</td><td>No</td></tr>
+    <tr><td><code>DIAS_ALERTA_VENCIMIENTO</code></td><td>Aviso previo de lotes por vencer (FEFO)</td><td>30</td></tr>
+    <tr><td><b>Comprobantes SUNAT</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Activos cuando PAIS = PER y el modo no es desactivado</td></tr>
+    <tr><td><code>SUNAT_MODO</code></td><td>desactivado / manual / api</td><td>desactivado</td></tr>
+    <tr><td><code>SERIE_BOLETA / SERIE_FACTURA / SERIE_NC / SERIE_ND</code></td><td>Series oficiales por tipo (B001 · F001 · FC01 · FD01)</td><td>B001…</td></tr>
+    <tr><td><code>COMPROBANTE_AUTO</code></td><td>RUC → Factura automático; No = siempre boleta interna</td><td>Sí</td></tr>
+    <tr><td><code>SUNAT_API_URL / SUNAT_API_USUARIO / SUNAT_API_PASSWORD</code></td><td>URL del API de facturación y credenciales del usuario del API (Sanctum)</td><td>—</td></tr>
+    <tr><td><code>SUNAT_COMPANY_ID / SUNAT_BRANCH_ID</code></td><td>IDs de empresa y sucursal dentro del API</td><td>1 · 1</td></tr>
+    <tr><td><code>SUNAT_TIPO_OPERACION / SUNAT_METODO_ENVIO</code></td><td>Catálogo 12 (0101 venta interna) y envío (resumen_diario)</td><td>0101 · resumen</td></tr>
+    <tr><td><b>Pagos QR y fidelización</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Impresión en boleta y puntos</td></tr>
+    <tr><td><code>QR_YAPE / QR_PLIN / QR_BANCO</code></td><td>Celulares Yape/Plin y banco/CCI impresos con el importe exacto</td><td>—</td></tr>
+    <tr><td><code>FIDEL_ACTIVA / FIDEL_X_CONSUMO / FIDEL_VALOR_PUNTO / FIDEL_MIN_CANJE</code></td><td>Programa activo, 1 punto por cada X de consumo, valor del punto al canjear y mínimo para canjear</td><td>Sí · 10 · 0.1 · 100</td></tr>
+    <tr><td><b>Tareas y respaldo</b></td><td colspan="2" style="background:#eef3ff;font-weight:700;color:#172554;">Trigger nocturno gratuito de Apps Script</td></tr>
+    <tr><td><code>TAREAS_ACTIVAS / TAREAS_CORREO</code></td><td>Avisos nocturnos activados y correo del dueño para MailApp</td><td>No · —</td></tr>
+    <tr><td><code>BACKUP_CARPETA / BACKUP_RETENCION</code></td><td>Carpeta Drive “NexoERP Backups” y copias a conservar</td><td>— · 7</td></tr>
+    <tr><td><code>CATALOGO_ACTIVO / CATALOGO_TOKEN</code></td><td>Catálogo público activado y su token de acceso (regenerable)</td><td>No · —</td></tr>
+    <tr><td><code>ASISTENTE_COMPLETADO</code></td><td>Marca del asistente de inicio (relanza si se pone en No y no hay productos)</td><td>No</td></tr>
+  </tbody>
+</table>
+
+<h3>Anexo B · Glosario del negocio</h3>
+<table>
+  <colgroup><col style="width:24%"><col style="width:76%"></colgroup>
+  <thead><tr><th>Término</th><th>En cristiano</th></tr></thead>
+  <tbody>
+    <tr><td><b>Kardex</b></td><td>La “partida de nacimiento” de cada producto: entra, sale y queda, con el costo de cada movimiento. Físico (unidades) y valorizado (S/)</td></tr>
+    <tr><td><b>Promedio ponderado (PP)</b></td><td>Forma de valuar: cada vez que compra más caro o más barato, el costo se promedia con lo que ya tenía. Es el método que usa SUNAT con más frecuencia en MYPE</td></tr>
+    <tr><td><b>FEFO</b></td><td><i>First Expired, First Out</i>: sale primero el lote que antes vence. Clave en farmacias y abarrotes</td></tr>
+    <tr><td><b>Fraccionamiento</b></td><td>Comprar cajas y vender por unidades. El stock se lleva en la unidad menor para que el inventario no mienta</td></tr>
+    <tr><td><b>Escala de precio</b></td><td>Precio mayorista automático al comprar cierta cantidad (p. ej. desde 12 unidades cuesta menos)</td></tr>
+    <tr><td><b>Fiado</b></td><td>Venta al crédito de confianza, sin documento formal de crédito, con límite por cliente</td></tr>
+    <tr><td><b>CxC / CxP</b></td><td>Cuentas por Cobrar (me deben) / Cuentas por Pagar (debo). El “aging” las agrupa por días de atraso</td></tr>
+    <tr><td><b>Aging</b></td><td>Antigüedad de saldos por tramos (por vencer, 1-30, 31-60, 61-90, +90 días) para priorizar cobranza</td></tr>
+    <tr><td><b>ABC / Pareto</b></td><td>Clasificar productos por su aporte al ingreso: el grupo A (pocos productos) genera el grueso del dinero</td></tr>
+    <tr><td><b>Punto de equilibrio</b></td><td>Venta mensual mínima para cubrir todos los gastos: ni ganar ni perder</td></tr>
+    <tr><td><b>CDR</b></td><td>Constancia de Recepción de SUNAT: la “firma” de que el comprobante fue aceptado (código 0)</td></tr>
+    <tr><td><b>RDD</b></td><td>Resumen Diario: lote donde se reportan las boletas del día anterior</td></tr>
+    <tr><td><b>PLE 8.1</b></td><td>Formato TXT del registro de ventas que pide SUNAT; su contador lo conoce de memoria</td></tr>
+    <tr><td><b>PWA</b></td><td>Web instalable como app en el celular, con funcionamiento sin internet del módulo de venta</td></tr>
+    <tr><td><b>Service worker</b></td><td>El “ayudante” del navegador que guarda la app en caché y permite el modo offline</td></tr>
+    <tr><td><b>Token de sesión</b></td><td>La “llave temporal” que el backend entrega al hacer login (dura 8 h) y acompaña cada petición</td></tr>
+  </tbody>
+</table>
+
+<h3>Anexo C · Tres casos prácticos guiados</h3>
+<h4>Caso 1 · La primera venta del día (contado, efectivo)</h4>
+<ol class="pasos">
+  <li>Abra <strong>POS</strong>, abra caja si el sistema lo pide (fondo inicial).</li>
+  <li>Escanee el código de barras o toque el producto; ajuste cantidades con los botones o escribiendo.</li>
+  <li>El cliente paga S/ 20 en efectivo → botón de billete “20” → <strong>Cobrar</strong>.</li>
+  <li>La boleta se emite con correlativo (B001-… o BV-… según su modo), stock y kardex se descargan solos y el toast confirma. Envíela por WhatsApp con un toque si el cliente la pidió.</li>
+</ol>
+<h4>Caso 2 · Venta a crédito con cuotas al conocido del barrio</h4>
+<ol class="pasos">
+  <li>Carrito listo → cliente registrado → método <strong>Credito</strong>.</li>
+  <li>Defina cuotas (p. ej. 3 cuotas mensuales): el panel muestra cada vencimiento antes de cobrar.</li>
+  <li>Cobre: la venta queda EMITIDA, se generan las 3 cuotas en <em>Cobranzas</em> y el trigger nocturno avisará por correo el día antes de cada vencimiento.</li>
+  <li>El día del pago: <em>Cobranzas</em> → cobrar cuota (Efectivo entra al cuadre del día; Yape/Plin se registran por método).</li>
+</ol>
+<h4>Caso 3 · El cliente devuelve la mitad de la mercadería (Nota de Crédito)</h4>
+<ol class="pasos">
+  <li><em>Ventas</em> → ubique la venta → <strong>Nueva Nota de Crédito</strong> (o desde la vista <em>Comprobantes SUNAT</em>).</li>
+  <li>Elija motivo “devolución” y marque las líneas/cantidades devueltas.</li>
+  <li>Al emitir: sale FC01-000000XX, el stock <strong>re-ingresa al kardex</strong> con el costo original, y si la venta fue fiada se descuenta del saldo del cliente.</li>
+  <li>El comprobante NC queda en <em>Comprobantes</em> y entra al libro de ventas del mes (el PLE lo refleja como nota).</li>
+</ol>
+
+<h3>Anexo D · Utilidades del backend que conviene conocer</h3>
+<table>
+  <colgroup><col style="width:34%"><col style="width:66%"></colgroup>
+  <thead><tr><th>Función (03_Db.gs y helpers)</th><th>Para qué sirve al desarrollar</th></tr></thead>
+  <tbody>
+    <tr><td><code>dbLeer_(hoja)</code></td><td>Lee la pestaña completa como array de objetos (fila 1 = nombres de columna) y agrega <code>_fila</code> (número de fila física)</td></tr>
+    <tr><td><code>dbInsertar_(hoja, obj)</code></td><td>Agrega una fila respetando las columnas existentes</td></tr>
+    <tr><td><code>dbActualizar_(hoja, id, cambios)</code></td><td>Localiza por <code>id</code> y actualiza solo las columnas del objeto <code>cambios</code></td></tr>
+    <tr><td><code>dbEliminarFila_(hoja, fila)</code></td><td>Elimina físicamente la fila (usado en sesiones y anulaciones)</td></tr>
+    <tr><td><code>dbSiguienteId_(hoja, 'PFX-', 4)</code></td><td>Genera el siguiente ID correlativo (<code>PFX-0007</code>) escaneando los existentes</td></tr>
+    <tr><td><code>appOk_(data) / appErr_(msg, code)</code></td><td>Envoltorios de la respuesta estándar</td></tr>
+    <tr><td><code>ApiError_(msg, code)</code></td><td>Error de negocio controlado: mensaje claro al cliente + código</td></tr>
+    <tr><td><code>numero_ / entero_ / boolStr_ / redondear_</code></td><td>Conversión tolerante de celdas de Sheets a números/booleanos redondeados</td></tr>
+    <tr><td><code>fechaNow_ / fechaStr_</code></td><td>Fecha-hora del servidor y su formato texto <code>yyyy-MM-dd HH:mm:ss</code></td></tr>
+    <tr><td><code>registrarAuditoria_(ses, tipo, detalle)</code></td><td>Deja constancia con usuario, rol, acción y detalle en la pestaña Auditoria</td></tr>
+    <tr><td><code>requiereSesion_ / requierePermiso_</code></td><td>Guardas obligatorias al inicio de toda acción no pública</td></tr>
+    <tr><td><code>siguienteCorrelativo_(tipo)</code></td><td>Incrementa y devuelve el correlativo oficial de un tipo de comprobante (con lock)</td></tr>
+  </tbody>
+</table>
+
+<h3>Anexo E · Migrar sus planillas Excel a NexoERP</h3>
+<p>El miedo clásico al sistema nuevo es “tengo que cargar todo de nuevo”. No: el asistente de inicio y el propio
+sistema están pensados para <strong>pegar desde Excel/Google Sheets</strong>. El procedimiento para un negocio
+operando:</p>
+<ol class="pasos">
+  <li><strong>Prepare sus columnas</strong> en una hoja de cálculo temporal con el orden exacto que pide el asistente: <code class="inline">sku ; nombre ; categoría ; unidad ; costo ; precio ; stock inicial ; stock mínimo</code>. Una fila por producto; puede dejar vacíos los que no apliquen.</li>
+  <li><strong>Copie y pegue</strong> en el paso 5 del asistente (tabla de productos): cada fila crea el producto y su <strong>ENTRADA de inventario</strong> con ese costo — el kardex arranca valorizado con datos reales, no en cero.</li>
+  <li><strong>Clientes</strong>: cargue los frecuentes (nombre, documento, teléfono, límite de fiado) en el paso 6, o después desde <em>Clientes</em>. El documento (DNI/RUC) define boleta/factura automática.</li>
+  <li><strong>Deudas de fiados heredadas</strong>: cree el cliente, venda con método <em>Fiado</em> el saldo histórico y regístrelo como abono pendiente; o espere el módulo de saldos iniciales si prefiere no tocar el kardex.</li>
+  <li><strong>Verifique</strong>: <em>Stock por Almacén</em> contra su conteo físico; corrija diferencias con un <em>Ajuste</em> documentado en <em>Movimientos</em> (queda auditado).</li>
+</ol>
+<table>
+  <colgroup><col style="width:22%"><col style="width:26%"><col style="width:52%"></colgroup>
+  <thead><tr><th>Desde</th><th>Hacia NexoERP</th><th>Truco</th></tr></thead>
+  <tbody>
+    <tr><td>Excel de inventario</td><td>Asistente paso 5 (pegar)</td><td>Ordene las columnas una vez; guarde la plantilla para reposiciones</td></tr>
+    <tr><td>Excel de clientes</td><td>Clientes (carga rápida)</td><td>Unifique DNI/RUC en una columna; el sistema detecta 11 dígitos = RUC</td></tr>
+    <tr><td>Libro de Excel de ventas</td><td>No migrar</td><td>Solo abra el sistema desde hoy; el histórico contable vive en su Excel/PLE anterior</td></tr>
+    <tr><td>Caja inicial</td><td>Asistente paso 7</td><td>El fondo de caja abre el primer turno con el monto contado real</td></tr>
+  </tbody>
+</table>
+<div class="callout warn"><b>Regla de sanidad:</b> migre productos y clientes; <b>no</b> migre el histórico de
+ventas/movimientos. El valor del sistema está en el inventario valorizado correcto <em>hacia adelante</em>;
+reconstruir meses pasados en el kardex solo introduce errores de costo.</div>
+
+<h3>Anexo F · Matriz de permisos por rol</h3>
+<p>La fuente de verdad es <code class="inline">APP.PERMISOS</code> en <code class="inline">00_Config.gs</code>;
+esta tabla la traduce a lenguaje del negocio. Recuerde: el backend valida el permiso en cada acción — el menú del
+frontend solo <em>muestra</em> lo que el rol puede usar.</p>
+<table>
+  <colgroup><col style="width:34%"><col style="width:16%"><col style="width:17%"><col style="width:17%"><col style="width:16%"></colgroup>
+  <thead><tr><th>Capacidad</th><th>admin</th><th>gerente</th><th>operador</th><th>consulta</th></tr></thead>
+  <tbody>
+    <tr><td>Vender en el POS y registrar movimientos (<code>ventas:registrar</code>, <code>movimientos:registrar</code>)</td><td>✔</td><td>✔</td><td>✔</td><td>—</td></tr>
+    <tr><td>Manejar caja (<code>caja:manage</code>)</td><td>✔</td><td>✔</td><td>✔</td><td>—</td></tr>
+    <tr><td>Cotizaciones y crédito/cuotas (<code>cotizaciones:manage</code>, <code>creditos:manage</code>)</td><td>✔</td><td>✔</td><td>✔</td><td>—</td></tr>
+    <tr><td>Compras y recepciones (<code>compras:manage</code>)</td><td>✔</td><td>✔</td><td>✔</td><td>—</td></tr>
+    <tr><td>Editar catálogos: productos, clientes, categorías (<code>catalogos:write</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Anular ventas y movimientos (<code>ventas:anular</code>, <code>movimientos:anular</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Autorizar descuentos fuera de política y regalos (<code>ventas:autorizar</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Comprobantes SUNAT, notas y PLE (<code>comprobantes:manage</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Gastos, presupuesto, RRHH, fidelización (<code>gastos:manage</code>, <code>rrhh:manage</code>, <code>fidelizacion:manage</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Panel de control y auditoría (<code>panel:read</code>, <code>auditoria:read</code>)</td><td>✔</td><td>✔</td><td>—</td><td>—</td></tr>
+    <tr><td>Usuarios y roles (<code>usuarios:manage</code>)</td><td>✔</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Ajustes del sistema y tareas programadas (<code>config:write</code>, <code>tareas:manage</code>)</td><td>✔</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Consultas (listados, stock, kardex, reportes básicos)</td><td>✔</td><td>✔</td><td>✔</td><td>✔</td></tr>
+  </tbody>
+</table>
+<p>Los reportes con costos (Rentabilidad Real) exigen admin/gerente también en el servidor. Para agregar un permiso
+nuevo: sume la entrada en <code class="inline">PERMISOS</code>, protéjala con
+<code class="inline">requierePermiso_(ses, 'su:permiso')</code> y añádala a esta tabla.</p>
+</div><!-- /main-content -->
+
+<!-- ==================== CONTRAPORTADA ==================== -->
+<div class="ending">
+  <div class="end-inner">
+    <div class="end-logo">Nexo<span>ERP</span></div>
+    <div class="end-line"></div>
+    <div class="end-txt">Sistema ERP/WMS de costo cero para MYPE de Perú y Sudamérica.
+    Sus datos viven en su propia hoja de cálculo; el sistema vive en la nube gratuita;
+    la documentación vive junto al código.</div>
+    <div class="end-meta">Vercel · Google Apps Script · Google Sheets · v1.6.1 · 2026</div>
+  </div>
+</div>
+
+</body>
+</html>
