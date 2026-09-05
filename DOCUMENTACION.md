@@ -5,7 +5,7 @@
 > **Sistema Integrado de Gestión Empresarial (ERP) y Administración de Almacenes (WMS)**  
 > **Pila Tecnológica:** Google Apps Script (Backend Serverless) + Google Sheets (Base de Datos Relacional) + Single Page Application (Vue 3 / Tailwind CSS) + PWA Offline.
 
-[![Planificación & Producción - Zai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Zai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://zhipuai.cn/)
+[![Planificación & Producción - Z.ai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Z.ai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://chat.z.ai/)
 [![Auditoría & Corrección - Google Antigravity (Gemini 3.8 Flash)](https://img.shields.io/badge/Auditor%C3%ADa%20y%20Correcci%C3%B3n-Google%20Antigravity%20%7C%20Gemini%203.8%20Flash-4285F4?style=flat-square&logo=google)](https://deepmind.google/)
 
 ---
@@ -1118,12 +1118,13 @@ La función `ventasRegistrar_` es el núcleo transaccional más sensible del sis
 
 ---
 
-## 19. Créditos y Asistencia de Inteligencia Artificial
+## 19. Créditos y Contribuidores de Inteligencia Artificial (AI Contributors)
 
 Este proyecto ha sido desarrollado, optimizado y documentado con la asistencia de tecnologías avanzadas de inteligencia artificial:
 
-- **🧠 Zai GLM 5.3 Flash:**
-  - **Rol Principal:** Planificación de la arquitectura, diseño conceptual, estructuración del modelo de datos y producción del código base del sistema.
-- **⚡ Google Antigravity (Gemini 3.8 Flash):**
-  - **Rol de Refinamiento y QA:** Auditoría integral del código fuente, depuración y resolución de bugs críticos (rutas de analítica en router, función `stockList_`, corrección de fechas en dashboard, eliminación segura en compras, compatibilidad de stock negativo), suite de pruebas de integración y generación de la documentación técnica en Markdown, HTML y PDF.
+| Contribuidor | Modelo / Motor | Especialidad / Rol en el Proyecto | Tipo de Aporte | Enlace Oficial |
+|---|---|---|---|---|
+| **Z.ai** | [GLM-5.3-Flash](https://chat.z.ai/) | **Planificación y Producción:** Diseño conceptual de la arquitectura, especificaciones funcionales, modelado de procesos de negocio (WMS multi-almacén, Punto de Venta, facturación SUNAT y multi-país) y generación del código base. | 💡 `Ideas` 🏗️ `Arquitectura` 💻 `Código Base` | [Z.ai - Advanced AI Chatbot & Agent powered by GLM-5.3-Flash](https://chat.z.ai/) |
+| **Google Antigravity** | [Gemini 3.8 Flash](https://deepmind.google/) | **Auditoría, Depuración y QA:** Detección y resolución de bugs críticos (enrutador API, función `stockList_`, fechas en Dashboard, compras atómicas), pruebas de integración y generación de documentación técnica (MD, HTML, PDF). | 🔍 `Auditoría` 🐛 `Bug Fixes` 🧪 `Tests` 📚 `Documentación` | [Google DeepMind / Antigravity](https://deepmind.google/) |
+
 

@@ -2,7 +2,7 @@
 
 > 📘 **Documentación Técnica Completa:** Para consultar la arquitectura detallada, el modelo de 33 tablas en Google Sheets, el diccionario de las 113 rutas de API y el manual operativo completo, consulte [DOCUMENTACION.md](DOCUMENTACION.md).
 
-[![Planificación & Producción - Zai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Zai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://zhipuai.cn/)
+[![Planificación & Producción - Z.ai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Z.ai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://chat.z.ai/)
 [![Auditoría & Corrección - Google Antigravity (Gemini 3.8 Flash)](https://img.shields.io/badge/Auditor%C3%ADa%20y%20Correcci%C3%B3n-Google%20Antigravity%20%7C%20Gemini%203.8%20Flash-4285F4?style=flat-square&logo=google)](https://deepmind.google/)
 
 **Arquitectura de costo cero:** Vercel (frontend SPA) + Google Apps Script (backend/API) + Google Sheets (base de datos).
@@ -284,11 +284,12 @@ Todas las peticiones son `POST` JSON al Web App: `{ action, token, ...payload }`
 
 ---
 
-## 🤖 Créditos y Desarrollo Asistido por Inteligencia Artificial
+## 👥 Contribuidores y Desarrollo Asistido por IA (AI Contributors)
 
 Este proyecto ha sido diseñado, producido y optimizado con la colaboración de modelos de inteligencia artificial de última generación:
 
-- **🧠 Zai GLM 5.3 Flash:**
-  - **Rol Principal:** Planificación estratégica de la arquitectura, diseño conceptual y modelado de negocio (WMS multi-almacén, Punto de Venta, facturación SUNAT y multi-país) y producción integral del núcleo de código.
-- **⚡ Google Antigravity (Gemini 3.8 Flash):**
-  - **Rol de Refinamiento y QA:** Auditoría integral del código fuente, depuración y resolución de bugs críticos (enrutador de API, función `stockList_`, cálculo de fechas en Dashboard, transaccionalidad atómica en órdenes de compra), pruebas automatizadas de integración y generación de la documentación técnica en Markdown, HTML y PDF.
+| Contribuidor | Modelo / Motor | Especialidad / Rol en el Proyecto | Tipo de Aporte | Enlace Oficial |
+|---|---|---|---|---|
+| **Z.ai** | [GLM-5.3-Flash](https://chat.z.ai/) | **Planificación y Producción:** Diseño conceptual de la arquitectura, especificaciones funcionales, modelado de procesos de negocio (WMS multi-almacén, Punto de Venta, facturación SUNAT y multi-país) y generación del código base. | 💡 `Ideas` 🏗️ `Arquitectura` 💻 `Código Base` | [Z.ai - Advanced AI Chatbot & Agent powered by GLM-5.3-Flash](https://chat.z.ai/) |
+| **Google Antigravity** | [Gemini 3.8 Flash](https://deepmind.google/) | **Auditoría, Depuración y QA:** Detección y resolución de bugs críticos (enrutador API, función `stockList_`, fechas en Dashboard, compras atómicas), pruebas de integración y generación de documentación técnica (MD, HTML, PDF). | 🔍 `Auditoría` 🐛 `Bug Fixes` 🧪 `Tests` 📚 `Documentación` | [Google DeepMind / Antigravity](https://deepmind.google/) |
+
