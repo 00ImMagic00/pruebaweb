@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexoERP & WMS v1.6.1 — Documentación Técnica y Manual de Operación</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #eff6ff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --bg-code: #f8fafc;
+      --bg-subtle: #f1f5f9;
+      --accent: #0ea5e9;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.65;
+      color: var(--text-main);
+      background-color: #ffffff;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    /* Header & Cover */
+    .header-box {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 30px;
+      margin-bottom: 40px;
+    }
+    
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.025em;
+      margin-bottom: 12px;
+    }
+    
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1e293b;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-top: 48px;
+      margin-bottom: 18px;
+      letter-spacing: -0.02em;
+    }
+    
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    
+    h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #475569;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    
+    p {
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+    
+    /* Blockquotes */
+    blockquote {
+      border-left: 4px solid var(--primary);
+      background-color: var(--primary-light);
+      padding: 14px 20px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+      color: #1e3a8a;
+      font-size: 0.95rem;
+    }
+    
+    blockquote p:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      display: block;
+    }
+    
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+      vertical-align: top;
+    }
+    
+    th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+    }
+    
+    tr:nth-child(even) td {
+      background-color: #fbfcfe;
+    }
+    
+    tr:hover td {
+      background-color: #f1f5f9;
+    }
+    
+    /* Code and Pre */
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 0.88em;
+      background-color: var(--bg-subtle);
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+    
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 18px 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    
+    pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+      border: none;
+      font-size: inherit;
+    }
+    
+    /* Lists */
+    ul, ol {
+      margin-left: 24px;
+      margin-bottom: 18px;
+    }
+    
+    li {
+      margin-bottom: 6px;
+    }
+    
+    /* Links */
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 40px 0;
+    }
+    
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 9999px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+    
+    /* Print Optimization */
+    @media print {
+      body {
+        padding: 0;
+        font-size: 11pt;
+        color: #000;
+      }
+      
+      .container {
+        max-width: 100%;
+      }
+      
+      h1, h2 {
+        page-break-before: always;
+      }
+      
+      .header-box h1 {
+        page-break-before: avoid;
+      }
+      
+      pre, table, blockquote {
+        page-break-inside: avoid;
+      }
+      
+      table {
+        display: table;
+      }
+      
+      pre {
+        background-color: #f1f5f9;
+        color: #000;
+        border: 1px solid #cbd5e1;
+      }
+      
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-box">
+      <h1>MANUAL TÉCNICO Y GUÍA INTEGRAL DE ARQUITECTURA Y OPERACIÓN</h1>
+<h1>NexoERP &amp; WMS — Versión 1.6.1</h1>
+<blockquote>
+<p><strong>Documento Oficial de Referencia Técnica, Funcional y de Despliegue</strong><br><strong>Sistema Integrado de Gestión Empresarial (ERP) y Administración de Almacenes (WMS)</strong><br><strong>Pila Tecnológica:</strong> Google Apps Script (Backend Serverless) + Google Sheets (Base de Datos Relacional) + Single Page Application (Vue 3 / Tailwind CSS) + PWA Offline.</p>
+</blockquote>
+<hr>
+<h2>ÍNDICE GENERAL</h2>
+<ol>
+<li><a href="#1-resumen-ejecutivo-y-filosof%C3%ADa-de-arquitectura">Resumen Ejecutivo y Filosofía de Arquitectura</a><ul>
+<li>1.1 <a href="#11-arquitectura-de-costo-cero">Arquitectura de Costo Cero</a></li>
+<li>1.2 <a href="#12-diagrama-global-de-componentes">Diagrama Global de Componentes</a></li>
+<li>1.3 <a href="#13-ciclo-de-vida-de-una-petici%C3%B3n-request--response">Ciclo de Vida de una Petición (Request / Response)</a></li>
+<li>1.4 <a href="#14-motor-local-de-contingencia-modo-demo--fallback-offline">Motor Local de Contingencia (Modo Demo / Fallback Offline)</a></li>
+</ul>
+</li>
+<li><a href="#2-modelo-de-datos-y-base-de-datos-relacional-google-sheets">Modelo de Datos y Base de Datos Relacional (Google Sheets)</a><ul>
+<li>2.1 <a href="#21-diccionario-estructurado-de-las-33-hojas">Diccionario Estructurado de las 33 Hojas</a></li>
+<li>2.2 <a href="#22-manejo-de-concurrencia-y-bloqueos-at%C3%B3micos-lockservice">Manejo de Concurrencia y Bloqueos Atómicos (LockService)</a></li>
+<li>2.3 <a href="#23-diagrama-de-entidad-relaci%C3%B3n-conceptual">Diagrama de Entidad-Relación Conceptual</a></li>
+</ul>
+</li>
+<li><a href="#3-seguridad-autenticaci%C3%B3n-y-matriz-de-roles-rbac">Seguridad, Autenticación y Matriz de Roles (RBAC)</a><ul>
+<li>3.1 <a href="#31-esquema-de-hashing-criptogr%C3%A1fico-pbkdf2--sha-256-formato-v2">Esquema de Hashing Criptográfico PBKDF2 / SHA-256 (Formato v2)</a></li>
+<li>3.2 <a href="#32-gesti%C3%B3n-de-sesiones-tokens-uuid-y-tiempo-de-expiraci%C3%B3n-ttl">Gestión de Sesiones, Tokens UUID y Tiempo de Expiración (TTL)</a></li>
+<li>3.3 <a href="#33-control-anti-fuerza-bruta-y-rate-limiting">Control Anti Fuerza Bruta y Rate Limiting</a></li>
+<li>3.4 <a href="#34-matriz-de-roles-y-permisos-rbac">Matriz de Roles y Permisos (RBAC)</a></li>
+<li>3.5 <a href="#35-pista-de-auditor%C3%ADa-transaccional-inmutable">Pista de Auditoría Transaccional Inmutable</a></li>
+</ul>
+</li>
+<li><a href="#4-el-n%C3%BAcleo-wms-gesti%C3%B3n-de-almacenes-stock-y-kardex">El Núcleo WMS: Gestión de Almacenes, Stock y Kardex</a><ul>
+<li>4.1 <a href="#41-tipos-de-movimientos-de-inventario">Tipos de Movimientos de Inventario</a></li>
+<li>4.2 <a href="#42-algoritmo-de-kardex-valorizado-costo-promedio-ponderado-cpp">Algoritmo de Kardex Valorizado: Costo Promedio Ponderado (CPP)</a></li>
+<li>4.3 <a href="#43-control-multi-almac%C3%A9n-y-transferencias">Control Multi-Almacén y Transferencias</a></li>
+<li>4.4 <a href="#44-pol%C3%ADtica-de-stock-negativo-y-bloqueo-at%C3%B3mico">Política de Stock Negativo y Bloqueo Atómico</a></li>
+<li>4.5 <a href="#45-trazabilidad-de-lotes-vencimientos-y-n%C3%BAmeros-de-serie">Trazabilidad de Lotes, Vencimientos y Números de Serie</a></li>
+<li>4.6 <a href="#46-fraccionamiento-de-unidades-y-factores-de-conversi%C3%B3n">Fraccionamiento de Unidades y Factores de Conversión</a></li>
+</ul>
+</li>
+<li><a href="#5-punto-de-venta-pos-y-gesti%C3%B3n-integral-de-caja">Punto de Venta (POS) y Gestión Integral de Caja</a><ul>
+<li>5.1 <a href="#51-terminal-de-ventas-de-alta-velocidad">Terminal de Ventas de Alta Velocidad</a></li>
+<li>5.2 <a href="#52-pol%C3%ADticas-de-descuento-precios-m%C3%ADnimos-y-regalos-con-autorizaci%C3%B3n">Políticas de Descuento, Precios Mínimos y Regalos con Autorización</a></li>
+<li>5.3 <a href="#53-ventas-en-espera-borradores-pos">Ventas en Espera (Borradores POS)</a></li>
+<li>5.4 <a href="#54-ciclo-integral-de-caja-apertura-arqueo-ciego-y-cierre">Ciclo Integral de Caja: Apertura, Arqueo Ciego y Cierre</a></li>
+<li>5.5 <a href="#55-emisi%C3%B3n-e-impresi%C3%B3n-de-tickets-t%C3%A9rmicos-80mm--58mm--pdf">Emisión e Impresión de Tickets Térmicos (80mm / 58mm / PDF)</a></li>
+</ul>
+</li>
+<li><a href="#6-cr%C3%A9ditos-fiados-y-cobranzas-activas-cxc">Créditos, Fiados y Cobranzas Activas (CXC)</a><ul>
+<li>6.1 <a href="#61-fiados-de-confianza-y-l%C3%ADmite-de-cr%C3%A9dito">Fiados de Confianza y Límite de Crédito</a></li>
+<li>6.2 <a href="#62-ventas-a-cr%C3%A9dito-formales-con-cronograma-de-cuotas">Ventas a Crédito Formales con Cronograma de Cuotas</a></li>
+<li>6.3 <a href="#63-reporte-de-antig%C3%BCedad-de-deuda-aging">Reporte de Antigüedad de Deuda (Aging)</a></li>
+<li>6.4 <a href="#64-cobranza-automatizada-v%C3%ADa-whatsapp">Cobranza Automatizada vía WhatsApp</a></li>
+</ul>
+</li>
+<li><a href="#7-cotizaciones-y-proformas-comerciales">Cotizaciones y Proformas Comerciales</a><ul>
+<li>7.1 <a href="#71-ciclo-de-estados-de-una-cotizaci%C3%B3n">Ciclo de Estados de una Cotización</a></li>
+<li>7.2 <a href="#72-conversi%C3%B3n-at%C3%B3mica-en-1-clic-a-venta-pos">Conversión Atómica en 1 Clic a Venta POS</a></li>
+<li>7.3 <a href="#73-exportaci%C3%B3n-profesional-a-pdf">Exportación Profesional a PDF</a></li>
+</ul>
+</li>
+<li><a href="#8-compras-%C3%B3rdenes-de-compra-y-cuentas-por-pagar-cxp">Compras, Órdenes de Compra y Cuentas por Pagar (CXP)</a><ul>
+<li>8.1 <a href="#81-flujo-de-aprovisionamiento-y-cotizaciones-de-proveedores">Flujo de Aprovisionamiento y Cotizaciones de Proveedores</a></li>
+<li>8.2 <a href="#82-recepci%C3%B3n-de-mercader%C3%ADa-e-impacto-inmediato-en-kardex">Recepción de Mercadería e Impacto Inmediato en Kardex</a></li>
+<li>8.3 <a href="#83-gesti%C3%B3n-de-cuentas-por-pagar-cxp">Gestión de Cuentas por Pagar (CXP)</a></li>
+</ul>
+</li>
+<li><a href="#9-facturaci%C3%B3n-electr%C3%B3nica-sunat-y-localizaci%C3%B3n-multi-pa%C3%ADs">Facturación Electrónica SUNAT y Localización Multi-País</a><ul>
+<li>9.1 <a href="#91-motor-de-localizaci%C3%B3n-regional-para-8-pa%C3%ADses">Motor de Localización Regional para 8 Países</a></li>
+<li>9.2 <a href="#92-series-electr%C3%B3nicas-oficiales-b001-f001-fc01-fd01">Series Electrónicas Oficiales (B001, F001, FC01, FD01)</a></li>
+<li>9.3 <a href="#93-integraci%C3%B3n-ubl-21-con-apis-de-facturaci%C3%B3n-greenter--laravel">Integración UBL 2.1 con APIs de Facturación (Greenter / Laravel)</a></li>
+<li>9.4 <a href="#94-generaci%C3%B3n-de-libro-electr%C3%B3nico-ple-141-registro-de-ventas">Generación de Libro Electrónico PLE 14.1 (Registro de Ventas)</a></li>
+<li>9.5 <a href="#95-sincronizaci%C3%B3n-en-vivo-de-tipo-de-cambio-usd">Sincronización en Vivo de Tipo de Cambio USD</a></li>
+</ul>
+</li>
+<li><a href="#10-anal%C3%ADtica-de-negocio-y-business-intelligence">Analítica de Negocio y Business Intelligence</a><ul>
+<li>10.1 <a href="#101-clasificaci%C3%B3n-abc-de-inventario-curva-de-pareto-80155">Clasificación ABC de Inventario (Curva de Pareto 80/15/5)</a></li>
+<li>10.2 <a href="#102-detecci%C3%B3n-de-inventario-muerto-y-capital-inmovilizado">Detección de Inventario Muerto y Capital Inmovilizado</a></li>
+<li>10.3 <a href="#103-an%C3%A1lisis-de-margen-y-rentabilidad-real">Análisis de Margen y Rentabilidad Real</a></li>
+<li>10.4 <a href="#104-dashboard-ejecutivo-en-tiempo-real">Dashboard Ejecutivo en Tiempo Real</a></li>
+</ul>
+</li>
+<li><a href="#11-m%C3%B3dulos-auxiliares-fidelizaci%C3%B3n-rrhh-y-gastos">Módulos Auxiliares: Fidelización, RRHH y Gastos</a><ul>
+<li>11.1 <a href="#111-programa-de-fidelizaci%C3%B3n-y-puntos-de-clientes">Programa de Fidelización y Puntos de Clientes</a></li>
+<li>11.2 <a href="#112-control-de-asistencia-del-personal">Control de Asistencia del Personal</a></li>
+<li>11.3 <a href="#113-liquidaci%C3%B3n-de-comisiones-de-venta">Liquidación de Comisiones de Venta</a></li>
+<li>11.4 <a href="#114-control-de-gastos-operativos-y-caja-chica">Control de Gastos Operativos y Caja Chica</a></li>
+</ul>
+</li>
+<li><a href="#12-automatizaciones-y-tareas-en-segundo-plano-triggers">Automatizaciones y Tareas en Segundo Plano (Triggers)</a><ul>
+<li>12.1 <a href="#121-tarea-diaria-auditor%C3%ADa-preventiva-y-notificaciones-por-correo">Tarea Diaria: Auditoría Preventiva y Notificaciones por Correo</a></li>
+<li>12.2 <a href="#122-copia-de-respaldo-automatizada-en-google-drive">Copia de Respaldo Automatizada en Google Drive</a></li>
+<li>12.3 <a href="#123-sincronizaci%C3%B3n-autom%C3%A1tica-de-divisas">Sincronización Automática de Divisas</a></li>
+</ul>
+</li>
+<li><a href="#13-cat%C3%A1logo-p%C3%BAblico-web-y-pedidos-por-whatsapp">Catálogo Público Web y Pedidos por WhatsApp</a><ul>
+<li>13.1 <a href="#131-arquitectura-del-endpoint-p%C3%BAblico-seguro">Arquitectura del Endpoint Público Seguro</a></li>
+<li>13.2 <a href="#132-portal-web-m%C3%B3vil-catalogohtml">Portal Web Móvil (catalogo.html)</a></li>
+<li>13.3 <a href="#133-generaci%C3%B3n-din%C3%A1mica-del-mensaje-de-whatsapp">Generación Dinámica del Mensaje de WhatsApp</a></li>
+</ul>
+</li>
+<li><a href="#14-frontend-spa-componentes-y-capacidad-offline-pwa">Frontend SPA, Componentes y Capacidad Offline (PWA)</a><ul>
+<li>14.1 <a href="#141-estructura-modular-de-vistas-y-componentes-vue-3">Estructura Modular de Vistas y Componentes Vue 3</a></li>
+<li>14.2 <a href="#142-estrategia-de-cach%C3%A9-y-service-worker-swjs">Estrategia de Caché y Service Worker (sw.js)</a></li>
+<li>14.3 <a href="#143-resiliencia-de-red-y-sincronizaci%C3%B3n-diferida">Resiliencia de Red y Sincronización Diferida</a></li>
+</ul>
+</li>
+<li><a href="#15-diccionario-exhaustivo-de-la-api-113-acciones">Diccionario Exhaustivo de la API (113 Acciones)</a></li>
+<li><a href="#16-gu%C3%ADa-de-instalaci%C3%B3n-configuraci%C3%B3n-y-despliegue-paso-a-paso">Guía de Instalación, Configuración y Despliegue Paso a Paso</a><ul>
+<li>16.1 <a href="#161-paso-1-preparaci%C3%B3n-de-la-hoja-de-google-sheets">Paso 1: Preparación de la Hoja de Google Sheets</a></li>
+<li>16.2 <a href="#162-paso-2-instalaci%C3%B3n-del-backend-en-google-apps-script">Paso 2: Instalación del Backend en Google Apps Script</a></li>
+<li>16.3 <a href="#163-paso-3-despliegue-de-la-api-web-app">Paso 3: Despliegue de la API Web App</a></li>
+<li>16.4 <a href="#164-paso-4-despliegue-del-frontend-vercel--hosting-est%C3%A1tico">Paso 4: Despliegue del Frontend (Vercel / Hosting Estático)</a></li>
+<li>16.5 <a href="#165-paso-5-asistente-de-configuraci%C3%B3n-inicial-wizard">Paso 5: Asistente de Configuración Inicial (Wizard)</a></li>
+</ul>
+</li>
+<li><a href="#17-soluci%C3%B3n-de-problemas-troubleshooting-y-mantenimiento">Solución de Problemas (Troubleshooting) y Mantenimiento</a><ul>
+<li>17.1 <a href="#171-diagn%C3%B3stico-r%C3%A1pido-de-errores-comunes">Diagnóstico Rápido de Errores Comunes</a></li>
+<li>17.2 <a href="#172-l%C3%ADmites-y-cuotas-de-google-apps-script">Límites y Cuotas de Google Apps Script</a></li>
+<li>17.3 <a href="#173-buenas-pr%C3%A1cticas-operativas-y-mantenimiento-preventivo">Buenas Prácticas Operativas y Mantenimiento Preventivo</a></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2>1. Resumen Ejecutivo y Filosofía de Arquitectura</h2>
+<h3>1.1 Arquitectura de Costo Cero</h3>
+<p><strong>NexoERP v1.6.1</strong> es una plataforma integral de gestión comercial (ERP) y administración avanzada de almacenes (WMS), concebida bajo el paradigma de <strong>arquitectura serverless de costo cero recurrente</strong>. El sistema elimina por completo la necesidad de contratar servidores dedicados (VPS), bases de datos administradas (MySQL/PostgreSQL), balanceadores de carga o certificaciones SSL pagadas.</p>
+<p>La arquitectura se compone de cuatro pilares desacoplados:</p>
+<ol>
+<li><strong>Frontend Single Page Application (SPA):</strong> Construido sobre Vue 3 y estilizado con utilidades de Tailwind CSS. Se aloja como contenido estático puro (HTML, CSS, JS) en servicios globales CDN gratuitos como Vercel, Netlify, Cloudflare Pages o GitHub Pages.</li>
+<li><strong>Backend Serverless (Google Apps Script - GAS):</strong> Actúa como el motor de lógica de negocio y API REST/RPC. Procesa las solicitudes mediante puntos de entrada <code>doGet</code> y <code>doPost</code>, resolviendo enrutamiento, validación criptográfica de sesiones, reglas de inventario y permisos por rol.</li>
+<li><strong>Capa de Persistencia Relacional Emulada (Google Sheets):</strong> Una hoja de cálculo de Google Drive actúa como la base de datos central. Cada entidad del sistema representa una pestaña (<code>Sheet</code>) con encabezados tipificados en la fila 1 y registros en las filas subsiguientes, garantizando respaldo automático, auditoría visual inmediata y exportabilidad nativa a formatos Excel/PDF.</li>
+<li><strong>Capa de Resiliencia y Ejecución Offline (PWA):</strong> Un Service Worker (<code>sw.js</code>) intercepta peticiones de red, almacena en caché la shell de la aplicación y permite que el Punto de Venta (POS) continúe emitiendo tickets en contingencia sin conexión a Internet, sincronizando transacciones diferidas al restaurarse el enlace.</li>
+</ol>
+<h3>1.2 Diagrama Global de Componentes</h3>
+<pre><code class="language-mermaid">graph TD
+    subgraph Cliente [&quot;Cliente / Dispositivo (PC, Tablet, Móvil)&quot;]
+        UI[&quot;SPA Vue 3 + Tailwind CSS&quot;]
+        SW[&quot;Service Worker (PWA Cache)&quot;]
+        LS[&quot;LocalStorage (Modo Demo / Contingencia)&quot;]
+        ZXing[&quot;Lector Códigos de Barras (Cámara/USB)&quot;]
+        PDF[&quot;Generador Tickets/Facturas (jsPDF)&quot;]
+        UI &lt;--&gt; SW
+        UI &lt;--&gt; LS
+        UI --&gt; ZXing
+        UI --&gt; PDF
+    end
+
+    subgraph Hosting [&quot;Alojamiento Estático (CDN Global Gratuito)&quot;]
+        Vercel[&quot;Vercel / Netlify / GitHub Pages&quot;]
+        Vercel -.-&gt;|Distribución HTTP/HTTPS| UI
+    end
+
+    subgraph BackendGAS [&quot;Backend Serverless (Google Apps Script)&quot;]
+        Router[&quot;01_WebApp.gs (ROUTER_ 113 rutas)&quot;]
+        Auth[&quot;02_Auth.gs (PBKDF2/SHA256 Token Auth)&quot;]
+        WMS[&quot;05_Movimientos / 06_Kardex (Kardex CPP)&quot;]
+        POS[&quot;10_Ventas / 11_Caja (POS Transaccional)&quot;]
+        Finanzas[&quot;12_Fiados / 19_Creditos / 17_Gastos&quot;]
+        Compras[&quot;18_Compras (OC y CXP)&quot;]
+        Sunat[&quot;16_Comprobantes / 15_Pais (Facturación UBL)&quot;]
+        Tasks[&quot;22_Tareas.gs (Triggers Diarios)&quot;]
+        Lock[&quot;LockService (Control de Concurrencia)&quot;]
+        
+        Router --&gt; Auth
+        Auth --&gt; Lock
+        Lock --&gt; WMS
+        Lock --&gt; POS
+        Lock --&gt; Finanzas
+        Lock --&gt; Compras
+        Lock --&gt; Sunat
+    end
+
+    subgraph Database [&quot;Base de Datos (Google Sheets)&quot;]
+        Sheets[(&quot;Google Spreadsheet (33 Hojas de Datos)&quot;)]
+        WMS &lt;--&gt; Sheets
+        POS &lt;--&gt; Sheets
+        Finanzas &lt;--&gt; Sheets
+        Compras &lt;--&gt; Sheets
+        Sunat &lt;--&gt; Sheets
+    end
+
+    subgraph ServiciosExternos [&quot;Servicios y APIs Externas&quot;]
+        ApiSunat[&quot;API Facturación UBL 2.1 (Greenter / Laravel)&quot;]
+        ApiTC[&quot;API Tipo de Cambio (apis.net.pe)&quot;]
+        WApp[&quot;WhatsApp Web / Móvil (wa.me)&quot;]
+        GDrive[&quot;Google Drive (Respaldos Automatizados)&quot;]
+        GMail[&quot;Gmail Service (Notificaciones Diarias)&quot;]
+        
+        Sunat -.-&gt;|POST Comprobante| ApiSunat
+        Tasks -.-&gt;|GET Cotización| ApiTC
+        UI -.-&gt;|Deep Link wa.me| WApp
+        Tasks -.-&gt;|Exportar .xlsx / Copia| GDrive
+        Tasks -.-&gt;|Enviar Alertas| GMail
+    end
+
+    UI --&gt;|POST JSON Action + Token| Router
+</code></pre>
+<h3>1.3 Ciclo de Vida de una Petición (Request / Response)</h3>
+<p>Toda comunicación entre el frontend y el backend se realiza mediante llamadas HTTP POST codificadas en JSON hacia la URL de despliegue de Google Apps Script (<code>API_URL</code>).</p>
+<p>El ciclo de ejecución es el siguiente:</p>
+<ol>
+<li><strong>Emisión de la llamada:</strong> La función cliente <code>llamar(accion, params)</code> (<code>api.js</code>) extrae el token de autenticación del estado activo (<code>store.token</code>) y realiza una petición <code>fetch(API_URL, { method: &#39;POST&#39;, body: JSON.stringify({ action: accion, token: token, ...params }) })</code>.</li>
+<li><strong>Punto de Entrada GAS (<code>01_WebApp.gs</code>):</strong><ul>
+<li>Se recibe la función <code>doPost(e)</code>.</li>
+<li>Se procesan las cabeceras CORS para permitir la interacción desde cualquier dominio (<code>Access-Control-Allow-Origin: *</code>).</li>
+<li>Se parsea el cuerpo de la petición: <code>var body = JSON.parse(e.postData.contents)</code>.</li>
+</ul>
+</li>
+<li><strong>Validación de Identidad y Sesión (<code>02_Auth.gs</code>):</strong><ul>
+<li>A excepción de acciones públicas (<code>login</code>, <code>ping</code>, <code>setup_inicial</code>, <code>catalogo_publico</code>), el backend busca el token en la pestaña <code>Sesiones</code>.</li>
+<li>Comprueba que el registro exista, que el estado sea válido y que <code>expira &gt; new Date()</code>.</li>
+<li>Extrae el usuario y el rol del operador (<code>admin</code>, <code>gerente</code>, <code>operador</code>, <code>cajero</code>, etc.).</li>
+</ul>
+</li>
+<li><strong>Verificación de Permisos (RBAC):</strong><ul>
+<li>El enrutador consulta la matriz de permisos <code>APP.PERMISOS</code> (<code>00_Config.gs</code>). Si la acción requiere privilegios especiales (ej. <code>movimientos:anular</code>), valida que el rol del usuario figure en la lista autorizada.</li>
+</ul>
+</li>
+<li><strong>Control de Concurrencia (LockService):</strong><ul>
+<li>En operaciones transaccionales críticas (registro de ventas, movimientos de almacén, aperturas de caja, recepciones de compra), se invoca <code>LockService.getScriptLock().waitLock(30000)</code>. Esto congela ejecuciones simultáneas evitando colisiones de stock y duplicidad de correlativos.</li>
+</ul>
+</li>
+<li><strong>Ejecución del Controlador de Negocio:</strong><ul>
+<li>La acción se despacha al método correspondiente en el backend (ej. <code>ventaGuardar_</code>, <code>movimientoRegistrar_</code>, etc.).</li>
+<li>Se leen y actualizan las hojas de Google Sheets usando las funciones atómicas de <code>03_Db.gs</code>.</li>
+</ul>
+</li>
+<li><strong>Respuesta Estandarizada:</strong><ul>
+<li>Si la operación es exitosa, retorna: <code>{ ok: true, data: ..., error: null, code: null }</code>.</li>
+<li>Si ocurre una excepción controlada, retorna: <code>{ ok: false, data: null, error: &#39;Mensaje descriptivo&#39;, code: &#39;CODIGO_ERROR&#39; }</code>.</li>
+<li>Se formatea la salida mediante <code>ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON)</code>.</li>
+</ul>
+</li>
+</ol>
+<h3>1.4 Motor Local de Contingencia (Modo Demo / Fallback Offline)</h3>
+<p>NexoERP incluye una suite de contingencia integral gobernada por <code>demo-store.js</code> y <code>demo-data.js</code>.</p>
+<ul>
+<li>Si el usuario ejecuta la aplicación sin configurar una URL de API (<code>CONFIG_APP.API_URL = &#39;&#39;</code>), el cliente no arroja error: conmuta automáticamente al <strong>Motor Local</strong>.</li>
+<li><code>demo-store.js</code> implementa en memoria y sincroniza en <code>localStorage</code> <strong>las 113 rutas completas del backend</strong>.</li>
+<li>Simula fielmente el cálculo de saldos de kardex por costo promedio ponderado, el control de stock mínimo, la emisión de boletas/facturas, la apertura/cierre de turnos de caja y el módulo de cobranzas.</li>
+<li>Permite demostraciones comerciales instantáneas y sirve de entorno de pruebas y capacitación sin alterar la base de datos productiva de la empresa.</li>
+</ul>
+<h2>2. Modelo de Datos y Base de Datos Relacional (Google Sheets)</h2>
+<h3>2.1 Diccionario Estructurado de las 33 Hojas</h3>
+<p>El sistema organiza la persistencia de datos en 33 pestañas claramente tipificadas dentro de un único archivo de Google Sheets. Cada hoja posee un encabezado fijo en la fila 1 y tipos de datos predefinidos:</p>
+<table>
+<thead>
+<tr>
+<th>N°</th>
+<th>Hoja (Pestaña)</th>
+<th>Propósito Funcional</th>
+<th>Columnas (Encabezados Fila 1)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><strong>Config</strong></td>
+<td>Parámetros globales clave-valor de la empresa, divisas, impuestos y políticas.</td>
+<td><code>clave</code>, <code>valor</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Usuarios</strong></td>
+<td>Credenciales de acceso, nombres, roles del sistema, salts criptográficos y hashes de contraseñas.</td>
+<td><code>id</code>, <code>usuario</code>, <code>nombre</code>, <code>rol</code>, <code>salt</code>, <code>hash</code>, <code>estado</code>, <code>ultimoAcceso</code>, <code>creado</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Sesiones</strong></td>
+<td>Registro de tokens activos emitidos tras el login para control de accesos con expiración (TTL).</td>
+<td><code>token</code>, <code>usuarioId</code>, <code>rol</code>, <code>creado</code>, <code>expira</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Categorias</strong></td>
+<td>Clasificación taxonómica de los productos del inventario.</td>
+<td><code>id</code>, <code>nombre</code>, <code>descripcion</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Almacenes</strong></td>
+<td>Sedes físicas, sucursales, bodegas de despacho o almacenes centrales.</td>
+<td><code>id</code>, <code>codigo</code>, <code>nombre</code>, <code>direccion</code>, <code>responsable</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Productos</strong></td>
+<td>Catálogo maestro de artículos, SKUs, precios minoristas/mayoristas, stock de seguridad y banderas de control.</td>
+<td><code>id</code>, <code>sku</code>, <code>nombre</code>, <code>descripcion</code>, <code>categoria</code>, <code>unidad</code>, <code>costoStd</code>, <code>precioVenta</code>, <code>precioMinimo</code>, <code>stockMin</code>, <code>stockMax</code>, <code>requiereLote</code>, <code>requiereSerie</code>, <code>perecedero</code>, <code>estado</code>, <code>creado</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Stock</strong></td>
+<td>Matriz de saldos de existencias consolidadas por producto y almacén.</td>
+<td><code>productoId</code>, <code>almacenId</code>, <code>cantidad</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Lotes</strong></td>
+<td>Trazabilidad de lotes de producción/adquisición, fechas de caducidad y series unitarias.</td>
+<td><code>id</code>, <code>productoId</code>, <code>almacenId</code>, <code>lote</code>, <code>numeroSerie</code>, <code>fechaVencimiento</code>, <code>cantidad</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Proveedores</strong></td>
+<td>Directorio de personas jurídicas y naturales que abastecen de mercadería al negocio.</td>
+<td><code>id</code>, <code>ruc</code>, <code>razonSocial</code>, <code>contacto</code>, <code>telefono</code>, <code>email</code>, <code>direccion</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Clientes</strong></td>
+<td>Registro de clientes, identificación tributaria (DNI/RUC), teléfonos, límites de fiado y saldo deudor.</td>
+<td><code>id</code>, <code>documento</code>, <code>razonSocial</code>, <code>contacto</code>, <code>telefono</code>, <code>email</code>, <code>direccion</code>, <code>estado</code>, <code>limiteFiado</code>, <code>saldoFiado</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Movimientos</strong></td>
+<td>Registro transaccional inmutable de todo ingreso, egreso, traspaso o ajuste de mercadería (Kardex físico).</td>
+<td><code>id</code>, <code>fecha</code>, <code>tipo</code>, <code>productoId</code>, <code>almacenOrigenId</code>, <code>almacenDestinoId</code>, <code>cantidad</code>, <code>costoUnitario</code>, <code>lote</code>, <code>numeroSerie</code>, <code>fechaVencimiento</code>, <code>documentoRef</code>, <code>motivo</code>, <code>observaciones</code>, <code>usuario</code>, <code>estado</code>, <code>anuladoMotivo</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>Kardex</strong></td>
+<td>Libro de control de inventario permanente valorizado bajo el método Costo Promedio Ponderado (CPP).</td>
+<td><code>id</code>, <code>fecha</code>, <code>productoId</code>, <code>almacenId</code>, <code>movimientoId</code>, <code>tipo</code>, <code>entradaCantidad</code>, <code>entradaValor</code>, <code>salidaCantidad</code>, <code>salidaValor</code>, <code>saldoCantidad</code>, <code>saldoValor</code>, <code>costoPromedio</code>, <code>documentoRef</code>, <code>usuario</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>Auditoria</strong></td>
+<td>Bitácora de seguridad con todas las acciones críticas ejecutadas en el sistema.</td>
+<td><code>id</code>, <code>fecha</code>, <code>usuarioId</code>, <code>usuario</code>, <code>rol</code>, <code>accion</code>, <code>detalle</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>Numeracion</strong></td>
+<td>Control y bloqueo de correlativos para la emisión secuencial de comprobantes y órdenes.</td>
+<td><code>tipo</code>, <code>prefijo</code>, <code>correlativo</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Ventas</strong></td>
+<td>Cabecera de transacciones comerciales emitidas por el Punto de Venta (POS) o por pedidos.</td>
+<td><code>id</code>, <code>boleta</code>, <code>fecha</code>, <code>clienteId</code>, <code>clienteDocTipo</code>, <code>clienteDocNumero</code>, <code>clienteNombre</code>, <code>clienteTelefono</code>, <code>subtotal</code>, <code>igv</code>, <code>total</code>, <code>descuentoTotal</code>, <code>metodoPago</code>, <code>montoRecibido</code>, <code>vuelto</code>, <code>almacenId</code>, <code>usuario</code>, <code>autorizadoPor</code>, <code>estado</code>, <code>anuladoMotivo</code>, <code>estadoPago</code>, <code>enviadoWhatsapp</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>VentaDetalle</strong></td>
+<td>Líneas de artículos asociadas a cada venta (cantidades, precios, descuentos y costos al momento de la venta).</td>
+<td><code>id</code>, <code>ventaId</code>, <code>productoId</code>, <code>sku</code>, <code>descripcion</code>, <code>cantidad</code>, <code>precioUnit</code>, <code>precioOriginal</code>, <code>esRegalo</code>, <code>descuento</code>, <code>costoUnit</code>, <code>subtotal</code>, <code>movimientoId</code>, <code>lote</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Caja</strong></td>
+<td>Control de aperturas, arqueos ciegos y cierres de turnos de los cajeros.</td>
+<td><code>id</code>, <code>fecha</code>, <code>aperturaAt</code>, <code>usuario</code>, <code>montoInicial</code>, <code>cierreAt</code>, <code>montoSistema</code>, <code>montoContado</code>, <code>diferencia</code>, <code>estado</code>, <code>detalle</code></td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>PagosFiado</strong></td>
+<td>Historial de amortizaciones y cancelaciones de deudas de clientes que compraron al fiado.</td>
+<td><code>id</code>, <code>fecha</code>, <code>clienteId</code>, <code>clienteNombre</code>, <code>ventaId</code>, <code>monto</code>, <code>metodoPago</code>, <code>usuario</code>, <code>nota</code></td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>Cotizaciones</strong></td>
+<td>Presupuestos y proformas comerciales emitidas con plazo de vigencia.</td>
+<td><code>id</code>, <code>numero</code>, <code>fecha</code>, <code>clienteId</code>, <code>clienteDocTipo</code>, <code>clienteDocNumero</code>, <code>clienteNombre</code>, <code>clienteTelefono</code>, <code>subtotal</code>, <code>igv</code>, <code>total</code>, <code>validezHasta</code>, <code>validezDias</code>, <code>estado</code>, <code>usuario</code>, <code>convertidoA</code>, <code>nota</code></td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>CotizacionDetalle</strong></td>
+<td>Líneas de productos y servicios presupuestados en una cotización.</td>
+<td><code>id</code>, <code>cotizacionId</code>, <code>productoId</code>, <code>sku</code>, <code>descripcion</code>, <code>cantidad</code>, <code>precioUnit</code>, <code>esRegalo</code>, <code>subtotal</code></td>
+</tr>
+<tr>
+<td>21</td>
+<td><strong>Comprobantes</strong></td>
+<td>Facturas, boletas electrónicas, notas de crédito y débito estructuradas para SUNAT / APIs UBL 2.1.</td>
+<td><code>id</code>, <code>ventaId</code>, <code>tipo</code>, <code>serie</code>, <code>correlativo</code>, <code>numero</code>, <code>fecha</code>, <code>clienteDocTipo</code>, <code>clienteDocNumero</code>, <code>clienteNombre</code>, <code>moneda</code>, <code>subtotal</code>, <code>igv</code>, <code>total</code>, <code>modoEnvio</code>, <code>estado</code>, <code>sunatId</code>, <code>cdrCodigo</code>, <code>cdrDescripcion</code>, <code>apiDocId</code>, <code>respuesta</code>, <code>payload</code>, <code>observaciones</code>, <code>usuario</code>, <code>creado</code></td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>Cuotas</strong></td>
+<td>Cronograma de amortización para ventas financiadas a plazos.</td>
+<td><code>id</code>, <code>ventaId</code>, <code>clienteId</code>, <code>clienteNombre</code>, <code>nCuota</code>, <code>totalCuotas</code>, <code>fechaVenc</code>, <code>monto</code>, <code>saldo</code>, <code>estado</code>, <code>pagadoAt</code>, <code>metodoPago</code>, <code>usuario</code>, <code>observaciones</code></td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong>Gastos</strong></td>
+<td>Egresos operativos y extracciones de caja chica del negocio.</td>
+<td><code>id</code>, <code>fecha</code>, <code>categoria</code>, <code>descripcion</code>, <code>monto</code>, <code>metodoPago</code>, <code>numeroDoc</code>, <code>usuario</code>, <code>estado</code>, <code>creado</code></td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>GastosCategorias</strong></td>
+<td>Catálogo de tipos de gastos (servicios, suministros, alquileres, salarios).</td>
+<td><code>id</code>, <code>nombre</code>, <code>tipo</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>OrdenesCompra</strong></td>
+<td>Órdenes de compra generadas a proveedores con condiciones y estado de entrega.</td>
+<td><code>id</code>, <code>numero</code>, <code>proveedorId</code>, <code>proveedorNombre</code>, <code>fecha</code>, <code>fechaEsperada</code>, <code>estado</code>, <code>condicionPago</code>, <code>diasCredito</code>, <code>moneda</code>, <code>subtotal</code>, <code>igv</code>, <code>total</code>, <code>observaciones</code>, <code>usuario</code>, <code>creado</code></td>
+</tr>
+<tr>
+<td>26</td>
+<td><strong>OcItems</strong></td>
+<td>Detalle de artículos pedidos y cantidades recepcionadas en órdenes de compra.</td>
+<td><code>id</code>, <code>ocId</code>, <code>productoId</code>, <code>sku</code>, <code>descripcion</code>, <code>unidad</code>, <code>cantidadPedida</code>, <code>cantidadRecibida</code>, <code>costoUnit</code></td>
+</tr>
+<tr>
+<td>27</td>
+<td><strong>OcOfertas</strong></td>
+<td>Cotizaciones comparativas recibidas de diversos proveedores para una misma orden.</td>
+<td><code>id</code>, <code>ocId</code>, <code>proveedorNombre</code>, <code>costoTotal</code>, <code>plazoDias</code>, <code>comentario</code>, <code>elegida</code></td>
+</tr>
+<tr>
+<td>28</td>
+<td><strong>CuentasPagar</strong></td>
+<td>Obligaciones financieras y cronograma de pagos a proveedores derivados de compras.</td>
+<td><code>id</code>, <code>ocId</code>, <code>numero</code>, <code>proveedorId</code>, <code>proveedorNombre</code>, <code>fecha</code>, <code>fechaVenc</code>, <code>monto</code>, <code>saldo</code>, <code>estado</code>, <code>pagadoAt</code>, <code>metodoPago</code>, <code>usuario</code></td>
+</tr>
+<tr>
+<td>29</td>
+<td><strong>Notificaciones</strong></td>
+<td>Registro de alertas y avisos generados por el sistema para la administración.</td>
+<td><code>id</code>, <code>fecha</code>, <code>clave</code>, <code>tipo</code>, <code>severidad</code>, <code>titulo</code>, <code>mensaje</code>, <code>referencia</code>, <code>leido</code></td>
+</tr>
+<tr>
+<td>30</td>
+<td><strong>Asistencia</strong></td>
+<td>Marcación de ingresos y salidas del personal operativo con conteo de horas.</td>
+<td><code>id</code>, <code>fecha</code>, <code>usuarioId</code>, <code>usuario</code>, <code>entrada</code>, <code>salida</code>, <code>minutos</code>, <code>nota</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>31</td>
+<td><strong>Vendedores</strong></td>
+<td>Configuración de comisiones porcentuales asignadas a los agentes comerciales.</td>
+<td><code>id</code>, <code>usuarioId</code>, <code>usuario</code>, <code>comisionPct</code>, <code>estado</code></td>
+</tr>
+<tr>
+<td>32</td>
+<td><strong>FidHistorial</strong></td>
+<td>Registro transaccional de puntos acumulados y canjeados por los clientes en el POS.</td>
+<td><code>id</code>, <code>fecha</code>, <code>clienteId</code>, <code>clienteNombre</code>, <code>tipo</code>, <code>puntos</code>, <code>ventaId</code>, <code>nota</code>, <code>usuario</code>, <code>saldoDespues</code></td>
+</tr>
+<tr>
+<td>33</td>
+<td><strong>Presupuesto</strong></td>
+<td>Asignación y control de techos presupuestarios mensuales por categoría de gasto.</td>
+<td><code>id</code>, <code>mes</code>, <code>categoria</code>, <code>monto</code>, <code>actualizadoAt</code></td>
+</tr>
+</tbody></table>
+<h3>2.2 Manejo de Concurrencia y Bloqueos Atómicos (LockService)</h3>
+<p>Dado que Google Sheets no ofrece aislamiento de transacciones ACID nativo (como <code>BEGIN TRANSACTION</code> / <code>COMMIT</code>), NexoERP implementa el mecanismo <strong>ScriptLock</strong> provisto por el entorno de Google Apps Script (<code>LockService.getScriptLock()</code>).</p>
+<p>Cuando un proceso crítico es disparado:</p>
+<pre><code class="language-javascript">var lock = LockService.getScriptLock();
+try {
+  // Espera hasta 30 segundos por el candado exclusivo
+  lock.waitLock(30000); 
+
+  // Lectura fresca de datos, validación de stock y actualización
+  ...
+  SpreadsheetApp.flush(); // Forzado de escritura síncrona en Sheets
+} finally {
+  lock.releaseLock(); // Liberación garantizada del candado
+}
+</code></pre>
+<p>Este mecanismo previene de manera absoluta:</p>
+<ol>
+<li><strong>Condiciones de Carrera en Stock:</strong> Dos cajeros vendiendo la última unidad disponible en simultáneo. El segundo cajero es encolado; cuando su petición entra, la lectura atómica detecta stock en 0 y rechaza la venta con <code>STOCK_INSUFICIENTE</code>.</li>
+<li><strong>Duplicidad de Correlativos:</strong> Generación de boletas o facturas con números duplicados. La lectura del último correlativo y su incremento en la hoja <code>Numeracion</code> es estrictamente serial.</li>
+</ol>
+<h3>2.3 Diagrama de Entidad-Relación Conceptual</h3>
+<pre><code class="language-mermaid">erDiagram
+    PRODUCTOS ||--o{ STOCK : &quot;tiene saldo en&quot;
+    ALMACENES ||--o{ STOCK : &quot;alberga&quot;
+    PRODUCTOS ||--o{ LOTES : &quot;clasificado en&quot;
+    ALMACENES ||--o{ LOTES : &quot;custodia&quot;
+    PRODUCTOS ||--o{ MOVIMIENTOS : &quot;registra&quot;
+    PRODUCTOS ||--o{ KARDEX : &quot;valorizado en&quot;
+    CATEGORIAS ||--o{ PRODUCTOS : &quot;agrupa&quot;
+    
+    CLIENTES ||--o{ VENTAS : &quot;realiza compra&quot;
+    ALMACENES ||--o{ VENTAS : &quot;despacha&quot;
+    VENTAS ||--|{ VENTA_DETALLE : &quot;contiene&quot;
+    PRODUCTOS ||--o{ VENTA_DETALLE : &quot;vendido en&quot;
+    VENTAS ||--o| COMPROBANTES : &quot;emite&quot;
+    VENTAS ||--o{ CUOTAS : &quot;financiado en&quot;
+    
+    CLIENTES ||--o{ PAGOS_FIADO : &quot;amortiza deuda&quot;
+    CLIENTES ||--o{ FID_HISTORIAL : &quot;acumula puntos&quot;
+    
+    PROVEEDORES ||--o{ ORDENES_COMPRA : &quot;recibe pedido&quot;
+    ORDENES_COMPRA ||--|{ OC_ITEMS : &quot;detalla&quot;
+    ORDENES_COMPRA ||--o| CUENTAS_PAGAR : &quot;genera deuda&quot;
+    
+    CAJA ||--o{ VENTAS : &quot;recauda ingresos&quot;
+    CAJA ||--o{ GASTOS : &quot;desembolsa egresos&quot;
+    USUARIOS ||--o{ SESIONES : &quot;inicia&quot;
+    USUARIOS ||--o{ AUDITORIA : &quot;ejecuta accion&quot;
+</code></pre>
+<h2>3. Seguridad, Autenticación y Matriz de Roles (RBAC)</h2>
+<h3>3.1 Esquema de Hashing Criptográfico PBKDF2 / SHA-256 (Formato v2)</h3>
+<p>La seguridad de las credenciales de los usuarios en NexoERP v1.6.1 utiliza un estándar de estiramiento de clave (Key Stretching) de grado criptográfico, implementado en <code>02_Auth.gs</code>:</p>
+<ol>
+<li><strong>Estructura del Hash v2:</strong> Cada contraseña se almacena bajo el formato:<pre><code class="language-text">sha256:10000:&lt;salt_hex&gt;:&lt;hash_hex&gt;
+</code></pre>
+</li>
+<li><strong>Generación de Sal (Salt):</strong> Se genera un vector aleatorio de 16 bytes mediante <code>Utilities.computeHmacSha256Signature</code> derivado de fuentes de entropía del sistema (<code>Date.now()</code>, números aleatorios y UUIDs de sesión).</li>
+<li><strong>Función de Derivación (PBKDF2):</strong> Se ejecutan <strong>10,000 iteraciones</strong> sucesivas de HMAC-SHA256 encadenando el resultado previo para computar el hash final. Esto neutraliza de raíz los ataques mediante tablas de arcoíris (Rainbow Tables) o ataques por fuerza bruta con hardware acelerado (GPU/ASIC).</li>
+<li><strong>Retrocompatibilidad Automática:</strong> El sistema mantiene compatibilidad con contraseñas en formato v1 (<code>sha256:salt:hash</code>). Al autenticar a un usuario con credencial v1 válida, el backend actualiza de forma transparente su registro al formato v2 con 10,000 iteraciones.</li>
+</ol>
+<h3>3.2 Gestión de Sesiones, Tokens UUID y Tiempo de Expiración (TTL)</h3>
+<ul>
+<li><strong>Emisión de Tokens:</strong> Tras un inicio de sesión exitoso mediante la acción <code>login</code>, el backend genera un token opaco aleatorio (UUIDv4) y lo inserta en la hoja <code>Sesiones</code>.</li>
+<li><strong>Tiempo de Vida (TTL):</strong> La constante <code>APP.TOKEN_TTL_HORAS</code> define una vigencia por defecto de <strong>8 horas</strong>.</li>
+<li><strong>Validación en Cada Solicitud:</strong> Cada endpoint protegido extrae el token enviado por el cliente en el cuerpo JSON (<code>token</code> o <code>auth_token</code>) y valida que:<ul>
+<li>Exista en la pestaña <code>Sesiones</code>.</li>
+<li>La fecha actual no sobrepase la columna <code>expira</code>.</li>
+</ul>
+</li>
+<li><strong>Cierre de Sesión:</strong> La acción <code>logout</code> purga inmediatamente el registro de la hoja <code>Sesiones</code>, invalidando el token de forma instantánea.</li>
+</ul>
+<h3>3.3 Control Anti Fuerza Bruta y Rate Limiting</h3>
+<p>Para salvaguardar las cuentas contra ataques automatizados de adivinación de credenciales:</p>
+<ul>
+<li>El backend mantiene en memoria y en propiedades del script un contador de intentos fallidos por usuario y dirección IP origen.</li>
+<li>Si un usuario acumula <strong>más de 5 intentos fallidos en una ventana de 15 minutos</strong>, la cuenta queda bloqueada temporalmente por 30 minutos o hasta que un usuario con rol <code>admin</code> restablezca el estado en la pestaña <code>Usuarios</code>.</li>
+</ul>
+<h3>3.4 Matriz de Roles y Permisos (RBAC)</h3>
+<p>El acceso a las funcionalidades del sistema está gobernado por una matriz de <strong>Control de Acceso Basado en Roles (RBAC)</strong> definida en <code>APP.PERMISOS</code> (<code>00_Config.gs</code>). Las lecturas de catálogos generales son accesibles por cualquier operador autenticado, mientras que las operaciones con impacto financiero o estructural quedan restringidas:</p>
+<table>
+<thead>
+<tr>
+<th>Clave de Permiso</th>
+<th>Descripción del Privilegio</th>
+<th>Roles Autorizados</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>catalogos:write</code></td>
+<td>Crear, editar o dar de baja productos, almacenes, categorías o proveedores.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>usuarios:manage</code></td>
+<td>Crear nuevos usuarios, alterar roles, resetear contraseñas o activar/bloquear cuentas.</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>config:write</code></td>
+<td>Modificar parámetros fiscales, datos de empresa, series de facturación o políticas de stock.</td>
+<td><code>admin</code></td>
+</tr>
+<tr>
+<td><code>movimientos:registrar</code></td>
+<td>Registrar ingresos, salidas, transferencias y mermas de almacén.</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code></td>
+</tr>
+<tr>
+<td><code>movimientos:anular</code></td>
+<td>Anular un movimiento previo y revertir su impacto en stock y kardex.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>auditoria:read</code></td>
+<td>Visualizar la bitácora completa de operaciones del sistema.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>ventas:registrar</code></td>
+<td>Emitir ventas por mostrador en el Punto de Venta (POS).</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code>, <code>cajero</code></td>
+</tr>
+<tr>
+<td><code>ventas:anular</code></td>
+<td>Cancelar una venta emitida, anular boleta/factura y reingresar mercadería.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>ventas:autorizar</code></td>
+<td>Autorizar descuentos superiores al límite permitido o ítems marcados como regalo.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>caja:manage</code></td>
+<td>Abrir caja, registrar egresos menores, realizar arqueo ciego y cierre de turno.</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code>, <code>cajero</code></td>
+</tr>
+<tr>
+<td><code>cotizaciones:manage</code></td>
+<td>Generar cotizaciones, editar condiciones y aprobar proformas.</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code></td>
+</tr>
+<tr>
+<td><code>gastos:manage</code></td>
+<td>Registrar y categorizar gastos operativos del negocio.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>compras:manage</code></td>
+<td>Crear órdenes de compra, comparar ofertas de proveedores y recepcionar stock.</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code></td>
+</tr>
+<tr>
+<td><code>comprobantes:manage</code></td>
+<td>Emitir notas de crédito/débito y sincronizar comprobantes con SUNAT / API UBL.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>creditos:manage</code></td>
+<td>Conceder ventas fiadas, registrar cronogramas de cuotas y registrar abonos.</td>
+<td><code>admin</code>, <code>gerente</code>, <code>operador</code></td>
+</tr>
+<tr>
+<td><code>fidelizacion:manage</code></td>
+<td>Configurar parámetros de puntos y autorizar canjes especiales.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>rrhh:manage</code></td>
+<td>Administrar asistencia, horarios y porcentajes de comisiones de vendedores.</td>
+<td><code>admin</code>, <code>gerente</code></td>
+</tr>
+<tr>
+<td><code>tareas:manage</code></td>
+<td>Ejecutar triggers manuales, copias de seguridad forzadas y resúmenes diarios.</td>
+<td><code>admin</code></td>
+</tr>
+</tbody></table>
+<h3>3.5 Pista de Auditoría Transaccional Inmutable</h3>
+<p>Cada mutación relevante en el sistema inserta una fila en la pestaña <code>Auditoria</code> mediante la rutina <code>dbAuditar_</code>:</p>
+<ul>
+<li>Se captura: fecha y hora exacta (<code>yyyy-MM-dd HH:mm:ss</code>), identificador de usuario, nombre de usuario, rol, nombre de la acción ejecutada y un objeto JSON en <code>detalle</code> con los parámetros modificados (ej. valores anteriores y nuevos).</li>
+<li>Esta hoja no posee ruta de borrado en la API, constituyendo un registro forense inalterable.</li>
+</ul>
+<h2>4. El Núcleo WMS: Gestión de Almacenes, Stock y Kardex</h2>
+<h3>4.1 Tipos de Movimientos de Inventario</h3>
+<p>El motor de inventario (<code>05_Movimientos.gs</code>) gobierna todos los flujos de existencias mediante 6 tipos de movimientos estrictamente definidos:</p>
+<ol>
+<li><code>ENTRADA</code>: Ingreso físico de mercadería a un almacén (por compras a proveedores, producción o saldo inicial). Aumenta las existencias y actualiza el costo promedio ponderado en Kardex.</li>
+<li><code>SALIDA</code>: Descarga física de inventario (por ventas, mermas, consumo interno o averías). Disminuye el stock del almacén de origen sin alterar el costo promedio unitario.</li>
+<li><code>TRANSFERENCIA</code>: Traslado inter-almacenes. Descarga el stock del almacén de origen e incrementa simultáneamente el stock en el almacén de destino, manteniendo el costo unitario de valuación.</li>
+<li><code>DEVOLUCION</code>: Reingreso de mercadería por devoluciones de clientes. Reintegra las existencias y restaura los saldos correspondientes.</li>
+<li><code>AJUSTE_POSITIVO</code>: Corrección de inventario por sobrantes detectados en tomas físicas de inventario.</li>
+<li><code>AJUSTE_NEGATIVO</code>: Corrección de inventario por faltantes o pérdidas detectadas en auditoría física.</li>
+</ol>
+<h3>4.2 Algoritmo de Kardex Valorizado: Costo Promedio Ponderado (CPP)</h3>
+<p>NexoERP implementa de manera nativa el método contable de <strong>Costo Promedio Ponderado (CPP)</strong> en <code>06_Kardex.gs</code>. Cada vez que ocurre un movimiento de tipo <code>ENTRADA</code> o <code>AJUSTE_POSITIVO</code> con costo asociado, el sistema recalcula el costo promedio de las existencias mediante la fórmula matemática:</p>
+<p>$$\text{Nuevo Costo Promedio} = \frac{(\text{Saldo Anterior Cantidad} \times \text{Costo Promedio Anterior}) + (\text{Cantidad Ingreso} \times \text{Costo Unitario Compra})}{\text{Saldo Anterior Cantidad} + \text{Cantidad Ingreso}}$$</p>
+<h4>Comportamiento en Salidas:</h4>
+<p>En cualquier movimiento de <code>SALIDA</code>, <code>TRANSFERENCIA</code> o venta, la mercadería se descarga valorizada al <strong>Costo Promedio vigente</strong> al momento de la operación. El costo promedio unitario se mantiene invariable; únicamente disminuye el valor total del saldo de inventario:</p>
+<p>$$\text{Nuevo Saldo Valor} = \text{Saldo Valor Anterior} - (\text{Cantidad Salida} \times \text{Costo Promedio})$$</p>
+<p>Todas las transacciones quedan asentadas de forma histórica en la pestaña <code>Kardex</code> con entrada/salida física y valorizada, facilitando auditorías tributarias y contables inmediatas.</p>
+<h3>4.3 Control Multi-Almacén y Transferencias</h3>
+<p>El sistema es multi-almacén nativo. Cada producto tiene un saldo independiente por cada almacén en la pestaña <code>Stock</code> (<code>productoId</code> + <code>almacenId</code>).</p>
+<ul>
+<li><strong>Transferencias Atómicas:</strong> Al registrar una transferencia mediante <code>movimiento_registrar</code> con <code>tipo: &#39;TRANSFERENCIA&#39;</code>, el motor verifica que el almacén origen disponga de existencias suficientes, resta la cantidad de <code>almacenOrigenId</code> y suma exactamente la misma cantidad en <code>almacenDestinoId</code> bajo un único bloqueo (<code>LockService</code>).</li>
+<li>Si el producto gestiona lotes, se transfiere igualmente el registro del lote al nuevo almacén manteniendo su fecha de vencimiento original.</li>
+</ul>
+<h3>4.4 Política de Stock Negativo y Bloqueo Atómico</h3>
+<p>El parámetro <code>PERMITIR_STOCK_NEGATIVO</code> en la pestaña <code>Config</code> establece la política operativa de la empresa:</p>
+<ul>
+<li>Si está configurado en <code>&#39;No&#39;</code> (valor por defecto y recomendado):<ul>
+<li>Cualquier intento de registrar una salida, transferencia o venta por una cantidad superior al saldo disponible en el almacén especificado es <strong>bloqueado de inmediato</strong>.</li>
+<li>El backend interrumpe la transacción y devuelve un error explícito:<pre><code class="language-json">{ &quot;ok&quot;: false, &quot;error&quot;: &quot;Stock insuficiente para [Producto]. Disponible: 4, Solicitado: 5&quot;, &quot;code&quot;: &quot;STOCK_INSUFICIENTE&quot; }
+</code></pre>
+</li>
+</ul>
+</li>
+<li>Si está configurado en <code>&#39;Sí&#39;</code>:<ul>
+<li>El sistema permite saldos negativos para negocios que despachan mercadería antes de registrar las facturas de compra, alertando en el dashboard y en las notificaciones del sistema sobre los productos en rojo.</li>
+</ul>
+</li>
+</ul>
+<h3>4.5 Trazabilidad de Lotes, Vencimientos y Números de Serie</h3>
+<p>Para industrias farmacéuticas, alimenticias o tecnológicas:</p>
+<ul>
+<li><strong>Control de Lotes (<code>requiereLote = &#39;Sí&#39;</code>):</strong> Cada entrada exige código de lote y fecha de vencimiento (<code>yyyy-MM-dd</code>). Se asienta en la pestaña <code>Lotes</code>.</li>
+<li><strong>Semáforo de Vencimiento:</strong><ul>
+<li>🟢 <strong>Verde (Normal):</strong> Más de 60 días para la caducidad.</li>
+<li>🟡 <strong>Amarillo (Por Vencer):</strong> Menos días que los estipulados en <code>DIAS_ALERTA_VENCIMIENTO</code> (por defecto 30 días).</li>
+<li>🔴 <strong>Rojo (Vencido):</strong> Fecha de caducidad superada. El sistema bloquea su despacho en el POS a menos que un supervisor lo autorice expresamente.</li>
+</ul>
+</li>
+<li><strong>Control de Series Unitarias (<code>requiereSerie = &#39;Sí&#39;</code>):</strong> Para equipos electrónicos, maquinaria o telefonía móvil (IMEI). Cada unidad posee un registro individual. Una serie despachada cambia su estado a <code>VENDIDO</code> y no puede volver a venderse.</li>
+</ul>
+<h3>4.6 Fraccionamiento de Unidades y Factores de Conversión</h3>
+<p>NexoERP soporta el fraccionamiento de artículos:</p>
+<ul>
+<li>Ejemplo: Productos que se compran por <strong>Caja</strong> y se venden por <strong>Unidades</strong>, o fármacos que se adquieren por <strong>Caja</strong> y se expenden por <strong>Blíster</strong> o <strong>Pastilla</strong>.</li>
+<li>La relación de conversión permite definir precios escalonados y descargar la fracción proporcional exacta de stock en el kardex físico.</li>
+</ul>
+<h2>5. Punto de Venta (POS) y Gestión Integral de Caja</h2>
+<h3>5.1 Terminal de Ventas de Alta Velocidad</h3>
+<p>La interfaz del Punto de Venta (<code>view-pos.js</code>) está diseñada para operaciones de mostrador en tiempo real con mínima latencia:</p>
+<ul>
+<li><strong>Búsqueda Inteligente Multicriterio:</strong> Permite localizar productos escribiendo texto predictivo, buscando por categoría, ingresando el SKU o mediante código de barras.</li>
+<li><strong>Soporte de Lectores de Código de Barras:</strong><ul>
+<li>Lectores USB / Bluetooth en modo emulación teclado (disparo instantáneo del lector añade el producto al carrito).</li>
+<li>Escáner con cámara integrada en tabletas y móviles impulsado por la librería <strong>ZXing</strong> (<code>BrowserMultiFormatReader</code>).</li>
+</ul>
+</li>
+<li><strong>Atajos de Teclado Operativos:</strong><ul>
+<li><code>F2</code>: Enfocar campo de búsqueda de productos.</li>
+<li><code>F4</code>: Guardar carrito actual en borrador (espera).</li>
+<li><code>F8</code>: Desplegar selector de cliente / documento.</li>
+<li><code>F9</code> o <code>Enter</code>: Proceder al cobro / checkout.</li>
+<li><code>Escape</code>: Cancelar operación o cerrar modales.</li>
+</ul>
+</li>
+<li><strong>Listas de Precios Automáticas:</strong><ul>
+<li><strong>Precio Minorista:</strong> Precio de lista por defecto.</li>
+<li><strong>Precio Mayorista:</strong> Se activa de forma automática cuando la cantidad en el carrito iguala o supera la cantidad mínima mayorista del producto.</li>
+</ul>
+</li>
+</ul>
+<h3>5.2 Políticas de Descuento, Precios Mínimos y Regalos con Autorización</h3>
+<p>Para proteger la rentabilidad del negocio, el POS implementa salvaguardas programáticas (<code>00_Config.gs</code> y <code>10_Ventas.gs</code>):</p>
+<ol>
+<li><strong>Descuento Máximo por Línea (<code>DESCUENTO_MAX_PCT</code>):</strong> Por defecto <strong>15%</strong>. Si un cajero aplica un descuento superior, el sistema exige la introducción del PIN o contraseña de un usuario con rol <code>admin</code> o <code>gerente</code>.</li>
+<li><strong>Precio Mínimo de Venta (<code>precioMinimo</code>):</strong> Ningún producto puede venderse por debajo de su costo o piso comercial sin autorización de un supervisor.</li>
+<li><strong>Ítems Marcados como Regalo / Muestra (<code>REGALO_REQUIERE_AUTORIZACION</code>):</strong> Si un producto se marca a precio 0.00 como cortesía comercial, se requiere obligatoriamente validación de gerencia. La venta registra en el campo <code>autorizadoPor</code> la identidad del supervisor que consintió la operación.</li>
+</ol>
+<h3>5.3 Ventas en Espera (Borradores POS)</h3>
+<p>Si un cliente interrumpe su compra para buscar otro artículo mientras está en la fila:</p>
+<ul>
+<li>El cajero presiona <strong>&quot;Poner en Espera&quot;</strong> (<code>F4</code>).</li>
+<li>La venta actual se archiva en la memoria reactiva local y en <code>BorradoresPos</code>.</li>
+<li>La pantalla de venta queda libre para atender al siguiente cliente.</li>
+<li>En cualquier momento, el cajero puede reabrir el selector de borradores y recuperar el carrito suspendido sin pérdida de ítems ni digitaciones previas.</li>
+</ul>
+<h3>5.4 Ciclo Integral de Caja: Apertura, Arqueo Ciego y Cierre</h3>
+<p>El módulo de caja (<code>11_Caja.gs</code> y <code>view-caja.js</code>) garantiza el control estricto del flujo de efectivo:</p>
+<pre><code class="language-mermaid">sequenceDiagram
+    autonumber
+    actor Cajero
+    participant POS as Punto de Venta
+    participant Backend as 11_Caja.gs
+    participant Sheets as Hoja &#39;Caja&#39;
+    
+    Cajero-&gt;&gt;POS: Abrir Turno con Fondo Inicial (Ej: S/ 100.00)
+    POS-&gt;&gt;Backend: caja_abrir({ montoInicial: 100.00 })
+    Backend-&gt;&gt;Sheets: Registrar fila estado &#39;ABIERTA&#39;
+    Note over POS,Sheets: Durante el turno se registran Ventas, Cobros de Fiado y Gastos menores
+    
+    Cajero-&gt;&gt;POS: Solicitar Cierre de Caja (Arqueo Ciego)
+    Note over Cajero,POS: El sistema NO revela cuánto dinero debería haber
+    Cajero-&gt;&gt;POS: Declarar Efectivo Contado (Ej: S/ 1,450.00)
+    POS-&gt;&gt;Backend: caja_cerrar({ montoContado: 1450.00 })
+    Backend-&gt;&gt;Backend: Calcular: Monto Inicial + Ventas Efectivo + Cobros Fiados - Gastos Efectivo
+    Backend-&gt;&gt;Backend: Determinar Diferencia (Sobrante / Faltante)
+    Backend-&gt;&gt;Sheets: Actualizar fila con &#39;CERRADA&#39;, montoContado, montoEsperado y diferencia
+    Backend--&gt;&gt;POS: Retornar Resumen del Arqueo y Desglose por Método de Pago
+</code></pre>
+<ul>
+<li><strong>Arqueo Ciego:</strong> El cajero desconoce el importe exacto calculado por el sistema hasta después de declarar físicamente el dinero en monedas y billetes. Esto erradica el ajuste artificial de sobrantes y faltantes.</li>
+<li><strong>Desglose Multimétodo:</strong> Al cerrar la caja, el reporte consolida los totales separados por:<ul>
+<li>Efectivo</li>
+<li>Billeteras Digitales (Yape, Plin)</li>
+<li>Tarjetas de Débito/Crédito</li>
+<li>Transferencias Bancarias</li>
+<li>Pagos de Fiados recuperados</li>
+<li>Egresos de Caja Chica</li>
+</ul>
+</li>
+</ul>
+<h3>5.5 Emisión e Impresión de Tickets Térmicos (80mm / 58mm / PDF)</h3>
+<p>NexoERP soporta salida de comprobantes flexible mediante <code>receipts.js</code> y <code>jspdf.umd.min.js</code>:</p>
+<ul>
+<li><strong>Modo Ticket Térmico:</strong> Formateo nativo en texto/HTML monospaciado para impresoras térmicas de tickets estándar (80 mm y 58 mm). Compatible con comandos ESC/POS para apertura automática de gaveta de dinero.</li>
+<li><strong>Códigos QR de Pago Impresos:</strong> Si la empresa tiene configurado Yape, Plin o cuenta CCI bancaria, el ticket imprime el código QR y el número celular para que el cliente pague al instante.</li>
+<li><strong>Generación de Proformas / Tickets en PDF:</strong> Emisión de comprobantes elegantes en formato A4 o formato ticket listos para descargar o compartir por correo y mensajería.</li>
+</ul>
+<h2>6. Créditos, Fiados y Cobranzas Activas (CXC)</h2>
+<h3>6.1 Fiados de Confianza y Límite de Crédito</h3>
+<p>Para bodegas, distribuidoras y comercios locales que otorgan crédito simple de confianza (<code>12_Fiados.gs</code>):</p>
+<ul>
+<li><strong>Límite de Fiado por Cliente (<code>limiteFiado</code>):</strong> Se configura un tope monetario máximo en la ficha del cliente.</li>
+<li><strong>Validación al Vender:</strong> Al seleccionar el método de pago <code>&#39;Fiado&#39;</code> en el POS:<ul>
+<li>El sistema suma el saldo deudor actual (<code>saldoFiado</code>) más el importe de la venta en curso.</li>
+<li>Si el resultado sobrepasa el límite asignado y <code>FIADO_PERMITIR_EXCEDER = &#39;No&#39;</code>, la venta es rechazada de inmediato.</li>
+</ul>
+</li>
+<li><strong>Abonos y Amortizaciones:</strong> El cliente puede efectuar pagos parciales o totales en cualquier momento mediante la acción <code>fiado_abonar</code>, registrando el monto, método de pago y actualizando su saldo pendiente en tiempo real.</li>
+</ul>
+<h3>6.2 Ventas a Crédito Formales con Cronograma de Cuotas</h3>
+<p>Para compras de mayor envergadura (<code>19_Creditos.gs</code>):</p>
+<ul>
+<li>El sistema permite estructurar una venta a crédito en <strong>N cuotas</strong> (semanales, quincenales o mensuales).</li>
+<li>El backend genera automáticamente las filas correspondientes en la pestaña <code>Cuotas</code>, calculando las fechas exactas de vencimiento y el monto de cada cuota.</li>
+<li>Cada amortización se imputa secuencialmente a la cuota más antigua pendiente de pago.</li>
+</ul>
+<h3>6.3 Reporte de Antigüedad de Deuda (Aging)</h3>
+<p>El módulo de cobranzas clasifica automáticamente toda la cartera vencida en una matriz de envejecimiento de saldos:</p>
+<ul>
+<li><strong>Al Día (Corriente):</strong> Facturas o cuotas cuya fecha de vencimiento aún no ha operado.</li>
+<li><strong>Vencido 1 a 30 días:</strong> Cartera con mora temprana.</li>
+<li><strong>Vencido 31 a 60 días:</strong> Mora intermedia que amerita llamada de cobranza preventiva.</li>
+<li><strong>Vencido 61 a 90 días:</strong> Alerta de gestión prejudicial.</li>
+<li><strong>Vencido a más de 90 días:</strong> Cartera pesada o de cobro dudoso.</li>
+</ul>
+<h3>6.4 Cobranza Automatizada vía WhatsApp</h3>
+<p>Para acelerar la recuperación del flujo de caja, el sistema integra la generación dinámica de enlaces a la API oficial de WhatsApp Web / Móvil (<code>wa.me</code>):</p>
+<ul>
+<li>El operador hace clic en el botón de WhatsApp junto al cliente deudor.</li>
+<li>El sistema genera un mensaje predeterminado y formateado:<pre><code class="language-text">Estimado(a) Juan Pérez, le saludamos de NexoERP Distribución S.A.C. Le recordamos que mantiene un saldo pendiente de S/ 250.00 correspondiente a su compra del 12/08/2026. Puede realizar su transferencia a nuestra cuenta BCP CCI: 002-194-000000000000-00 o por Yape al 987654321. ¡Agradecemos su preferencia!
+</code></pre>
+</li>
+<li>Se abre automáticamente el chat en el dispositivo sin necesidad de guardar al cliente en los contactos del teléfono.</li>
+</ul>
+<h2>7. Cotizaciones y Proformas Comerciales</h2>
+<h3>7.1 Ciclo de Estados de una Cotización</h3>
+<p>El módulo de cotizaciones (<code>13_Cotizaciones.gs</code> y <code>view-cotizaciones.js</code>) permite emitir presupuestos comerciales sin comprometer ni alterar el stock físico:</p>
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; BORRADOR : Creación de la proforma
+    BORRADOR --&gt; EMITIDA : Enviar al cliente (PDF/WhatsApp)
+    EMITIDA --&gt; APROBADA : Cliente acepta la propuesta comercial
+    EMITIDA --&gt; RECHAZADA : Cliente desiste
+    EMITIDA --&gt; EXPIRADA : Se superan los días de validez
+    APROBADA --&gt; CONVERTIDA : Clic en &#39;Convertir a Venta&#39;
+    CONVERTIDA --&gt; [*] : Se genera Venta POS y se descuenta el stock en Kardex
+</code></pre>
+<ul>
+<li><strong>Validez Temporal:</strong> Cada cotización tiene una vigencia configurable (ej. 7 días, 15 días). Tras expirar la fecha límite, la acción de conversión exige confirmación o actualización de precios si los costos variaron.</li>
+</ul>
+<h3>7.2 Conversión Atómica en 1 Clic a Venta POS</h3>
+<p>La función <code>cotizacion_convertir</code> realiza una conversión sin fricción:</p>
+<ul>
+<li>Lee los ítems de <code>CotizacionDetalle</code>.</li>
+<li>Valida la disponibilidad de stock actual en el almacén de despacho.</li>
+<li>Invoca la rutina transaccional de venta, asigna correlativo de boleta o factura, descuenta el stock en el WMS, asienta el kardex y marca la cotización como <code>CONVERTIDA</code> guardando la referencia cruzada al <code>ventaId</code>.</li>
+</ul>
+<h3>7.3 Exportación Profesional a PDF</h3>
+<p>Mediante la librería integrada <code>jspdf.umd.min.js</code>, las cotizaciones se compilan en un documento PDF de alta calidad estética con membrete corporativo, datos de contacto de la empresa, logotipo, tabla de productos, subtotales, desglose de impuestos y notas comerciales.</p>
+<h2>8. Compras, Órdenes de Compra y Cuentas por Pagar (CXP)</h2>
+<h3>8.1 Flujo de Aprovisionamiento y Cotizaciones de Proveedores</h3>
+<p>El módulo de adquisiciones (<code>18_Compras.gs</code> y <code>view-compras.js</code>) estructura el reabastecimiento:</p>
+<ol>
+<li><strong>Creación de Orden de Compra (OC):</strong> Se emite una orden a un proveedor registrado con el detalle de artículos, cantidades requeridas y costo unitario pactado.</li>
+<li><strong>Comparativa de Ofertas (<code>OcOfertas</code>):</strong> Permite adjuntar propuestas económicas de distintos distribuidores (precio total, días de entrega y comentarios) antes de autorizar la orden definitiva.</li>
+<li><strong>Aprobación de la Orden:</strong> El usuario con rol <code>admin</code> o <code>gerente</code> aprueba la OC para su notificación formal al proveedor.</li>
+</ol>
+<h3>8.2 Recepción de Mercadería e Impacto Inmediato en Kardex</h3>
+<p>Cuando el camión de mercadería arriba a las instalaciones:</p>
+<ul>
+<li>El operador ingresa a la orden en estado <code>APROBADA</code> y selecciona <strong>&quot;Recepcionar Mercadería&quot;</strong>.</li>
+<li>Puede registrar una recepción total o parcial.</li>
+<li><strong>Acción Transaccional Atómica:</strong><ul>
+<li>El sistema crea automáticamente un movimiento de inventario de tipo <code>ENTRADA</code> en el almacén de destino (<code>ALMACEN_RECEPCION</code>).</li>
+<li>Si los productos gestionan lotes o vencimientos, se capturan dichos datos y se actualiza la pestaña <code>Lotes</code>.</li>
+<li>Se recalcula de inmediato el <strong>Costo Promedio Ponderado</strong> en la pestaña <code>Kardex</code>.</li>
+<li>El estado de la orden de compra pasa a <code>RECIBIDA</code>.</li>
+</ul>
+</li>
+</ul>
+<h3>8.3 Gestión de Cuentas por Pagar (CXP)</h3>
+<p>Al recepcionar una orden de compra bajo condición de crédito a proveedores:</p>
+<ul>
+<li>El backend crea automáticamente una obligación financiera en la pestaña <code>CuentasPagar</code>.</li>
+<li>Se registra la fecha límite de vencimiento, el importe total y el saldo deudor pendiente.</li>
+<li>El módulo permite abonar pagos a proveedores, controlando el flujo de egresos y evitando atrasos comerciales o cortes de suministro.</li>
+</ul>
+<h2>9. Facturación Electrónica SUNAT y Localización Multi-País</h2>
+<h3>9.1 Motor de Localización Regional para 8 Países</h3>
+<p>NexoERP v1.6.1 incorpora un motor de parametrización regional (<code>15_Pais.gs</code>) adaptado a las regulaciones tributarias de 8 países de América Latina:</p>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>País</th>
+<th>Moneda</th>
+<th>Símbolo</th>
+<th>Impuesto</th>
+<th>Tasa (%)</th>
+<th>Documento Fiscal Principal</th>
+<th>Documento de Identidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>PER</strong></td>
+<td>Perú</td>
+<td>PEN</td>
+<td>S/</td>
+<td>IGV</td>
+<td>18%</td>
+<td>Factura (01) / Boleta (03)</td>
+<td>RUC (11 dígitos) / DNI (8 dígitos)</td>
+</tr>
+<tr>
+<td><strong>BOL</strong></td>
+<td>Bolivia</td>
+<td>BOB</td>
+<td>Bs.</td>
+<td>IVA</td>
+<td>13%</td>
+<td>Factura</td>
+<td>NIT</td>
+</tr>
+<tr>
+<td><strong>ECU</strong></td>
+<td>Ecuador</td>
+<td>USD</td>
+<td>$</td>
+<td>IVA</td>
+<td>15%</td>
+<td>Factura</td>
+<td>RUC / Cédula</td>
+</tr>
+<tr>
+<td><strong>COL</strong></td>
+<td>Colombia</td>
+<td>COP</td>
+<td>$</td>
+<td>IVA</td>
+<td>19%</td>
+<td>Factura Electrónica</td>
+<td>NIT / Cédula de Ciudadanía</td>
+</tr>
+<tr>
+<td><strong>CHL</strong></td>
+<td>Chile</td>
+<td>CLP</td>
+<td>$</td>
+<td>IVA</td>
+<td>19%</td>
+<td>Boleta / Factura Electrónica</td>
+<td>RUT</td>
+</tr>
+<tr>
+<td><strong>ARG</strong></td>
+<td>Argentina</td>
+<td>ARS</td>
+<td>$</td>
+<td>IVA</td>
+<td>21%</td>
+<td>Factura A, B, C</td>
+<td>CUIT / DNI</td>
+</tr>
+<tr>
+<td><strong>PRY</strong></td>
+<td>Paraguay</td>
+<td>PYG</td>
+<td>₲</td>
+<td>IVA</td>
+<td>10%</td>
+<td>Factura Electrónica</td>
+<td>RUC</td>
+</tr>
+<tr>
+<td><strong>URY</strong></td>
+<td>Uruguay</td>
+<td>UYU</td>
+<td>$U</td>
+<td>IVA</td>
+<td>22%</td>
+<td>e-Factura / e-Ticket</td>
+<td>RUT / Cédula</td>
+</tr>
+</tbody></table>
+<p>Al seleccionar el país en el panel de configuración, las etiquetas de la interfaz, el cálculo de impuestos en los comprobantes y las validaciones de los documentos de identidad se adaptan en toda la aplicación.</p>
+<h3>9.2 Series Electrónicas Oficiales (B001, F001, FC01, FD01)</h3>
+<p>El sistema soporta la estructura alfanumérica de comprobantes de pago de acuerdo con las normativas de la entidad tributaria (SUNAT en Perú):</p>
+<ul>
+<li><strong>Boleta de Venta Electrónica (Tipo 03):</strong> Serie <code>B001</code>, correlativo secuencial de 8 dígitos (ej. <code>B001-00000145</code>). Se emite automáticamente para clientes con DNI o sin documento.</li>
+<li><strong>Factura Electrónica (Tipo 01):</strong> Serie <code>F001</code>, correlativo secuencial de 8 dígitos (ej. <code>F001-00000078</code>). Se emite cuando el cliente consigna un RUC válido de 11 dígitos.</li>
+<li><strong>Nota de Crédito (Tipo 07):</strong> Series <code>FC01</code> (asociada a facturas) y <code>BC01</code> (asociada a boletas) para anulaciones o devoluciones de mercadería.</li>
+<li><strong>Nota de Débito (Tipo 08):</strong> Series <code>FD01</code> y <code>BD01</code> para penalidades o intereses por mora.</li>
+</ul>
+<h3>9.3 Integración UBL 2.1 con APIs de Facturación (Greenter / Laravel)</h3>
+<p>El backend (<code>16_Comprobantes.gs</code>) contiene el motor de estructuración de comprobantes compatible con el estándar XML <strong>UBL 2.1</strong>:</p>
+<ul>
+<li>Modos de Operación (<code>SUNAT_MODO</code>):<ul>
+<li><code>desactivado</code>: Modo comprobante interno (boleta de venta simple).</li>
+<li><code>manual</code>: Emisión local con generación de archivo para carga manual en portal SUNAT.</li>
+<li><code>api</code>: Transmisión desatendida mediante servicios web REST hacia un facturador electrónico externo (basado en Laravel / Greenter / Nubefact).</li>
+</ul>
+</li>
+<li>Al guardar la venta, si el modo API está activo, el sistema envía el payload en segundo plano, recibe el código CDR de respuesta, el hash del comprobante y actualiza el estado a <code>ACEPTADO</code>.</li>
+</ul>
+<h3>9.4 Generación de Libro Electrónico PLE 14.1 (Registro de Ventas)</h3>
+<p>Para el cumplimiento contable y tributario:</p>
+<ul>
+<li>La acción <code>comprobantes_ple_ventas</code> procesa todas las transacciones del mes y genera el archivo de texto plano estructurado (<code>.txt</code>) correspondiente al <strong>Programa de Libros Electrónicos (PLE) Formato 14.1</strong> (Registro de Ventas e Ingresos de SUNAT).</li>
+<li>Contiene los 34 campos reglamentarios: fecha de emisión, tipo de comprobante, serie, número, documento del cliente, base imponible gravada, IGV y total general.</li>
+</ul>
+<h3>9.5 Sincronización en Vivo de Tipo de Cambio USD</h3>
+<p>El sistema se conecta a través de HTTP GET seguro (<code>UrlFetchApp</code>) con la API pública de tipo de cambio oficial (<code>apis.net.pe</code>):</p>
+<ul>
+<li>Obtiene la cotización diaria de compra y venta fijada por la Superintendencia de Banca y Seguros (SBS) y SUNAT.</li>
+<li>Permite cotizar o cobrar ventas en Dólares Americanos (USD), convirtiendo el equivalente a moneda nacional de forma transparente.</li>
+</ul>
+<h2>10. Analítica de Negocio y Business Intelligence</h2>
+<h3>10.1 Clasificación ABC de Inventario (Curva de Pareto 80/15/5)</h3>
+<p>El módulo analítico (<code>14_Analitica.gs</code> y <code>view-rentabilidad.js</code>) implementa el análisis de clasificación ABC basado en la ley de Pareto:</p>
+<ul>
+<li>Procesa el volumen acumulado de ventas monetarias de cada producto en un periodo determinado y calcula el porcentaje de contribución acumulada:<ul>
+<li><strong>Categoría A (80% del valor de ventas):</strong> Artículos estratégicos de altísima rotación. Requieren control de inventario diario, stock de seguridad riguroso y seguimiento prioritario en compras.</li>
+<li><strong>Categoría B (15% del valor de ventas):</strong> Artículos de rotación intermedia con volumen moderado.</li>
+<li><strong>Categoría C (5% del valor de ventas):</strong> Artículos de baja rotación pero que completan el catálogo. No deben acumular compras excesivas para evitar inmovilización de capital.</li>
+</ul>
+</li>
+</ul>
+<h3>10.2 Detección de Inventario Muerto y Capital Inmovilizado</h3>
+<p>Para erradicar la obsolescencia y optimizar el capital de trabajo:</p>
+<ul>
+<li>La función <code>analiticaMuertos_</code> cruza el catálogo de productos con el registro histórico de movimientos de los últimos <strong>30, 60, 90 o 180 días</strong>.</li>
+<li>Detecta aquellos productos que registran saldo físico en almacén pero <strong>cero salidas o ventas</strong> durante el umbral evaluado.</li>
+<li>Presenta el importe exacto de <strong>capital estancado</strong> (Stock $\times$ Costo Promedio), permitiendo a la gerencia implementar promociones, descuentos por liquidación o devoluciones a proveedores antes del vencimiento.</li>
+</ul>
+<h3>10.3 Análisis de Margen y Rentabilidad Real</h3>
+<p>A diferencia de sistemas que calculan el margen sobre costos estáticos o estimados, NexoERP computa la rentabilidad real:</p>
+<ul>
+<li>Compara el <strong>Precio de Venta Neto de Impuestos</strong> contra el <strong>Costo Promedio Ponderado real asentado en el Kardex</strong> al momento exacto de la venta.</li>
+<li>Desglosa el margen bruto porcentual y absoluto por producto, por familia de categorías y por vendedor comercial.</li>
+</ul>
+<h3>10.4 Dashboard Ejecutivo en Tiempo Real</h3>
+<p>La vista principal (<code>view-dashboard.js</code> y <code>07_Dashboard.gs</code>) resume los indicadores clave de desempeño (KPIs) en un solo vistazo:</p>
+<ul>
+<li><strong>Ventas del Día:</strong> Monto facturado, cantidad de tickets emitidos y ticket promedio.</li>
+<li><strong>Margen Bruto Estimado:</strong> Ganancia neta operativa del día.</li>
+<li><strong>Valor Total del Inventario:</strong> Valuación económica de la totalidad de almacenes a costo promedio.</li>
+<li><strong>Alertas Críticas:</strong> Contador de artículos con stock por debajo del mínimo de seguridad y lotes próximos a expirar.</li>
+<li><strong>Gráfico de Tendencia (14 días):</strong> Gráfico interactivo (Chart.js) que proyecta la evolución de ingresos diarios.</li>
+</ul>
+<h2>11. Módulos Auxiliares: Fidelización, RRHH y Gastos</h2>
+<h3>11.1 Programa de Fidelización y Puntos de Clientes</h3>
+<p>Para incentivar la recompra de clientes (<code>20_Fidelizacion.gs</code>):</p>
+<ul>
+<li>Parámetros configurables:<ul>
+<li><code>FIDEL_ACTIVA = &#39;Sí&#39;</code>: Habilita el módulo de lealtad.</li>
+<li><code>FIDEL_MONTO_PUNTO = &#39;10&#39;</code>: Otorga 1 punto por cada S/ 10 de compra.</li>
+<li><code>FIDEL_VALOR_PUNTO = &#39;0.10&#39;</code>: Cada punto equivale a S/ 0.10 de saldo a favor.</li>
+<li><code>FIDEL_MIN_CANJE = &#39;100&#39;</code>: Se requiere acumular al menos 100 puntos para redimirlos en caja.</li>
+</ul>
+</li>
+<li>Al registrar la venta en el POS, el sistema actualiza automáticamente la cuenta del cliente y asienta el historial en la hoja <code>FidHistorial</code>.</li>
+</ul>
+<h3>11.2 Control de Asistencia del Personal</h3>
+<p>El módulo de recursos humanos (<code>21_RRHH.gs</code> y <code>view-rrhh.js</code>):</p>
+<ul>
+<li>Permite que los empleados registren su hora de entrada y salida laboral desde el sistema.</li>
+<li>Se computan los minutos laborados, tardanzas y ausencias en la hoja <code>Asistencia</code>, consolidando reportes para la elaboración de la nómina de sueldos.</li>
+</ul>
+<h3>11.3 Liquidación de Comisiones de Venta</h3>
+<ul>
+<li>En la pestaña <code>Vendedores</code> se asocia a cada usuario comercial un porcentaje de comisión (ej. 3.5%).</li>
+<li>En cada venta POS o cotización convertida se etiqueta al vendedor responsable.</li>
+<li>El reporte de comisiones calcula automáticamente el importe a pagar sobre las ventas efectivamente cobradas en el mes.</li>
+</ul>
+<h3>11.4 Control de Gastos Operativos y Caja Chica</h3>
+<p>El módulo de finanzas (<code>17_Gastos.gs</code> y <code>view-gastos.js</code>):</p>
+<ul>
+<li>Registra egresos clasificados en <code>GastosCategorias</code> (alquiler, energía eléctrica, agua, suministros de limpieza, viáticos, sueldos).</li>
+<li>Si el gasto se marca como pagado en <code>&#39;Efectivo&#39;</code> durante el turno de un cajero, se descuenta automáticamente del arqueo de caja chica en <code>11_Caja.gs</code>.</li>
+<li>Compara el gasto ejecutado contra el presupuesto mensual planificado en <code>Presupuesto</code>.</li>
+</ul>
+<h2>12. Automatizaciones y Tareas en Segundo Plano (Triggers)</h2>
+<p>Google Apps Script cuenta con un motor de eventos basados en tiempo (<code>Time-driven Triggers</code>) que ejecutan rutinas nocturnas o periódicas de forma autónoma sin intervención humana (<code>22_Tareas.gs</code>):</p>
+<h3>12.1 Tarea Diaria: Auditoría Preventiva y Notificaciones por Correo</h3>
+<p>La función <code>tareaDiaria</code> se programa típicamente a las <strong>23:00 horas</strong>:</p>
+<ol>
+<li>Escanea todos los productos con stock menor a <code>stockMin</code> y genera notificaciones en la hoja <code>Notificaciones</code>.</li>
+<li>Analiza los lotes farmacéuticos o alimentarios que vencerán en los próximos <code>DIAS_ALERTA_VENCIMIENTO</code> días.</li>
+<li>Detecta fiados o créditos cuya fecha de pago venció.</li>
+<li>Si la clave <code>RECORD_EMAIL</code> contiene un correo válido, envía mediante el servicio nativo de Gmail (<code>MailApp.sendEmail</code>) un informe ejecutivo al gerente con el resumen financiero y operativo de la jornada.</li>
+</ol>
+<h3>12.2 Copia de Respaldo Automatizada en Google Drive</h3>
+<p>Si la clave <code>BACKUP_ACTIVO = &#39;Sí&#39;</code>:</p>
+<ul>
+<li>La función <code>tareaBackup</code> se ejecuta de madrugada.</li>
+<li>Crea un duplicado completo del archivo de Google Sheets en una carpeta designada en Google Drive, asignándole un nombre con marca de tiempo: <code>NexoERP_Backup_2026-09-05_0200.xlsx</code>.</li>
+<li>Aplica una política de retención (<code>BACKUP_RETENCION</code> por defecto 15 días), purgando automáticamente copias más antiguas para no saturar el almacenamiento de la cuenta de Google.</li>
+</ul>
+<h3>12.3 Sincronización Automática de Divisas</h3>
+<p>La función <code>tareaTipoCambio</code> se ejecuta a las <strong>09:00 horas</strong>:</p>
+<ul>
+<li>Consulta la cotización del dólar estadounidense y actualiza las claves <code>TC_USD</code> y <code>TC_FECHA</code> en la hoja <code>Config</code>, garantizando que las cajas comiencen el día con la tasa de cambio vigente.</li>
+</ul>
+<h2>13. Catálogo Público Web y Pedidos por WhatsApp</h2>
+<h3>13.1 Arquitectura del Endpoint Público Seguro</h3>
+<p>Para permitir que los clientes compren a distancia sin necesidad de acceso al panel interno ni credenciales de usuario:</p>
+<ul>
+<li>Se implementó la acción pública <code>catalogo_publico</code> en <code>23_Catalogo.gs</code>.</li>
+<li>Este endpoint <strong>no requiere token de sesión</strong>.</li>
+<li>Por estrictas razones de seguridad comercial, la consulta filtra y retorna <strong>únicamente</strong> productos con:<ul>
+<li>Estado <code>ACTIVO</code>.</li>
+<li>Saldo de stock mayor a cero en los almacenes de despacho.</li>
+</ul>
+</li>
+<li><strong>Oculta de forma irrevocable</strong> los costos unitarios (<code>costoStd</code>), márgenes de ganancia, proveedores o datos de auditoría. Retorna exclusivamente: <code>id</code>, <code>sku</code>, <code>nombre</code>, <code>descripcion</code>, <code>categoria</code>, <code>unidad</code>, <code>precioVenta</code> y foto/URL.</li>
+</ul>
+<h3>13.2 Portal Web Móvil (<code>catalogo.html</code>)</h3>
+<p>El archivo independiente <code>frontend/catalogo.html</code> es una vitrina virtual moderna optimizada para teléfonos celulares:</p>
+<ul>
+<li>Posee buscador interactivo y filtrado por pestañas de categoría.</li>
+<li>Carrito de compras flotante que calcula el total en tiempo real.</li>
+<li>Permite al cliente indicar su nombre, dirección de entrega y método de pago preferido.</li>
+</ul>
+<h3>13.3 Generación Dinámica del Mensaje de WhatsApp</h3>
+<p>Al hacer clic en <strong>&quot;Confirmar y Enviar Pedido&quot;</strong>:</p>
+<ul>
+<li>La aplicación compila la lista de productos seleccionados, cantidades y total a pagar.</li>
+<li>Construye un enlace seguro de WhatsApp Web / Móvil (<code>https://wa.me/...</code>) con el texto codificado en URL:<pre><code class="language-text">¡Hola! Deseo realizar el siguiente pedido:
+- 2x Arroz Costeño 5kg (S/ 48.00)
+- 1x Aceite Primor 1L (S/ 11.50)
+Total: S/ 59.50
+Cliente: María López
+Dirección: Av. Primavera 450, Urb. Las Flores
+Pago: Yape
+</code></pre>
+</li>
+<li>El mensaje se abre instantáneamente en el WhatsApp de ventas de la empresa para su atención y despacho.</li>
+</ul>
+<h2>14. Frontend SPA, Componentes y Capacidad Offline (PWA)</h2>
+<h3>14.1 Estructura Modular de Vistas y Componentes Vue 3</h3>
+<p>El frontend de NexoERP v1.6.1 está concebido como una Single Page Application (SPA) pura sin compilación pesada (Webpack/Vite innecesarios para despliegue inmediato):</p>
+<ul>
+<li><strong>Motor Central (<code>assets/js/app.js</code>):</strong> Instancia reactiva global de Vue 3 que gestiona el enrutador de vistas, el menú lateral y las notificaciones toast.</li>
+<li><strong>Capa de Almacenamiento Global (<code>assets/js/store.js</code>):</strong> Mantiene en memoria el usuario autenticado, el almacén seleccionado, la caja abierta y las preferencias del sistema.</li>
+<li><strong>28 Módulos de Vista Independientes (<code>assets/js/views/</code>):</strong> Cada pantalla del sistema (<code>view-pos.js</code>, <code>view-kardex.js</code>, <code>view-compras.js</code>, etc.) está encapsulada en un archivo modular con su propio estado, métodos y lógica de ciclo de vida.</li>
+<li><strong>Componentes Reutilizables (<code>assets/js/components.js</code>):</strong> Modales, selectores dinámicos, paginadores de tablas y badges de estado.</li>
+</ul>
+<h3>14.2 Estrategia de Caché y Service Worker (<code>sw.js</code>)</h3>
+<p>El sistema implementa los estándares de una <strong>Progressive Web App (PWA)</strong>:</p>
+<ul>
+<li>El archivo <code>manifest.json</code> habilita la instalación de NexoERP en la pantalla de inicio o escritorio como una aplicación nativa en Android, iOS, Windows y macOS.</li>
+<li>El Service Worker (<code>sw.js</code>) aplica una estrategia de <strong>Stale-While-Revalidate / Cache-First</strong> para los recursos esenciales de la interfaz (archivos HTML, CSS, JavaScript, fuentes de Google Fonts y librerías CDN).</li>
+<li>Si el comercio sufre una desconexión o intermitencia en el servicio de Internet, la interfaz continúa abriendo sin pantalla en blanco.</li>
+</ul>
+<h3>14.3 Resiliencia de Red y Sincronización Diferida</h3>
+<p>En el Punto de Venta (POS):</p>
+<ul>
+<li>Si ocurre una pérdida de señal de red en el momento del cobro, el cliente almacena la venta de forma segura en una cola local (<code>IndexedDB</code> / <code>localStorage</code>).</li>
+<li>El cajero recibe una confirmación de ticket en contingencia.</li>
+<li>Tan pronto como la conexión a Internet se restablece, el Service Worker y el cliente detectan el evento <code>online</code> y transmiten la cola de ventas pendientes al backend de Google Apps Script, garantizando que ninguna transacción física se extravíe.</li>
+</ul>
+<h2>15. Diccionario Exhaustivo de la API (113 Acciones)</h2>
+<p>A continuación se detalla la totalidad de las 113 rutas y acciones procesadas por el enrutador central (<code>ROUTER_</code> en <code>01_WebApp.gs</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Acción (<code>action</code>)</th>
+<th>Controlador</th>
+<th>Permiso Requerido</th>
+<th>Parámetros Principales</th>
+<th>Descripción Funcional</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ping</code></td>
+<td><code>ping_</code></td>
+<td>Público</td>
+<td>Ninguno</td>
+<td>Comprobación de conectividad y estado del backend.</td>
+</tr>
+<tr>
+<td><code>login</code></td>
+<td><code>authLogin_</code></td>
+<td>Público</td>
+<td><code>usuario</code>, <code>password</code></td>
+<td>Autentica usuario y emite token de sesión de 8 horas.</td>
+</tr>
+<tr>
+<td><code>logout</code></td>
+<td><code>authLogout_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Invalida el token activo y cierra la sesión.</td>
+</tr>
+<tr>
+<td><code>auth_check</code></td>
+<td><code>authCheck_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Valida si el token activo sigue vigente y retorna datos del operador.</td>
+</tr>
+<tr>
+<td><code>usuario_perfil</code></td>
+<td><code>usuarioPerfil_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Obtiene la información del perfil del usuario en sesión.</td>
+</tr>
+<tr>
+<td><code>usuario_cambiar_password</code></td>
+<td><code>usuarioCambiarPass_</code></td>
+<td>Autenticado</td>
+<td><code>passwordActual</code>, <code>passwordNueva</code></td>
+<td>Actualiza la contraseña aplicando hash PBKDF2/SHA-256 v2.</td>
+</tr>
+<tr>
+<td><code>setup_inicial</code></td>
+<td><code>setupSystem</code></td>
+<td>Público</td>
+<td>Ninguno</td>
+<td>Crea las 33 hojas y siembra datos iniciales de demostración.</td>
+</tr>
+<tr>
+<td><code>config_get</code></td>
+<td><code>configGet_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Devuelve todas las claves y valores de la empresa.</td>
+</tr>
+<tr>
+<td><code>config_set</code></td>
+<td><code>configSet_</code></td>
+<td><code>config:write</code></td>
+<td><code>clave</code>, <code>valor</code></td>
+<td>Modifica una clave individual de configuración.</td>
+</tr>
+<tr>
+<td><code>config_save_batch</code></td>
+<td><code>configSaveBatch_</code></td>
+<td><code>config:write</code></td>
+<td><code>config</code> (objeto)</td>
+<td>Actualiza múltiples parámetros de configuración en lote.</td>
+</tr>
+<tr>
+<td><code>usuarios_list</code></td>
+<td><code>usuariosList_</code></td>
+<td><code>usuarios:manage</code></td>
+<td>Ninguno</td>
+<td>Lista los operadores, roles y estados registrados.</td>
+</tr>
+<tr>
+<td><code>usuario_save</code></td>
+<td><code>usuarioSave_</code></td>
+<td><code>usuarios:manage</code></td>
+<td><code>usuario</code>, <code>nombre</code>, <code>rol</code>, <code>estado</code></td>
+<td>Crea o modifica un usuario en el sistema.</td>
+</tr>
+<tr>
+<td><code>usuario_reset_pass</code></td>
+<td><code>usuarioResetPass_</code></td>
+<td><code>usuarios:manage</code></td>
+<td><code>id</code>, <code>nuevaPass</code></td>
+<td>Restablece la contraseña de un colaborador por el admin.</td>
+</tr>
+<tr>
+<td><code>usuario_delete</code></td>
+<td><code>usuarioDelete_</code></td>
+<td><code>usuarios:manage</code></td>
+<td><code>id</code></td>
+<td>Da de baja o elimina un usuario.</td>
+</tr>
+<tr>
+<td><code>categorias_list</code></td>
+<td><code>categoriasList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Lista las categorías de productos disponibles.</td>
+</tr>
+<tr>
+<td><code>categoria_save</code></td>
+<td><code>categoriaSave_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>nombre</code>, <code>descripcion</code>, <code>estado</code></td>
+<td>Registra o actualiza una categoría.</td>
+</tr>
+<tr>
+<td><code>categoria_delete</code></td>
+<td><code>categoriaDelete_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>id</code></td>
+<td>Elimina una categoría sin artículos asociados.</td>
+</tr>
+<tr>
+<td><code>almacenes_list</code></td>
+<td><code>almacenesList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Lista los almacenes físicos y sucursales.</td>
+</tr>
+<tr>
+<td><code>almacen_save</code></td>
+<td><code>almacenSave_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>codigo</code>, <code>nombre</code>, <code>direccion</code></td>
+<td>Registra o actualiza los datos de un almacén.</td>
+</tr>
+<tr>
+<td><code>almacen_delete</code></td>
+<td><code>almacenDelete_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>id</code></td>
+<td>Desactiva o borra un almacén.</td>
+</tr>
+<tr>
+<td><code>productos_list</code></td>
+<td><code>productosList_</code></td>
+<td>Autenticado</td>
+<td><code>categoria</code>, <code>buscar</code>, <code>estado</code></td>
+<td>Catálogo maestro de productos con filtros.</td>
+</tr>
+<tr>
+<td><code>producto_save</code></td>
+<td><code>productoSave_</code></td>
+<td><code>catalogos:write</code></td>
+<td>Datos de producto</td>
+<td>Crea o actualiza un producto en el catálogo maestro.</td>
+</tr>
+<tr>
+<td><code>producto_delete</code></td>
+<td><code>productoDelete_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>id</code></td>
+<td>Marca como inactivo o borra un producto.</td>
+</tr>
+<tr>
+<td><code>proveedores_list</code></td>
+<td><code>proveedoresList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Directorio de proveedores de mercadería.</td>
+</tr>
+<tr>
+<td><code>proveedor_save</code></td>
+<td><code>proveedorSave_</code></td>
+<td><code>catalogos:write</code></td>
+<td>Datos de proveedor</td>
+<td>Crea o modifica una ficha de proveedor.</td>
+</tr>
+<tr>
+<td><code>proveedor_delete</code></td>
+<td><code>proveedorDelete_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>id</code></td>
+<td>Da de baja a un proveedor.</td>
+</tr>
+<tr>
+<td><code>clientes_list</code></td>
+<td><code>clientesList_</code></td>
+<td>Autenticado</td>
+<td><code>buscar</code></td>
+<td>Directorio de clientes con saldos y límites.</td>
+</tr>
+<tr>
+<td><code>cliente_save</code></td>
+<td><code>clienteSave_</code></td>
+<td>Autenticado</td>
+<td>Datos de cliente</td>
+<td>Crea o actualiza un cliente.</td>
+</tr>
+<tr>
+<td><code>cliente_delete</code></td>
+<td><code>clienteDelete_</code></td>
+<td><code>catalogos:write</code></td>
+<td><code>id</code></td>
+<td>Da de baja un cliente.</td>
+</tr>
+<tr>
+<td><code>movimiento_registrar</code></td>
+<td><code>movimientoRegistrar_</code></td>
+<td><code>movimientos:registrar</code></td>
+<td>Datos de movimiento</td>
+<td>Registra entrada, salida, traspaso o ajuste en el WMS.</td>
+</tr>
+<tr>
+<td><code>movimiento_anular</code></td>
+<td><code>movimientoAnular_</code></td>
+<td><code>movimientos:anular</code></td>
+<td><code>id</code>, <code>motivo</code></td>
+<td>Anula un movimiento previo y restaura stock.</td>
+</tr>
+<tr>
+<td><code>movimientos_list</code></td>
+<td><code>movimientosList_</code></td>
+<td>Autenticado</td>
+<td>Filtros fecha/almacén</td>
+<td>Consulta el historial transaccional de movimientos.</td>
+</tr>
+<tr>
+<td><code>stock_consolidado</code></td>
+<td><code>stockConsolidado_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Existencias agregadas de toda la empresa.</td>
+</tr>
+<tr>
+<td><code>stock_list</code></td>
+<td><code>stockList_</code></td>
+<td>Autenticado</td>
+<td><code>almacenId</code>, <code>buscar</code></td>
+<td>Existencias detalladas por almacén y estado crítico.</td>
+</tr>
+<tr>
+<td><code>stock_por_almacen</code></td>
+<td><code>stockPorAlmacen_</code></td>
+<td>Autenticado</td>
+<td><code>almacenId</code></td>
+<td>Saldos de existencias de una sede específica.</td>
+</tr>
+<tr>
+<td><code>kardex_consultar</code></td>
+<td><code>kardexConsultar_</code></td>
+<td>Autenticado</td>
+<td><code>productoId</code>, <code>almacenId</code></td>
+<td>Hoja kardex detallada con entradas, salidas y CPP.</td>
+</tr>
+<tr>
+<td><code>lotes_list</code></td>
+<td><code>lotesList_</code></td>
+<td>Autenticado</td>
+<td><code>productoId</code>, <code>estado</code></td>
+<td>Seguimiento de lotes, vencimientos y series.</td>
+</tr>
+<tr>
+<td><code>lote_save</code></td>
+<td><code>loteSave_</code></td>
+<td><code>movimientos:registrar</code></td>
+<td>Datos de lote</td>
+<td>Modificación manual o corrección de lotes.</td>
+</tr>
+<tr>
+<td><code>lote_delete</code></td>
+<td><code>loteDelete_</code></td>
+<td><code>movimientos:anular</code></td>
+<td><code>id</code></td>
+<td>Eliminación de registro de lote.</td>
+</tr>
+<tr>
+<td><code>dashboard_resumen</code></td>
+<td><code>dashboardResumen_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>KPIs ejecutivos de ventas, márgenes, alertas y series.</td>
+</tr>
+<tr>
+<td><code>auditoria_list</code></td>
+<td><code>auditoriaList_</code></td>
+<td><code>auditoria:read</code></td>
+<td><code>limite</code>, <code>usuario</code></td>
+<td>Bitácora inmutable de eventos del sistema.</td>
+</tr>
+<tr>
+<td><code>reporte_inventario_valorizado</code></td>
+<td><code>reporteInventarioValorizado_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Reporte consolidado de valoración de existencias.</td>
+</tr>
+<tr>
+<td><code>reporte_movimientos</code></td>
+<td><code>reporteMovimientos_</code></td>
+<td>Autenticado</td>
+<td>Fechas / Tipo</td>
+<td>Reporte filtrado de movimientos para auditoría.</td>
+</tr>
+<tr>
+<td><code>reporte_vencimientos</code></td>
+<td><code>reporteVencimientos_</code></td>
+<td>Autenticado</td>
+<td><code>dias</code></td>
+<td>Reporte de artículos por vencer o caducados.</td>
+</tr>
+<tr>
+<td><code>reporte_stock_minimo</code></td>
+<td><code>reporteStockMinimo_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Reporte de reposición urgente de compras.</td>
+</tr>
+<tr>
+<td><code>venta_guardar</code></td>
+<td><code>ventaGuardar_</code></td>
+<td><code>ventas:registrar</code></td>
+<td>Datos completos de venta</td>
+<td>Procesa venta POS, descuenta stock y emite boleta.</td>
+</tr>
+<tr>
+<td><code>venta_anular</code></td>
+<td><code>ventaAnular_</code></td>
+<td><code>ventas:anular</code></td>
+<td><code>id</code>, <code>motivo</code></td>
+<td>Anula venta y revierte las existencias en Kardex.</td>
+</tr>
+<tr>
+<td><code>ventas_list</code></td>
+<td><code>ventasList_</code></td>
+<td>Autenticado</td>
+<td>Fechas / Cliente</td>
+<td>Consulta de ventas históricas emitidas.</td>
+</tr>
+<tr>
+<td><code>venta_detalle</code></td>
+<td><code>ventaDetalle_</code></td>
+<td>Autenticado</td>
+<td><code>id</code></td>
+<td>Obtiene las líneas de detalle de una venta específica.</td>
+</tr>
+<tr>
+<td><code>caja_abrir</code></td>
+<td><code>cajaAbrir_</code></td>
+<td><code>caja:manage</code></td>
+<td><code>montoInicial</code></td>
+<td>Abre el turno operativo de caja.</td>
+</tr>
+<tr>
+<td><code>caja_estado</code></td>
+<td><code>cajaEstado_</code></td>
+<td><code>caja:manage</code></td>
+<td>Ninguno</td>
+<td>Consulta el estado actual de la caja del operador.</td>
+</tr>
+<tr>
+<td><code>caja_cerrar</code></td>
+<td><code>cajaCerrar_</code></td>
+<td><code>caja:manage</code></td>
+<td><code>montoContado</code></td>
+<td>Ejecuta el arqueo ciego y cierra el turno.</td>
+</tr>
+<tr>
+<td><code>cajas_list</code></td>
+<td><code>cajasList_</code></td>
+<td><code>caja:manage</code></td>
+<td>Ninguno</td>
+<td>Historial de turnos de caja y discrepancias.</td>
+</tr>
+<tr>
+<td><code>fiados_list</code></td>
+<td><code>fiadosList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Listado de clientes con deudas activas de fiados.</td>
+</tr>
+<tr>
+<td><code>fiado_abonar</code></td>
+<td><code>fiadoAbonar_</code></td>
+<td><code>ventas:registrar</code></td>
+<td><code>clienteId</code>, <code>monto</code></td>
+<td>Registra amortización o pago total de fiado.</td>
+</tr>
+<tr>
+<td><code>fiado_historial</code></td>
+<td><code>fiadoHistorial_</code></td>
+<td>Autenticado</td>
+<td><code>clienteId</code></td>
+<td>Detalle de cobros y compras fiadas de un cliente.</td>
+</tr>
+<tr>
+<td><code>cotizacion_guardar</code></td>
+<td><code>cotizacionGuardar_</code></td>
+<td><code>cotizaciones:manage</code></td>
+<td>Datos de proforma</td>
+<td>Registra o actualiza una cotización comercial.</td>
+</tr>
+<tr>
+<td><code>cotizacion_estado</code></td>
+<td><code>cotizacionEstado_</code></td>
+<td><code>cotizaciones:manage</code></td>
+<td><code>id</code>, <code>estado</code></td>
+<td>Cambia el estado de una cotización.</td>
+</tr>
+<tr>
+<td><code>cotizaciones_list</code></td>
+<td><code>cotizacionesList_</code></td>
+<td>Autenticado</td>
+<td>Filtros</td>
+<td>Consulta listado de proformas emitidas.</td>
+</tr>
+<tr>
+<td><code>cotizacion_detalle</code></td>
+<td><code>cotizacionDetalle_</code></td>
+<td>Autenticado</td>
+<td><code>id</code></td>
+<td>Obtiene el detalle de artículos de la proforma.</td>
+</tr>
+<tr>
+<td><code>cotizacion_convertir</code></td>
+<td><code>cotizacionConvertir_</code></td>
+<td><code>ventas:registrar</code></td>
+<td><code>id</code>, <code>almacenId</code></td>
+<td>Convierte en 1 clic la cotización a venta POS.</td>
+</tr>
+<tr>
+<td><code>analitica_ventas</code></td>
+<td><code>analiticaVentas_</code></td>
+<td>Autenticado</td>
+<td>Rango de fechas</td>
+<td>Gráficos y reportes de volumen comercial.</td>
+</tr>
+<tr>
+<td><code>analitica_rentabilidad</code></td>
+<td><code>analiticaRentabilidad_</code></td>
+<td>Autenticado</td>
+<td>Fechas</td>
+<td>Margen bruto real comparando precio vs Kardex.</td>
+</tr>
+<tr>
+<td><code>analitica_abc</code></td>
+<td><code>analiticaAbc_</code></td>
+<td>Autenticado</td>
+<td>Periodo</td>
+<td>Clasificación Pareto 80/15/5 de inventario.</td>
+</tr>
+<tr>
+<td><code>analitica_muertos</code></td>
+<td><code>analiticaMuertos_</code></td>
+<td>Autenticado</td>
+<td><code>dias</code></td>
+<td>Identificación de capital inmovilizado sin venta.</td>
+</tr>
+<tr>
+<td><code>gastos_list</code></td>
+<td><code>gastosList_</code></td>
+<td><code>gastos:manage</code></td>
+<td>Fechas / Categoria</td>
+<td>Listado de egresos operativos.</td>
+</tr>
+<tr>
+<td><code>gasto_save</code></td>
+<td><code>gastoSave_</code></td>
+<td><code>gastos:manage</code></td>
+<td>Datos de gasto</td>
+<td>Registra un nuevo egreso operativo o de caja chica.</td>
+</tr>
+<tr>
+<td><code>gasto_delete</code></td>
+<td><code>gastoDelete_</code></td>
+<td><code>gastos:manage</code></td>
+<td><code>id</code></td>
+<td>Elimina un registro de gasto.</td>
+</tr>
+<tr>
+<td><code>gastos_categorias_list</code></td>
+<td><code>gastosCategoriasList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Tipos de gastos configurados.</td>
+</tr>
+<tr>
+<td><code>gastos_categoria_save</code></td>
+<td><code>gastosCategoriaSave_</code></td>
+<td><code>gastos:manage</code></td>
+<td>Datos categoría</td>
+<td>Crea o edita una categoría de gasto.</td>
+</tr>
+<tr>
+<td><code>compras_list</code></td>
+<td><code>comprasList_</code></td>
+<td>Autenticado</td>
+<td>Estado / Proveedor</td>
+<td>Consulta de órdenes de compra.</td>
+</tr>
+<tr>
+<td><code>oc_save</code></td>
+<td><code>ocSave_</code></td>
+<td><code>compras:manage</code></td>
+<td>Datos de OC e ítems</td>
+<td>Crea o modifica una orden de compra.</td>
+</tr>
+<tr>
+<td><code>oc_estado</code></td>
+<td><code>ocEstado_</code></td>
+<td><code>compras:manage</code></td>
+<td><code>id</code>, <code>estado</code></td>
+<td>Cambia estado (aprobada, cancelada).</td>
+</tr>
+<tr>
+<td><code>oc_recepcionar</code></td>
+<td><code>ocRecepcionar_</code></td>
+<td><code>compras:manage</code></td>
+<td><code>id</code>, <code>itemsRecibidos</code></td>
+<td>Ingresa mercadería al WMS e impacta Kardex.</td>
+</tr>
+<tr>
+<td><code>oc_ofertas_list</code></td>
+<td><code>ocOfertasList_</code></td>
+<td>Autenticado</td>
+<td><code>ocId</code></td>
+<td>Cotizaciones comparativas de proveedores.</td>
+</tr>
+<tr>
+<td><code>oc_oferta_save</code></td>
+<td><code>ocOfertaSave_</code></td>
+<td><code>compras:manage</code></td>
+<td>Datos oferta</td>
+<td>Guarda una cotización de proveedor.</td>
+</tr>
+<tr>
+<td><code>oc_oferta_elegir</code></td>
+<td><code>ocOfertaElegir_</code></td>
+<td><code>compras:manage</code></td>
+<td><code>ocId</code>, <code>ofertaId</code></td>
+<td>Adjudica la orden a una oferta específica.</td>
+</tr>
+<tr>
+<td><code>cxp_list</code></td>
+<td><code>cxpList_</code></td>
+<td>Autenticado</td>
+<td>Estado</td>
+<td>Cuentas por pagar a proveedores.</td>
+</tr>
+<tr>
+<td><code>cxp_abonar</code></td>
+<td><code>cxpAbonar_</code></td>
+<td><code>compras:manage</code></td>
+<td><code>id</code>, <code>monto</code></td>
+<td>Registra pago de deuda a un proveedor.</td>
+</tr>
+<tr>
+<td><code>creditos_list</code></td>
+<td><code>creditosList_</code></td>
+<td>Autenticado</td>
+<td>Cliente / Estado</td>
+<td>Ventas en cuotas a plazos.</td>
+</tr>
+<tr>
+<td><code>credito_cuotas</code></td>
+<td><code>creditoCuotas_</code></td>
+<td>Autenticado</td>
+<td><code>ventaId</code></td>
+<td>Cronograma detallado de cuotas de una venta.</td>
+</tr>
+<tr>
+<td><code>credito_pagar_cuota</code></td>
+<td><code>creditoPagarCuota_</code></td>
+<td><code>creditos:manage</code></td>
+<td><code>cuotaId</code>, <code>monto</code></td>
+<td>Registra amortización o cancelación de cuota.</td>
+</tr>
+<tr>
+<td><code>credito_aging</code></td>
+<td><code>creditoAging_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Matriz de antigüedad de cartera de créditos.</td>
+</tr>
+<tr>
+<td><code>comprobantes_list</code></td>
+<td><code>comprobantesList_</code></td>
+<td>Autenticado</td>
+<td>Filtros</td>
+<td>Historial de boletas, facturas y notas electrónicas.</td>
+</tr>
+<tr>
+<td><code>comprobante_crear</code></td>
+<td><code>comprobanteCrear_</code></td>
+<td><code>comprobantes:manage</code></td>
+<td>Datos comprobante</td>
+<td>Genera comprobante fiscal formal UBL 2.1.</td>
+</tr>
+<tr>
+<td><code>comprobante_enviar_api</code></td>
+<td><code>comprobanteEnviarApi_</code></td>
+<td><code>comprobantes:manage</code></td>
+<td><code>id</code></td>
+<td>Transmite comprobante al API de facturación SUNAT.</td>
+</tr>
+<tr>
+<td><code>comprobante_ple_ventas</code></td>
+<td><code>comprobantePleVentas_</code></td>
+<td><code>comprobantes:manage</code></td>
+<td><code>anio</code>, <code>mes</code></td>
+<td>Genera archivo .txt PLE 14.1 para SUNAT.</td>
+</tr>
+<tr>
+<td><code>asistencia_marcar</code></td>
+<td><code>asistenciaMarcar_</code></td>
+<td>Autenticado</td>
+<td><code>tipo</code> (entrada/salida)</td>
+<td>Registra asistencia de un empleado.</td>
+</tr>
+<tr>
+<td><code>asistencia_hoy</code></td>
+<td><code>asistenciaHoy_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Consulta marcaciones del día del personal.</td>
+</tr>
+<tr>
+<td><code>asistencia_historial</code></td>
+<td><code>asistenciaHistorial_</code></td>
+<td><code>rrhh:manage</code></td>
+<td>Periodo</td>
+<td>Reporte consolidado de asistencia laboral.</td>
+</tr>
+<tr>
+<td><code>vendedores_list</code></td>
+<td><code>vendedoresList_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Lista de agentes de venta y sus comisiones.</td>
+</tr>
+<tr>
+<td><code>vendedor_save</code></td>
+<td><code>vendedorSave_</code></td>
+<td><code>rrhh:manage</code></td>
+<td>Datos vendedor</td>
+<td>Asigna porcentaje de comisión a un usuario.</td>
+</tr>
+<tr>
+<td><code>comisiones_calcular</code></td>
+<td><code>comisionesCalcular_</code></td>
+<td><code>rrhh:manage</code></td>
+<td>Periodo</td>
+<td>Calcula comisiones acumuladas por vendedor.</td>
+</tr>
+<tr>
+<td><code>fidel_saldo</code></td>
+<td><code>fidelSaldo_</code></td>
+<td>Autenticado</td>
+<td><code>clienteId</code></td>
+<td>Consulta puntos acumulados por un cliente.</td>
+</tr>
+<tr>
+<td><code>fidel_historial</code></td>
+<td><code>fidelHistorial_</code></td>
+<td>Autenticado</td>
+<td><code>clienteId</code></td>
+<td>Movimientos históricos de puntos ganados/usados.</td>
+</tr>
+<tr>
+<td><code>fidel_canjear</code></td>
+<td><code>fidelCanjear_</code></td>
+<td><code>ventas:registrar</code></td>
+<td><code>clienteId</code>, <code>puntos</code></td>
+<td>Aplica puntos como descuento de pago en caja.</td>
+</tr>
+<tr>
+<td><code>notificaciones_list</code></td>
+<td><code>notificacionesList_</code></td>
+<td>Autenticado</td>
+<td><code>soloNoLeidas</code></td>
+<td>Lista alertas de stock, vencimientos y caja.</td>
+</tr>
+<tr>
+<td><code>notificacion_marcar_leida</code></td>
+<td><code>notificacionMarcarLeida_</code></td>
+<td>Autenticado</td>
+<td><code>id</code></td>
+<td>Cambia estado de una notificación a leída.</td>
+</tr>
+<tr>
+<td><code>tc_consultar</code></td>
+<td><code>tcConsultar_</code></td>
+<td>Autenticado</td>
+<td>Ninguno</td>
+<td>Obtiene la cotización del dólar en tiempo real.</td>
+</tr>
+<tr>
+<td><code>catalogo_publico</code></td>
+<td><code>catalogoPublico_</code></td>
+<td>Público</td>
+<td>Ninguno</td>
+<td>Catálogo sin precios confidenciales para WhatsApp.</td>
+</tr>
+<tr>
+<td><code>tarea_diaria_ejecutar</code></td>
+<td><code>tareaDiaria</code></td>
+<td><code>tareas:manage</code></td>
+<td>Ninguno</td>
+<td>Dispara el chequeo diario y envío de correo.</td>
+</tr>
+<tr>
+<td><code>tarea_backup_ejecutar</code></td>
+<td><code>tareaBackup</code></td>
+<td><code>tareas:manage</code></td>
+<td>Ninguno</td>
+<td>Dispara la copia de seguridad en Google Drive.</td>
+</tr>
+<tr>
+<td><code>tarea_tc_ejecutar</code></td>
+<td><code>tareaTipoCambio</code></td>
+<td><code>tareas:manage</code></td>
+<td>Ninguno</td>
+<td>Sincroniza la cotización bancaria de la divisa.</td>
+</tr>
+</tbody></table>
+<h2>16. Guía de Instalación, Configuración y Despliegue Paso a Paso</h2>
+<h3>16.1 Paso 1: Preparación de la Hoja de Google Sheets</h3>
+<ol>
+<li>Acceda a su cuenta corporativa o personal de Google Drive.</li>
+<li>Cree una nueva hoja de cálculo en blanco: <strong>Nuevo &gt; Hojas de cálculo de Google</strong>.</li>
+<li>Asigne un nombre al archivo, por ejemplo: <code>NexoERP_BD_Produccion</code>.</li>
+<li>Copie el identificador único de la hoja presente en la barra de direcciones del navegador:<pre><code class="language-text">https://docs.google.com/spreadsheets/d/1A2B3C4D5E6F7G8H9I0J_EJEMPLO/edit
+</code></pre>
+El ID de la hoja es la cadena alfanumérica entre <code>/d/</code> y <code>/edit</code>.</li>
+</ol>
+<h3>16.2 Paso 2: Instalación del Backend en Google Apps Script</h3>
+<ol>
+<li>En el menú superior de su hoja de cálculo, diríjase a: <strong>Extensiones &gt; Apps Script</strong>.</li>
+<li>Se abrirá el entorno de desarrollo de Google Apps Script. Asigne el nombre del proyecto como <code>NexoERP-Backend</code>.</li>
+<li>Elimine el código predeterminado de <code>Código.gs</code>.</li>
+<li>Cree los 24 archivos de script (<code>.gs</code>) copiando fielmente el contenido de la carpeta <code>backend/</code> de esta versión (desde <code>00_Config.gs</code> hasta <code>23_Catalogo.gs</code>).</li>
+<li>En la barra superior de funciones, seleccione la función <strong><code>setupDesdeCero</code></strong> (si es para una empresa nueva de producción) o <strong><code>setupSystem</code></strong> (si desea instalar datos de prueba y demostración) y haga clic en <strong>Ejecutar</strong>.</li>
+<li>Google solicitará <strong>autorización de permisos</strong>:<ul>
+<li>Haga clic en <em>Revisar permisos</em>.</li>
+<li>Seleccione su cuenta de Google.</li>
+<li>Haga clic en <em>Avanzado</em> (Advanced) y luego en <em>Ir a NexoERP-Backend (no seguro)</em>.</li>
+<li>Presione <em>Permitir</em>.</li>
+</ul>
+</li>
+<li>La función creará automáticamente las 33 pestañas con sus columnas exactas y el usuario administrador inicial.</li>
+</ol>
+<h3>16.3 Paso 3: Despliegue de la API Web App</h3>
+<ol>
+<li>En la esquina superior derecha de Apps Script, haga clic en el botón azul <strong>Implementar &gt; Nueva implementación</strong>.</li>
+<li>En el icono de engranaje (Seleccionar tipo), elija <strong>Aplicación web</strong>.</li>
+<li>Complete los parámetros requeridos:<ul>
+<li><strong>Descripción:</strong> <code>NexoERP Producción v1.6.1</code></li>
+<li><strong>Ejecutar como:</strong> <code>Yo (tu_correo@gmail.com)</code> <em>(Crucial para que acceda a la hoja de Sheets).</em></li>
+<li><strong>Quién tiene acceso:</strong> <strong><code>Cualquier usuario</code></strong> <em>(Crucial para que el frontend SPA pueda comunicarse sin bloqueos de autenticación de cuenta de Google).</em></li>
+</ul>
+</li>
+<li>Presione <strong>Implementar</strong>.</li>
+<li>Copie la <strong>URL de la aplicación web</strong> generada:<pre><code class="language-text">https://script.google.com/macros/s/AKfycbx...EJEMPLO.../exec
+</code></pre>
+</li>
+</ol>
+<h3>16.4 Paso 4: Despliegue del Frontend (Vercel / Hosting Estático)</h3>
+<ol>
+<li>En la carpeta <code>frontend/assets/js/config.js</code>, abra el archivo y asigne la URL de su Web App:<pre><code class="language-javascript">var CONFIG_APP = {
+  API_URL: &#39;https://script.google.com/macros/s/AKfycbx...EJEMPLO.../exec&#39;,
+  MODO_DEBUG: false
+};
+</code></pre>
+</li>
+<li>Despliegue en <strong>Vercel</strong> (Opción Recomendada):<ul>
+<li>Ingrese a <a href="https://vercel.com">vercel.com</a> con su cuenta de GitHub o correo.</li>
+<li>Seleccione <strong>Add New... &gt; Project</strong>.</li>
+<li>Arrastre o vincule el repositorio con la carpeta <code>frontend/</code>.</li>
+<li>Vercel detectará el archivo <code>vercel.json</code> y generará una URL pública instantánea con certificado SSL gratis: <code>https://mi-empresa-erp.vercel.app</code>.</li>
+</ul>
+</li>
+</ol>
+<h3>16.5 Paso 5: Asistente de Configuración Inicial (Wizard)</h3>
+<ol>
+<li>Abra en su navegador la URL provista por Vercel.</li>
+<li>Inicie sesión con las credenciales por defecto:<ul>
+<li><strong>Usuario:</strong> <code>admin</code></li>
+<li><strong>Contraseña:</strong> <code>admin123</code></li>
+</ul>
+</li>
+<li>Si ejecutó <code>setupDesdeCero</code>, el sistema detectará que la base está vacía y abrirá automáticamente el <strong>Asistente de Inicio (Wizard)</strong> (<code>view-asistente.js</code>):<ul>
+<li><strong>Paso 1: Datos de la Empresa:</strong> Razón social, RUC, dirección fiscal, moneda y tasa de impuestos.</li>
+<li><strong>Paso 2: Seguridad:</strong> Cambio obligatorio de la contraseña predeterminada del usuario administrador.</li>
+<li><strong>Paso 3: Almacén y Sede:</strong> Nombre y código del almacén central de operaciones.</li>
+<li><strong>Paso 4: Categorías y Productos Base:</strong> Carga rápida de las primeras familias y artículos con stock inicial.</li>
+<li><strong>Paso 5: Fondo de Caja:</strong> Registro del primer turno y monto inicial en efectivo.</li>
+</ul>
+</li>
+<li>Al finalizar, el sistema marca <code>ASISTENTE_COMPLETADO = &#39;Sí&#39;</code> y da paso al panel operativo.</li>
+</ol>
+<h2>17. Solución de Problemas (Troubleshooting) y Mantenimiento</h2>
+<h3>17.1 Diagnóstico Rápido de Errores Comunes</h3>
+<table>
+<thead>
+<tr>
+<th>Síntoma o Error</th>
+<th>Causa Raíz Probable</th>
+<th>Solución Paso a Paso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Error de CORS en la consola del navegador</strong></td>
+<td>La Web App en Apps Script no está configurada para acceso público.</td>
+<td>En Apps Script, vaya a <em>Implementar &gt; Administrar implementaciones</em>, edite la versión activa y asegúrese de que <strong>Quién tiene acceso</strong> esté configurado en <strong>&quot;Cualquier usuario&quot;</strong> (Anyone). Guarde una nueva versión.</td>
+</tr>
+<tr>
+<td><strong>&quot;Error al autenticar: Token expirado&quot;</strong></td>
+<td>Han transcurrido más de 8 horas desde el inicio de sesión.</td>
+<td>La sesión caducó por directiva de seguridad. Ingrese nuevamente sus credenciales en la pantalla de login.</td>
+</tr>
+<tr>
+<td><strong>&quot;Stock insuficiente para [Producto]&quot;</strong></td>
+<td>Política <code>PERMITIR_STOCK_NEGATIVO = &#39;No&#39;</code> y la cantidad solicitada supera el saldo físico en el almacén.</td>
+<td>Realice una entrada previa de mercadería, regularice mediante ajuste positivo o modifique la política en <em>Configuración &gt; Inventario</em>.</td>
+</tr>
+<tr>
+<td><strong>El arqueo de caja no coincide con el dinero contado</strong></td>
+<td>Hubo salidas de dinero en efectivo de caja chica no registradas en el módulo de Gastos.</td>
+<td>Registre el egreso en el módulo de Gastos seleccionando método <em>Efectivo</em> antes de cerrar el turno de caja.</td>
+</tr>
+<tr>
+<td><strong>El escáner de código de barras no lee con la cámara</strong></td>
+<td>El navegador no cuenta con permisos para acceder a la cámara o el sitio no se sirve por HTTPS.</td>
+<td>Asegúrese de utilizar una conexión segura HTTPS (Vercel la proporciona por defecto) y acepte los permisos de cámara en el navegador.</td>
+</tr>
+<tr>
+<td><strong>La factura electrónica no devuelve código CDR</strong></td>
+<td>Claves de acceso a la API de facturación erróneas o modo SUNAT en &quot;desactivado&quot;.</td>
+<td>En <em>Configuración &gt; Facturación</em>, verifique la URL base del API, credenciales y que el modo esté en <code>api</code>.</td>
+</tr>
+</tbody></table>
+<h3>17.2 Límites y Cuotas de Google Apps Script</h3>
+<p>Google impone límites operativos por cuenta de Google que deben tenerse presentes en operaciones de gran volumen:</p>
+<ul>
+<li><strong>Tiempo Límite de Ejecución por Solicitud:</strong> Máximo <strong>6 minutos</strong> continuos por ejecución de script (suficiente para procesar miles de filas mediante batch en <code>03_Db.gs</code>).</li>
+<li><strong>Límite de Correos Electrónicos Diarios:</strong> 100 correos/día para cuentas gratuitas <code>@gmail.com</code> y 1,500 correos/día para cuentas Google Workspace. El sistema optimiza el envío concentrando las alertas en un único correo diario (<code>tareaDiaria</code>).</li>
+<li><strong>Tamaño de Google Sheets:</strong> Hasta <strong>10 millones de celdas</strong> por archivo. En una operación estándar de retail con 10,000 ventas mensuales, la hoja soporta holgadamente más de 5 años de datos antes de requerir archivado histórico.</li>
+</ul>
+<h3>17.3 Buenas Prácticas Operativas y Mantenimiento Preventivo</h3>
+<ol>
+<li><strong>Activar Copias de Seguridad Automáticas:</strong> Configure <code>BACKUP_ACTIVO = &#39;Sí&#39;</code> y establezca una retención de 15 a 30 días para salvaguardar la información ante errores humanos o manipulación accidental de celdas en la hoja.</li>
+<li><strong>No Modificar Encabezados Directamente en Sheets:</strong> Nunca renombre, elimine ni reordene las columnas de la fila 1 en las hojas de cálculo. El backend mapea los atributos de los objetos según los nombres exactos de los encabezados.</li>
+<li><strong>Control Periódico de Inventario Físico:</strong> Realice tomas de inventario físico mensuales y asiente ajustes positivos o negativos para mantener el Kardex 100% alineado con la realidad del almacén.</li>
+<li><strong>Cierre Obligatorio de Turnos de Caja:</strong> Exija a los cajeros cerrar su turno al finalizar su jornada laboral para aislar la responsabilidad de los arqueos de dinero.</li>
+</ol>
+<hr>
+<h2>18. Guía para Desarrolladores y Extensión del Sistema</h2>
+<h3>18.1 Agregar una Nueva Acción al Backend</h3>
+<p>Para incorporar una nueva función al backend:</p>
+<ol>
+<li>Elija el módulo correspondiente (<code>04_Catalogos.gs</code>, <code>05_Movimientos.gs</code>, etc.) o cree uno nuevo.</li>
+<li>Defina la función privada con sufijo <code>_</code>:</li>
+</ol>
+<pre><code class="language-javascript">function miAccionNueva_(c) {
+  // &#39;c&#39; contiene el payload enviado por el frontend
+  if (!c.parametroObligatorio) throw new ApiError_(&#39;Falta parámetro requerido&#39;, &#39;VALIDATION&#39;);
+  
+  var datos = dbLeer_(APP.SHEETS.PRODUCTOS);
+  // Lógica de negocio...
+  return appOk_({ resultado: &#39;Operación exitosa&#39;, total: datos.length });
+}
+</code></pre>
+<ol start="3">
+<li>Registre la acción en <code>01_WebApp.gs</code> dentro de <code>ROUTER_()</code>:</li>
+</ol>
+<pre><code class="language-javascript">mi_accion_nueva: miAccionNueva_,
+</code></pre>
+<ol start="4">
+<li>Si la acción modifica datos o requiere permisos especiales, agréguela a <code>APP.PERMISOS</code> en <code>00_Config.gs</code>:</li>
+</ol>
+<pre><code class="language-javascript">&#39;mi_modulo:write&#39;: [&#39;admin&#39;, &#39;gerente&#39;]
+</code></pre>
+<ol start="5">
+<li>Espeje la acción en el motor local <code>demo-store.js</code> dentro del objeto <code>H</code> para asegurar la compatibilidad en modo offline/demo:</li>
+</ol>
+<pre><code class="language-javascript">H.mi_accion_nueva = function (p) {
+  return { ok: true, data: { resultado: &#39;Operación exitosa (demo)&#39; } };
+};
+</code></pre>
+<ol start="6">
+<li>Exponga el método en el cliente HTTP en <code>assets/js/api.js</code>:</li>
+</ol>
+<pre><code class="language-javascript">Api.miAccionNueva = function (params) { return llamar(&#39;mi_accion_nueva&#39;, params); };
+</code></pre>
+<h3>18.2 Agregar una Nueva Vista en el Frontend (SPA)</h3>
+<ol>
+<li>Cree un nuevo archivo en <code>frontend/assets/js/views/view-minueva.js</code>:</li>
+</ol>
+<pre><code class="language-javascript">(function () {
+  window.NEXO_VISTAS = window.NEXO_VISTAS || {};
+  window.NEXO_VISTAS[&#39;minueva&#39;] = {
+    data: function () {
+      return {
+        cargando: false,
+        elementos: []
+      };
+    },
+    methods: {
+      cargar: async function () {
+        this.cargando = true;
+        try {
+          this.elementos = await Api.miAccionNueva();
+        } catch (e) {
+          AppStore.toast(e.message, &#39;error&#39;);
+        } finally {
+          this.cargando = false;
+        }
+      }
+    },
+    mounted: function () {
+      this.cargar();
+    },
+    template: `
+      &lt;div class=&quot;p-6&quot;&gt;
+        &lt;h1 class=&quot;text-2xl font-bold text-slate-800 mb-4&quot;&gt;Mi Nueva Vista&lt;/h1&gt;
+        &lt;div class=&quot;card-gen&quot;&gt;
+          &lt;p class=&quot;text-slate-600&quot;&gt;Contenido dinámico renderizado con Vue 3.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `
+  };
+})();
+</code></pre>
+<ol start="2">
+<li>Vincule el script en <code>frontend/index.html</code> antes del cierre de <code>&lt;/body&gt;</code>:</li>
+</ol>
+<pre><code class="language-html">&lt;script src=&quot;assets/js/views/view-minueva.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+<ol start="3">
+<li>Agregue el acceso en el menú lateral de navegación en <code>frontend/assets/js/app.js</code> especificando la clave de vista (<code>minueva</code>), el icono correspondiente y los roles autorizados.</li>
+</ol>
+<h3>18.3 Agregar una Nueva Pestaña a Google Sheets</h3>
+<ol>
+<li>Declare la constante en <code>00_Config.gs</code> dentro de <code>APP.SHEETS</code>:</li>
+</ol>
+<pre><code class="language-javascript">APP.SHEETS.NUEVA_ENTIDAD = &#39;NuevaEntidad&#39;;
+</code></pre>
+<ol start="2">
+<li>Defina las cabeceras exactas en <code>09_Setup.gs</code> en el objeto <code>CABECERAS</code>:</li>
+</ol>
+<pre><code class="language-javascript">NuevaEntidad: [&#39;id&#39;, &#39;nombre&#39;, &#39;descripcion&#39;, &#39;estado&#39;, &#39;creado&#39;]
+</code></pre>
+<ol start="3">
+<li>En la rutina de migración idempotente (<code>migrarAdendaV16_</code> o nueva), invoque <code>crearHojaSiFalta_(ss, APP.SHEETS.NUEVA_ENTIDAD, CABECERAS.NuevaEntidad)</code>.</li>
+</ol>
+<h3>18.4 Modificaciones en el Motor de Ventas (10_Ventas.gs)</h3>
+<p>La función <code>ventasRegistrar_</code> es el núcleo transaccional más sensible del sistema. Debe respetarse su secuencia de ejecución atómica:</p>
+<ol>
+<li>Validación de sesión y comprobación de permisos (<code>ventas:registrar</code>).</li>
+<li>Validación de disponibilidad de existencias y comprobación de políticas de precio (precio mínimo, descuento tope y regalos con <code>validarAutorizacion_</code>).</li>
+<li>Cómputo matemático de subtotales, recargos e impuestos según <code>IGV_INCLUIDO</code>.</li>
+<li>Descarga atómica de stock en la hoja <code>Stock</code> y registro en el Kardex valorizado bajo Costo Promedio Ponderado.</li>
+<li>Si el método es <code>&#39;Fiado&#39;</code>, validación de límite de crédito del cliente y actualización del saldo deudor; si es <code>&#39;Credito&#39;</code>, generación del cronograma en <code>Cuotas</code>.</li>
+<li>Inserción de cabecera en <code>Ventas</code>, líneas en <code>VentaDetalle</code> y actualización de correlativos en <code>Numeracion</code>.</li>
+<li><strong>Hooks posteriores no bloqueantes:</strong> Disparo asíncrono de comprobante SUNAT (<code>16_Comprobantes.gs</code>), acumulación de puntos de fidelización (<code>20_Fidelizacion.gs</code>) y alertas de inventario. Todo hook post-venta debe envolverse en bloques <code>try / catch</code> para impedir que una falla externa aborte una venta ya asentada en inventario.</li>
+</ol>
+<h3>18.5 Convenciones de Código y Buenas Prácticas</h3>
+<ul>
+<li><strong>Funciones Internas de Apps Script:</strong> Nombrar todas las funciones de backend con sufijo <code>_</code> (ej. <code>obtenerDatos_</code>). En Google Apps Script, las funciones terminadas en guion bajo son privadas y no quedan expuestas como macros públicas en la hoja.</li>
+<li><strong>Tipado Seguro:</strong> Utilizar siempre las funciones utilitarias de <code>00_Config.gs</code>:<ul>
+<li><code>numero_(val, defecto)</code>: Convierte strings con coma o punto a flotante seguro.</li>
+<li><code>entero_(val, defecto)</code>: Parseo entero decimal.</li>
+<li><code>boolStr_(val)</code>: Interpreta &#39;Sí&#39;, &#39;SI&#39;, &#39;true&#39;, &#39;1&#39; como booleano verdadero.</li>
+<li><code>redondear_(n, decimales)</code>: Previene desbordamientos de coma flotante de JavaScript.</li>
+</ul>
+</li>
+<li><strong>Respuestas Normalizadas:</strong> Retornar siempre <code>appOk_(data)</code> o lanzar <code>new ApiError_(mensaje, codigo)</code>.</li>
+</ul>
+
+
+    </div>
+  </div>
+</body>
+</html>

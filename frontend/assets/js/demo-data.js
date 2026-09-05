@@ -34,7 +34,13 @@ var DEMO_SEED = {
     /* --- Adenda 1.3: fiados y WhatsApp --- */
     FIADO_PERMITIR_EXCEDER: 'No',
     FIADO_DIAS_ALERTA: '30',
-    WHATSAPP_PREFIJO: '51'
+    WHATSAPP_PREFIJO: '51',
+    /* --- Adenda 1.5: contacto de empresa + asistente de inicio ---
+     * La demo ya viene con datos, así que el asistente nace completado;
+     * puede re-ejecutarse desde Configuración o con ?asistente=1. */
+    DIRECCION_EMPRESA: 'Av. Industrial 1450, Lima',
+    TELEFONO_EMPRESA: '01-4567890',
+    ASISTENTE_COMPLETADO: 'Sí'
   },
 
   /* Adenda: correlativos de comprobantes. La BOLETA continúa tras la

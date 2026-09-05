@@ -7,11 +7,13 @@
   window.NEXO_VISTAS = window.NEXO_VISTAS || {};
 
   window.NEXO_VISTAS['clientes'] = {
+    components: { modal: NEXO_UI.Modal },
     data: function () {
       return {
         filas: [], cargando: true, q: '',
         modalAbierto: false, guardando: false,
-        form: this.formVacio()
+        form: this.formVacio(),
+        modalPts: false, cliSel: null, historialPts: [], ajustePts: '', ajusteNota: ''
       };
     },
     computed: {
@@ -34,6 +36,7 @@
           { k: 'telefono', label: 'Teléfono / WhatsApp' },
           { k: 'limiteFiado', label: 'Límite fiado', clase: 'text-right' },
           { k: 'saldoFiado', label: 'Saldo fiado', clase: 'text-right' },
+          { k: 'puntosF', label: 'Puntos', clase: 'text-right' },
           { k: 'estado', label: 'Estado' }
         ];
       }
@@ -41,7 +44,7 @@
     async mounted() { await this.cargar(); },
     methods: {
       formVacio: function () {
-        return { id: '', documento: '', razonSocial: '', contacto: '', telefono: '', email: '', direccion: '', estado: 'ACTIVO', limiteFiado: 0, saldoFiado: 0 };
+        return { id: '', documento: '', razonSocial: '', contacto: '', telefono: '', email: '', direccion: '', estado: 'ACTIVO', limiteFiado: 0, saldoFiado: 0, tipoPrecio: '' };
       },
       cargar: async function () {
         this.cargando = true;
@@ -74,6 +77,22 @@
           AppStore.toast('Cliente desactivado.', 'exito');
           await this.cargar();
         } catch (e) { AppStore.toast(e.message, 'error'); }
+      },
+      /* Adenda 1.6: historial de puntos de fidelidad */
+      verPuntos: async function (c) {
+        this.cliSel = c;
+        try { this.historialPts = await Api.fidelHistorial(c.id); }
+        catch (e) { this.historialPts = []; AppStore.toast(e.message, 'error'); }
+        this.modalPts = true;
+      },
+      ajustarPuntos: async function () {
+        if (!parseInt(this.ajustePts, 10)) { AppStore.toast('Indique los puntos (positivo o negativo).', 'warning'); return; }
+        try {
+          var res = await Api.fidelAjuste(this.cliSel.id, parseInt(this.ajustePts, 10), this.ajusteNota);
+          AppStore.toast('Nuevo saldo: ' + res.saldo + ' puntos.', 'exito');
+          this.modalPts = false; this.ajustePts = ''; this.ajusteNota = '';
+          this.cargar();
+        } catch (e) { AppStore.toast(e.message, 'error'); }
       }
     },
     template: `
@@ -103,6 +122,9 @@
     <template #celda-limiteFiado="{ fila }"><span class="tabular-nums">{{ Number(fila.limiteFiado || 0) > 0 ? moneda + ' ' + Number(fila.limiteFiado).toFixed(2) : '—' }}</span></template>
     <template #celda-saldoFiado="{ fila }">
       <span class="tabular-nums font-bold" :class="Number(fila.saldoFiado || 0) > 0 ? 'text-rose-600' : 'text-slate-400'">{{ Number(fila.saldoFiado || 0) > 0 ? moneda + ' ' + Number(fila.saldoFiado).toFixed(2) : '—' }}</span>
+    </template>
+    <template #celda-puntosF="{ fila }">
+      <button type="button" class="tabular-nums font-bold" :class="Number(fila.puntos || 0) > 0 ? 'text-emerald-600 hover:underline' : 'text-slate-400'" title="Ver historial de puntos" @click="verPuntos(fila)">{{ Number(fila.puntos || 0) > 0 ? fila.puntos : '—' }}</button>
     </template>
     <template #celda-estado="{ fila }"><badge :tipo="fila.estado"></badge></template>
     <template #acciones="{ fila }">
@@ -156,6 +178,33 @@
         {{ guardando ? 'Guardando...' : 'Guardar cliente' }}
       </button>
     </template>
+  </modal>
+
+  <!-- Adenda 1.6: historial y ajuste de puntos de fidelidad -->
+  <modal :abierto="modalPts" :titulo="'Puntos de ' + (cliSel ? cliSel.razonSocial : '')" :subtitulo="cliSel ? 'Saldo actual: ' + (cliSel.puntos || 0) + ' puntos' : ''" ancho="max-w-lg" @cerrar="modalPts = false">
+    <div class="divide-y divide-slate-100 max-h-72 overflow-y-auto nexo-scroll mb-4">
+      <p v-if="!historialPts.length" class="text-sm text-slate-400 text-center py-6">Sin movimientos de puntos todavía.</p>
+      <div v-for="h in historialPts" :key="h.id" class="py-2 flex items-center justify-between text-sm">
+        <div>
+          <p class="font-medium" :class="h.tipo === 'ACUMULO' ? 'text-emerald-600' : h.tipo === 'CANJE' ? 'text-blue-600' : 'text-slate-600'">
+            {{ h.tipo }} <span class="tabular-nums">{{ h.puntos > 0 ? '+' : '' }}{{ h.puntos }}</span>
+          </p>
+          <p class="text-xs text-slate-400">{{ (h.fecha || '').replace('T', ' ').slice(0, 16) }} {{ h.nota ? '· ' + h.nota : '' }}</p>
+        </div>
+        <span class="text-xs text-slate-400">saldo: {{ h.saldoDespues }}</span>
+      </div>
+    </div>
+    <div class="border-t border-slate-100 pt-3 grid grid-cols-3 gap-2 items-end" v-if="puedeEditar">
+      <div>
+        <label class="label-forma text-xs">Ajustar puntos (+/−)</label>
+        <input v-model="ajustePts" type="number" class="input-texto py-1.5" placeholder="p. ej. 50 o -20">
+      </div>
+      <div>
+        <label class="label-forma text-xs">Nota</label>
+        <input v-model="ajusteNota" type="text" class="input-texto py-1.5" placeholder="Campaña, regalo...">
+      </div>
+      <button type="button" class="btn-primario py-1.5" @click="ajustarPuntos">Ajustar</button>
+    </div>
   </modal>
 </div>`
   };

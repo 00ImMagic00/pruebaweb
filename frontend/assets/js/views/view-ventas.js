@@ -15,6 +15,9 @@
         filtros: { fechaDesde: mes, fechaHasta: hoy, estado: '', metodoPago: '', q: '' },
         modalAbierto: false, ventaSel: null, detalleSel: [], empresaSel: null,
         anulando: false,
+        /* Adenda 1.6: notas de crédito/débito y guía de remisión */
+        modalNota: false, formNota: { ventaId: '', tipo: '07', motivo: 'ANULACIÓN DE LA OPERACIÓN', devolverStock: true, anularVenta: true }, guardandoNota: false,
+        modalGuia: false, guiaVenta: null, guiaNumero: '',
         /* Adenda 1.3/1.4: WhatsApp con imagen */
         waModal: false, waTelefono: '', waVenta: null, waDetalle: [], waEnviando: false
       };
@@ -40,7 +43,7 @@
       },
       cols: function () {
         return [
-          { k: 'boleta', label: 'Boleta' },
+          { k: 'boleta', label: 'Comprobante' },
           { k: 'fecha', label: 'Fecha' },
           { k: 'clienteNombre', label: 'Cliente' },
           { k: 'metodoPago', label: 'Pago' },
@@ -74,6 +77,36 @@
         } catch (e) { AppStore.toast(e.message, 'error'); }
       },
       imprimir: function () { window.print(); },
+
+      /* ---------- Adenda 1.6: nota de crédito/débito y guía ---------- */
+      abrirNotaPara: function (f) {
+        this.formNota = { ventaId: f.id, tipo: '07', motivo: 'ANULACIÓN DE LA OPERACIÓN', devolverStock: true, anularVenta: true };
+        this.modalNota = true;
+      },
+      emitirNota: async function () {
+        this.guardandoNota = true;
+        try {
+          var res = await Api.crearNotaCredito(this.formNota);
+          AppStore.toast(res.tipo + ' ' + res.numero + ' emitida correctamente.', 'exito', 7000);
+          (res.avisos || []).forEach(function (a) { AppStore.toast(a, 'warning', 7000); });
+          this.modalNota = false;
+          this.cargar();
+        } catch (e) { AppStore.toast(e.message, 'error', 7000); }
+        finally { this.guardandoNota = false; }
+      },
+      abrirGuia: function (f) {
+        this.guiaVenta = f;
+        this.guiaNumero = f.guiaRemision || '';
+        this.modalGuia = true;
+      },
+      guardarGuia: async function () {
+        try {
+          await Api.asignarGuia(this.guiaVenta.id, this.guiaNumero);
+          AppStore.toast('Guía de remisión asignada.', 'exito');
+          this.modalGuia = false;
+          this.cargar();
+        } catch (e) { AppStore.toast(e.message, 'error'); }
+      },
 
       /* ---------- Adenda 1.3/1.4: WhatsApp (envía la IMAGEN de la boleta) ---------- */
       whatsappVenta: async function (f) {
@@ -170,7 +203,7 @@
         <select v-model="filtros.estado" class="input-texto"><option value="">Todas</option><option value="EMITIDA">Emitidas</option><option value="ANULADA">Anuladas</option></select>
       </div>
       <div><label class="label-forma">Método de pago</label>
-        <select v-model="filtros.metodoPago" class="input-texto"><option value="">Todos</option><option>Efectivo</option><option>Yape</option><option>Plin</option><option>Tarjeta</option><option>Fiado</option></select>
+        <select v-model="filtros.metodoPago" class="input-texto"><option value="">Todos</option><option>Efectivo</option><option>Yape</option><option>Plin</option><option>Tarjeta</option><option>Fiado</option><option>Credito</option></select>
       </div>
       <div class="lg:col-span-1"><label class="label-forma">Buscar</label><input v-model="filtros.q" type="text" class="input-texto" placeholder="Boleta / cliente" @keyup.enter="cargar"></div>
       <div class="flex gap-2">
@@ -188,7 +221,7 @@
   </div>
 
   <data-table :cols="cols" :filas="filas" :cargando="cargando" vacio="No hay ventas para los filtros aplicados">
-    <template #celda-boleta="{ fila }"><span class="font-mono font-semibold text-blue-700">{{ fila.boleta }}</span></template>
+    <template #celda-boleta="{ fila }"><span class="font-mono font-semibold text-blue-700">{{ fila.compNumero || fila.boleta }}</span><span v-if="fila.tipoComprobante" class="block text-[10px] text-slate-400">{{ fila.tipoComprobante }}</span></template>
     <template #celda-fecha="{ fila }"><span class="text-slate-500">{{ Utils.fmtFechaHora(fila.fecha) }}</span></template>
     <template #celda-clienteNombre="{ fila }">
       <span class="text-slate-800">{{ fila.clienteNombre }}</span>
@@ -197,13 +230,15 @@
     <template #celda-metodoPago="{ fila }"><badge :tipo="fila.metodoPago"></badge></template>
     <template #celda-total="{ fila }"><span class="font-bold tabular-nums">{{ moneda }} {{ Number(fila.total).toFixed(2) }}</span></template>
     <template #celda-estadoPago="{ fila }">
-      <badge :tipo="fila.estado === 'ANULADA' ? 'ANULADA' : (fila.estadoPago === 'FIADO' ? 'FIADO' : 'PAGADO')"></badge>
+      <badge :tipo="fila.estado === 'ANULADA' ? 'ANULADA' : (fila.estadoPago === 'FIADO' ? 'FIADO' : fila.estadoPago === 'CREDITO' ? 'CREDITO' : 'PAGADO')"></badge>
       <span v-if="fila.enviadoWhatsapp === 'Sí'" class="block text-[10px] text-emerald-600 font-semibold" title="Enviada por WhatsApp">✓ WhatsApp</span>
     </template>
     <template #acciones="{ fila }">
       <div class="flex items-center justify-end gap-0.5">
         <button v-if="fila.estado === 'EMITIDA'" type="button" class="btn-icono !text-emerald-600 hover:!bg-emerald-50" title="Enviar boleta por WhatsApp" @click="whatsappVenta(fila)"><icon name="whatsapp" clase="w-4 h-4"></icon></button>
         <button type="button" class="btn-icono" title="Ver / reimprimir boleta" @click="verBoleta(fila)"><icon name="boleta" clase="w-4 h-4"></icon></button>
+        <button v-if="puedeAnular && fila.estado === 'EMITIDA'" type="button" class="btn-icono" title="Asignar guía de remisión" @click="abrirGuia(fila)"><icon name="cajas" clase="w-4 h-4"></icon></button>
+        <button v-if="puedeAnular && fila.estado === 'EMITIDA'" type="button" class="btn-icono !text-amber-600 hover:!bg-amber-50" title="Emitir Nota de Crédito / Débito" @click="abrirNotaPara(fila)"><icon name="movimientos" clase="w-4 h-4"></icon></button>
         <button v-if="puedeAnular && fila.estado === 'EMITIDA'" type="button" class="btn-icono text-rose-500 hover:text-rose-700" title="Anular venta" :disabled="anulando" @click="anular(fila)"><icon name="trash" clase="w-4 h-4"></icon></button>
       </div>
     </template>
@@ -233,6 +268,46 @@
         <span v-if="waEnviando" class="inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
         <icon v-else name="whatsapp" clase="w-4 h-4"></icon> Enviar imagen
       </button>
+    </template>
+  </modal>
+
+  <!-- Adenda 1.6: Nota de Crédito / Débito -->
+  <modal :abierto="modalNota" titulo="Emitir Nota de Crédito / Débito" :subtitulo="'Sobre la venta ' + (formNota.ventaId || '')" ancho="max-w-md" @cerrar="modalNota = false">
+    <form class="space-y-4" @submit.prevent="emitirNota">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label-forma">Tipo</label>
+          <select v-model="formNota.tipo" class="input-texto">
+            <option value="07">Nota de Crédito (devolución)</option>
+            <option value="08">Nota de Débito (cargo)</option>
+          </select>
+        </div>
+        <div>
+          <label class="label-forma">Motivo (SUNAT)</label>
+          <input v-model="formNota.motivo" type="text" class="input-texto">
+        </div>
+      </div>
+      <label v-if="formNota.tipo === '07'" class="flex items-center gap-2 text-sm text-slate-700">
+        <input v-model="formNota.devolverStock" type="checkbox" class="rounded"> Devolver stock al almacén (y descontar fiado si aplicaba)
+      </label>
+      <label v-if="formNota.tipo === '07'" class="flex items-center gap-2 text-sm text-slate-700">
+        <input v-model="formNota.anularVenta" type="checkbox" class="rounded"> Marcar la venta como ANULADA
+      </label>
+    </form>
+    <template #pie>
+      <button type="button" class="btn-secundario" @click="modalNota = false">Cancelar</button>
+      <button type="button" class="btn-primario" :disabled="guardandoNota" @click="emitirNota">{{ guardandoNota ? 'Emitiendo...' : 'Emitir nota' }}</button>
+    </template>
+  </modal>
+
+  <!-- Adenda 1.6: Guía de remisión -->
+  <modal :abierto="modalGuia" titulo="Guía de remisión" :subtitulo="guiaVenta ? guiaVenta.boleta + ' · ' + guiaVenta.clienteNombre : ''" ancho="max-w-sm" @cerrar="modalGuia = false">
+    <label class="label-forma">Número de guía</label>
+    <input v-model="guiaNumero" type="text" class="input-texto font-mono" placeholder="T001-0000123">
+    <p class="mt-2 text-[11px] text-slate-400">Se imprime al pie del comprobante y queda registrada en la auditoría.</p>
+    <template #pie>
+      <button type="button" class="btn-secundario" @click="modalGuia = false">Cancelar</button>
+      <button type="button" class="btn-primario" @click="guardarGuia">Guardar</button>
     </template>
   </modal>
 </div>`

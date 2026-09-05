@@ -24,6 +24,14 @@ function manejarPeticion_(e) {
     var accion = String(cuerpo.action || '').trim();
     if (!accion) throw new ApiError_('Petición sin "action"', 'NO_ACTION');
 
+    /* Seguridad v1.5.1: por GET solo pasan los health-checks públicos.
+     * Toda acción de negocio exige POST con cuerpo JSON; así el token y
+     * las contraseñas nunca viajan en la URL (logs/historial del navegador). */
+    var esPost = !!(e && e.postData && e.postData.contents);
+    if (!esPost && accion !== 'ping' && accion !== 'apiInfo') {
+      throw new ApiError_('Método no permitido: esta acción debe enviarse por POST con cuerpo JSON.', 'METHOD_NOT_ALLOWED');
+    }
+
     var handler = ROUTER_()[accion];
     if (!handler) throw new ApiError_('Acción no reconocida: ' + accion, 'UNKNOWN_ACTION');
 
@@ -32,8 +40,10 @@ function manejarPeticion_(e) {
     if (err instanceof ApiError_) {
       salida = appErr_(err.message, err.code);
     } else {
+      /* Detalle técnico solo en el log del servidor; al cliente se le
+       * devuelve un mensaje genérico para no filtrar el interior del sistema. */
       console.error(err && err.stack ? err.stack : err);
-      salida = appErr_('Error interno del servidor: ' + (err && err.message ? err.message : String(err)), 'INTERNAL');
+      salida = appErr_('Error interno del servidor. Revise el registro de ejecución en Apps Script (Ver → Registro de ejecuciones).', 'INTERNAL');
     }
   }
   return responder_(salida);
@@ -131,6 +141,76 @@ function ROUTER_() {
     ventas_analitica:       ventasAnalitica_,
     rentabilidad_producto:  rentabilidadProducto_,
     panel_control:          panelControl_,
+    analitica_abc:          analiticaAbc_,
+    analitica_muertos:      analiticaMuertos_,
+
+    /* --- Adenda 1.5: estado del sistema para el asistente de inicio --- */
+    sistema_estado:         sistemaEstado_,
+
+    /* --- Adenda 1.6: país, comprobantes, finanzas, compras, RRHH --- */
+    paises_list:            paisesList_,
+    pais_aplicar:           paisAplicar_,
+    tc_consultar:           tcConsultar_,
+
+    comprobantes_list:      comprobantesList_,
+    comprobantes_json:      comprobantesJson_,
+    comprobantes_crear_api: comprobantesCrearApi_,
+    comprobantes_enviar:    comprobantesEnviar_,
+    comprobantes_estado:    comprobantesActualizarEstado_,
+    comprobantes_nota:      comprobantesNotaCrear_,
+    comprobantes_guia:      comprobantesGuia_,
+    comprobantes_libro:     comprobantesLibroVentas_,
+    comprobantes_resumen_diario: comprobantesResumenDiario_,
+    comprobantes_series:    comprobantesSeries_,
+
+    gastos_list:            gastosList_,
+    gastos_registrar:       gastosRegistrar_,
+    gastos_anular:          gastosAnular_,
+    gastos_categorias:      gastosCategoriasList_,
+    gastos_categorias_save: gastosCategoriasSave_,
+    gastos_categorias_delete: gastosCategoriasDelete_,
+    finanzas_resumen:       finanzasResumen_,
+    presupuesto_list:       presupuestoList_,
+    presupuesto_save:       presupuestoSave_,
+    presupuesto_resumen:    presupuestoResumen_,
+
+    oc_list:                ocList_,
+    oc_get:                 ocGet_,
+    oc_save:                ocSave_,
+    oc_estado:              ocEstado_,
+    oc_oferta_agregar:      ocOfertaAgregar_,
+    oc_oferta_elegir:       ocOfertaElegir_,
+    oc_recepcionar:         ocRecepcionar_,
+    oc_sugeridas:           ocSugeridas_,
+    cxp_list:               cxpList_,
+    cxp_pago:               cxpPago_,
+
+    cuotas_list:            cuotasList_,
+    cuota_pagar:            cuotaPagar_,
+    creditos_aging:         creditosAging_,
+    creditos_de_venta:      creditosDeVenta_,
+
+    fidel_ajuste:           fidelAjuste_,
+    fidel_historial:        fidelHistorial_,
+    fidel_ranking:          fidelRanking_,
+
+    rrhh_vendedores:        vendedoresList_,
+    rrhh_vendedor_save:     vendedoresSave_,
+    rrhh_asistencia_marcar: asistenciaMarcar_,
+    rrhh_asistencia_estado: asistenciaEstado_,
+    rrhh_asistencia_list:   asistenciaList_,
+    rrhh_comisiones:        comisionesReporte_,
+
+    notificaciones_list:    notificacionesList_,
+    notificaciones_leer:    notificacionesLeer_,
+    tareas_instalar:        tareasInstalar_,
+    tareas_ejecutar:        tareasEjecutar_,
+    backup_ahora:           backupAhora_,
+    sistema_pestanas:       sistemaPestanas_,
+
+    catalogo_estado:        catalogoEstado_,
+    catalogo_token:         catalogoTokenRegenerar_,
+    catalogo_publico:       catalogoPublico_,
 
     /* Configuración */
     config_get:         configGet_,
@@ -145,10 +225,10 @@ function apiInfo_(c) {
   Object.keys(APP.SHEETS).forEach(function (k) {
     if (!ss.getSheetByName(APP.SHEETS[k])) faltantes.push(APP.SHEETS[k]);
   });
+  /* Nota: no se expone el nombre de la hoja (privacidad). */
   return appOk_({
     app: APP.NAME,
     version: APP.VERSION,
-    hoja: ss.getName(),
     pestañasFaltantes: faltantes,
     listo: faltantes.length === 0,
     fechaServidor: fechaStr_(fechaNow_())
@@ -168,7 +248,7 @@ function requiereSesion_(c) {
   var sesiones = dbLeer_(APP.SHEETS.SESIONES);
   var ses = null;
   for (var i = 0; i < sesiones.length; i++) {
-    if (String(sesiones[i].token) === token) { ses = sesiones[i]; break; }
+    if (String(sesiones[i].token).trim() === token) { ses = sesiones[i]; break; }
   }
   if (!ses) throw new ApiError_('Sesión no válida o cerrada. Inicie sesión nuevamente.', 'UNAUTHORIZED');
 
@@ -182,15 +262,15 @@ function requiereSesion_(c) {
   for (var j = 0; j < usuarios.length; j++) {
     if (String(usuarios[j].id) === String(ses.usuarioId)) {
       var u = usuarios[j];
-      if (String(u.estado).toUpperCase() !== 'ACTIVO') {
+      if (String(u.estado).trim().toUpperCase() !== 'ACTIVO') {
         throw new ApiError_('El usuario fue desactivado por el administrador.', 'UNAUTHORIZED');
       }
       return {
         token: token,
         usuarioId: u.id,
-        usuario: u.usuario,
+        usuario: String(u.usuario).trim(),
         nombre: u.nombre,
-        rol: String(u.rol).toLowerCase()
+        rol: String(u.rol).trim().toLowerCase()
       };
     }
   }

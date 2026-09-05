@@ -13,3 +13,6 @@
 *.log
 .DS_Store
 Thumbs.db
+
+# Directorio local de extracción (la versión 1.6.1 está en la raíz)
+erp-wms-v1.6.1/

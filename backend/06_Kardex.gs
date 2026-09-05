@@ -115,36 +115,43 @@ function lotesList_(c) {
   return appOk_({ filas: out, resumen: resumen });
 }
 
+/* ------------------------- STOCK POR ALMACÉN ------------------------- */
+
 function stockList_(c) {
   requiereSesion_(c);
   var q = String(c.q || '').toLowerCase();
   var alm = String(c.almacenId || '');
   var soloCritico = !!c.soloCritico;
 
-  var prods = {}; dbLeer_(APP.SHEETS.PRODUCTOS).forEach(function (p) { prods[p.id] = p; });
-  var alms = {}; dbLeer_(APP.SHEETS.ALMACENES).forEach(function (a) { alms[a.id] = a; });
+  var prods = {};
+  dbLeer_(APP.SHEETS.PRODUCTOS).forEach(function (p) {
+    if (String(p.estado).toUpperCase() === 'ACTIVO') prods[p.id] = p;
+  });
+  var alms = {};
+  dbLeer_(APP.SHEETS.ALMACENES).forEach(function (a) { alms[a.id] = a; });
 
   var out = [];
   dbLeer_(APP.SHEETS.STOCK).forEach(function (s) {
     var p = prods[s.productoId];
-    if (!p || String(p.estado).toUpperCase() !== 'ACTIVO') return;
+    if (!p) return;
     var a = alms[s.almacenId];
     var cant = numero_(s.cantidad);
-    var costoStd = numero_(p.costoStd);
+    var costo = numero_(p.costoStd);
+    var min = numero_(p.stockMin);
     var fila = {
       productoId: p.id,
       sku: p.sku || '',
-      producto: p.nombre || p.id,
-      categoria: p.categoria || '',
+      producto: p.nombre,
+      categoria: p.categoria || 'General',
       unidad: p.unidad || '',
       almacenId: s.almacenId,
       almacen: a ? a.nombre : s.almacenId,
       cantidad: cant,
-      stockMin: numero_(p.stockMin),
+      stockMin: min,
       stockMax: numero_(p.stockMax),
-      costoStd: costoStd,
-      valor: redondear_(cant * costoStd),
-      estado: (numero_(p.stockMin) > 0 && cant <= numero_(p.stockMin)) ? 'CRITICO' : 'OK'
+      costoStd: costo,
+      valor: redondear_(cant * costo),
+      estado: (min > 0 && cant <= min) ? 'CRITICO' : 'OK'
     };
     if (q && (fila.producto.toLowerCase().indexOf(q) === -1 && fila.sku.toLowerCase().indexOf(q) === -1)) return;
     if (alm && fila.almacenId !== alm) return;

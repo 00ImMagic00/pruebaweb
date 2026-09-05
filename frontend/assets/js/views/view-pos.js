@@ -38,14 +38,38 @@
         autorizacion: null,          // { usuario, password, nombre } en memoria
         authModal: false, authUsuario: '', authPassword: '', authError: '', authProcesando: false,
         /* Adenda 1.2: ventas en espera */
-        esperados: [], esperaModal: false
+        esperados: [], esperaModal: false,
+        /* Adenda 1.6: vendedor, fidelización, crédito con cuotas, escáner y QR */
+        vendedor: '', vendedores: [],
+        puntosUsar: 0,
+        planCredito: { cuotas: 1, diasEntre: 15 },
+        scannerAbierto: false, _reader: null,
+        qrBoleta: null
       };
     },
     computed: {
       cfg: function () { return AppStore.estado.cfg || window.__nexoerp_cfg || {}; },
       almacenVenta: function () { return this.cfg.ALMACEN_VENTA || 'ALM-0003'; },
       moneda: function () { return this.cfg.MONEDA_SIMBOLO || 'S/'; },
-      metodosPago: function () { return ['Efectivo', 'Yape', 'Plin', 'Tarjeta', 'Fiado']; },
+      metodosPago: function () { return ['Efectivo', 'Yape', 'Plin', 'Tarjeta', 'Fiado', 'Credito']; },
+      /* Adenda 1.6: venta a crédito con plan de cuotas */
+      creditoActivo: function () { return this.metodoPago === 'Credito'; },
+      creditoValido: function () {
+        if (!this.creditoActivo) return false;
+        if (!this.clienteSeleccionado) return false;
+        var n = parseInt(this.planCredito.cuotas, 10);
+        return n >= 1 && n <= 60;
+      },
+      /* Adenda 1.6: fidelización — canje de puntos como descuento */
+      fidelActiva: function () { return String(this.cfg.FIDEL_ACTIVA || 'No').toUpperCase() === 'SI'; },
+      clientePuntos: function () { var c = this.clienteSeleccionado; return c ? (parseInt(c.puntos, 10) || 0) : 0; },
+      valorCanje: function () {
+        var min = parseInt(this.cfg.FIDEL_MIN_CANJE, 10) || 0;
+        var usar = Math.max(0, parseInt(this.puntosUsar, 10) || 0);
+        if (usar < min) return 0;
+        return Math.round(usar * (parseFloat(this.cfg.FIDEL_VALOR_PUNTO) || 0) * 100) / 100;
+      },
+      totalConCanje: function () { return Math.max(0, Math.round((this.totales.total - this.valorCanje) * 100) / 100); },
       metodoEfectivo: function () {
         return (this.metodoPago || this.cfg.METODO_PAGO_DEFAULT || 'Efectivo') === 'Efectivo';
       },
@@ -110,30 +134,20 @@
       vuelto: function () {
         var r = parseFloat(this.montoRecibido);
         if (isNaN(r) || r <= 0 || !this.metodoEfectivo) return 0;
-        return Math.max(0, Math.round((r - this.totales.total) * 100) / 100);
+        return Math.max(0, Math.round((r - this.totalConCanje) * 100) / 100);
       },
       recibidoInsuficiente: function () {
         if (!this.metodoEfectivo) return false;
         var r = parseFloat(this.montoRecibido);
-        return !isNaN(r) && r > 0 && r < this.totales.total;
+        return !isNaN(r) && r > 0 && r < this.totalConCanje;
       },
-      horarioInicioTxt: function () {
-        var m = String(this.cfg.HORARIO_INICIO || '').match(/(\d{1,2}:\d{2})/);
-        return m ? (m[1].length === 4 ? '0' + m[1] : m[1]) : (this.cfg.HORARIO_INICIO || '08:00');
-      },
-      horarioFinTxt: function () {
-        var m = String(this.cfg.HORARIO_FIN || '').match(/(\d{1,2}:\d{2})/);
-        return m ? (m[1].length === 4 ? '0' + m[1] : m[1]) : (this.cfg.HORARIO_FIN || '22:00');
-      },
+      estUsuario: function () { return AppStore.estado.usuario ? AppStore.estado.usuario.usuario : ''; },
       fueraHorario: function () {
-        var ini = this.horarioInicioTxt, fin = this.horarioFinTxt;
+        var ini = String(this.cfg.HORARIO_INICIO || ''), fin = String(this.cfg.HORARIO_FIN || '');
         if (!ini || !fin) return false;
         var ahora = new Date();
         var mins = ahora.getHours() * 60 + ahora.getMinutes();
-        var p = function (s) {
-          var m = String(s).match(/(\d{1,2}):(\d{2})/);
-          return m ? (parseInt(m[1], 10) || 0) * 60 + (parseInt(m[2], 10) || 0) : 0;
-        };
+        var p = function (s) { var t = String(s).split(':'); return (parseInt(t[0], 10) || 0) * 60 + (parseInt(t[1], 10) || 0); };
         return mins < p(ini) || mins > p(fin);
       },
       /* Líneas que exigen autorización de admin/gerente según política */
@@ -165,8 +179,12 @@
       puedeCobrar: function () {
         if (this.carrito.length === 0 || this.procesando || this.recibidoInsuficiente) return false;
         if (this.fiadoActivo && (!this.clienteSeleccionado || (this.fiadoInfo && this.fiadoInfo.bloqueado))) return false;
+        if (this.creditoActivo && !this.creditoValido) return false;
+        if (this.valorCanje > this.totales.total) return false;
         return true;
       },
+      /* Adenda 1.6: máximos por línea según unidad de venta (base o fracción) */
+      /* maxDeLinea está en methods (se llama con la línea como argumento) */
       billetes: function () { return [20, 50, 100, 200]; }
     },
     async mounted() {
@@ -193,31 +211,84 @@
           this.stockAlmacen = {};
           resultados[1].forEach(function (f) { self.stockAlmacen[f.productoId] = f.cantidad; });
           this.clientes = resultados[2].filter(function (c) { return c.estado === 'ACTIVO'; });
+          /* Adenda 1.6: vendedores con comisión definida (para atribuir la venta) */
+          try {
+            this.vendedores = (await Api.rrhhVendedores()).filter(function (v) { return v.esVendedor; });
+          } catch (e2) { this.vendedores = []; }
         } catch (e) {
           AppStore.toast(e.message, 'error');
         } finally { this.cargando = false; }
       },
 
       /* ---------- Carrito ---------- */
+      /* Adenda 1.6: máximo vendible por línea según unidad (base o bulto) */
+      maxDeLinea: function (l) {
+        if (!l) return 0;
+        if (l.unidadVenta === l.unidadBase || !l.factorFraccion || l.factorFraccion <= 1) return l.stockVenta;
+        return Math.max(1, Math.floor(l.stockVenta / l.factorFraccion));
+      },
       agregar: function (p) {
         if (p.stockVenta <= 0) { AppStore.toast('Sin stock de "' + p.nombre + '" en el almacén de venta.', 'warning'); return; }
-        var linea = this.carrito.find(function (i) { return i.productoId === p.id; });
+        var linea = this.carrito.find(function (i) { return i.productoId === p.id && i.unidadVenta === (p.unidad || ''); });
         if (linea) {
           if (linea.esRegalo) { AppStore.toast('"' + p.nombre + '" ya está como regalo; ajuste la cantidad directamente.', 'info'); return; }
-          if (linea.cantidad + 1 > p.stockVenta) { AppStore.toast('Stock máximo alcanzado (' + p.stockVenta + ').', 'warning'); return; }
+          var maxBase = this.maxDeLinea(linea);
+          if (linea.cantidad + 1 > maxBase) { AppStore.toast('Stock máximo alcanzado (' + maxBase + ').', 'warning'); return; }
           linea.cantidad++;
         } else {
           this.carrito.push({
-            productoId: p.id, sku: p.sku, nombre: p.nombre, unidad: p.unidad,
+            productoId: p.id, sku: p.sku, nombre: p.nombre,
+            unidad: p.unidad, unidadBase: p.unidad, unidadVenta: p.unidad,
             precio: Number(p.precioVenta), precioOriginal: Number(p.precioVenta),
             precioMinimo: Number(p.precioMinimo || 0),
+            /* Adenda 1.6: escalas mayoristas y fraccionamiento */
+            precio2: Number(p.precio2 || 0), escala2Min: Number(p.escala2Min || 0),
+            precio3: Number(p.precio3 || 0), escala3Min: Number(p.escala3Min || 0),
+            fraccionActiva: !!p.fraccionActiva,
+            unidadFraccion: String(p.unidadFraccion || ''),
+            factorFraccion: Number(p.factorFraccion || 0),
+            codigoBarras: String(p.codigoBarras || ''),
             descuento: 0, esRegalo: false, cantidad: 1, stockVenta: p.stockVenta
           });
+          this.$nextTick(function () { });
+        }
+        /* Adenda 1.6: aplica escala mayorista automática */
+        var self2 = this;
+        var ult = this.carrito[this.carrito.length - 1];
+        if (ult && !ult.esRegalo) this.aplicarEscala(ult);
+      },
+      aplicarEscala: function (l) {
+        if (l.esRegalo || l.unidadVenta !== l.unidadBase) return;
+        if (l.escala3Min > 0 && l.cantidad >= l.escala3Min && l.precio3 > 0 && l.precio > l.precio3) {
+          l.precio = l.precio3; AppStore.toast('Escala mayorista aplicada: ' + this.moneda + ' ' + l.precio3.toFixed(2) + ' (desde ' + l.escala3Min + ' und)', 'info');
+        } else if (l.escala2Min > 0 && l.cantidad >= l.escala2Min && l.precio2 > 0 && l.precio > l.precio2) {
+          l.precio = l.precio2; AppStore.toast('Escala mayorista aplicada: ' + this.moneda + ' ' + l.precio2.toFixed(2) + ' (desde ' + l.escala2Min + ' und)', 'info');
         }
       },
+      cambiarUnidad: function (l) {
+        /* Alterna entre unidad base (Unidad) y bulto (Caja × factor).
+         * El stock SIEMPRE está en la unidad base: vender 1 Caja
+         * consume `factor` unidades y su precio es precio × factor. */
+        if (l.unidadVenta === l.unidadBase) {
+          l.unidadVenta = l.unidadFraccion || l.unidadBase;
+          l.precioOriginalAntes = Number(l.precioOriginal);
+          l.precioMinimoAntes = Number(l.precioMinimo);
+          l.precioOriginal = Math.round(Number(l.precioOriginal) * (l.factorFraccion || 1) * 100) / 100;
+          l.precio = Math.round(Number(l.precioOriginal) * 100) / 100;
+          l.precioMinimo = Math.round(Number(l.precioMinimo) * (l.factorFraccion || 1) * 100) / 100;
+        } else {
+          l.unidadVenta = l.unidadBase;
+          l.precioOriginal = l.precioOriginalAntes || Math.round(Number(l.precioOriginal) / (l.factorFraccion || 1) * 100) / 100;
+          l.precio = l.precioOriginal;
+          l.precioMinimo = l.precioMinimoAntes || Math.round(Number(l.precioMinimo) / (l.factorFraccion || 1) * 100) / 100;
+        }
+        l.cantidad = 1;
+      },
       mas: function (l) {
-        if (l.cantidad + 1 > l.stockVenta) { AppStore.toast('Stock máximo alcanzado (' + l.stockVenta + ').', 'warning'); return; }
+        var max = this.maxDeLinea(l);
+        if (l.cantidad + 1 > max) { AppStore.toast('Stock máximo alcanzado (' + max + ').', 'warning'); return; }
         l.cantidad++;
+        this.aplicarEscala(l);
       },
       menos: function (l) { l.cantidad > 1 ? l.cantidad-- : this.quitar(l); },
       quitar: function (l) { this.carrito = this.carrito.filter(function (i) { return i !== l; }); },
@@ -281,39 +352,77 @@
       /* ---------- Cobro ---------- */
       cobrar: async function () {
         if (!this.puedeCobrar) return;
+        if (this.creditoActivo && !this.clienteSeleccionado) {
+          AppStore.toast('El crédito requiere un cliente registrado.', 'warning');
+          return;
+        }
         if (this.requiereAutorizacion && !this.autorizacion) {
           AppStore.toast('Esta venta necesita la autorización de un gerente o administrador.', 'warning');
           this.abrirAutorizar();
           return;
         }
         this.procesando = true;
+        var payload = {
+          clienteId: this.clienteId,
+          metodoPago: this.metodoPago || this.cfg.METODO_PAGO_DEFAULT || 'Efectivo',
+          montoRecibido: parseFloat(this.montoRecibido) || 0,
+          almacenId: this.almacenVenta,
+          autorizacion: this.autorizacion && (this.autorizacion.usuario ? { usuario: this.autorizacion.usuario, password: this.autorizacion.password } : null),
+          vendedorUsuario: this.vendedor || '',
+          puntosUsar: (this.fidelActiva && this.clienteSeleccionado) ? (parseInt(this.puntosUsar, 10) || 0) : 0,
+          planCredito: this.creditoActivo ? { cuotas: parseInt(this.planCredito.cuotas, 10) || 1, diasEntre: parseInt(this.planCredito.diasEntre, 10) || 15 } : null,
+          items: this.carrito.map(function (i) {
+            var esBase = !i.unidadFraccion || i.unidadVenta === i.unidadBase;
+            return {
+              productoId: i.productoId, cantidad: i.cantidad,
+              precio: i.esRegalo ? 0 : i.precio, descuento: i.descuento, esRegalo: i.esRegalo,
+              unidadVenta: i.unidadVenta,
+              factorFraccion: esBase ? 1 : (i.factorFraccion || 1)
+            };
+          })
+        };
         try {
-          var res = await Api.registrarVenta({
-            clienteId: this.clienteId,
-            metodoPago: this.metodoPago || this.cfg.METODO_PAGO_DEFAULT || 'Efectivo',
-            montoRecibido: parseFloat(this.montoRecibido) || 0,
-            almacenId: this.almacenVenta,
-            autorizacion: this.autorizacion && (this.autorizacion.usuario ? { usuario: this.autorizacion.usuario, password: this.autorizacion.password } : null),
-            items: this.carrito.map(function (i) {
-              return { productoId: i.productoId, cantidad: i.cantidad, precio: i.esRegalo ? 0 : i.precio, descuento: i.descuento, esRegalo: i.esRegalo };
-            })
-          });
+          var res = await Api.registrarVenta(payload);
           this.ventaEmitida = res.venta;
           this.detalleEmitido = res.detalle;
           this.empresaEmitida = res.empresa;
           this.boletaAbierta = true;
-          AppStore.toast('Boleta ' + res.venta.boleta + ' emitida correctamente.', 'exito');
+          this.qrBoleta = null;
+          AppStore.toast((res.venta.tipoComprobante ? res.venta.tipoComprobante : 'Boleta') + ' ' + (res.venta.compNumero || res.venta.boleta) + ' emitida correctamente.', 'exito');
+          if (res.comprobante && res.comprobante.estado === 'ACEPTADO') {
+            AppStore.toast('SUNAT: comprobante ACEPTADO (CDR ' + (res.comprobante.cdr || '0') + ').', 'exito', 7000);
+          } else if (res.comprobante && res.comprobante.estado === 'ERROR') {
+            AppStore.toast('Comprobante registrado, pero el envío a SUNAT falló: ' + res.comprobante.cdr, 'warning', 8000);
+          }
+          (res.avisos || []).forEach(function (a) { AppStore.toast('⚠ ' + a, 'warning', 7000); });
+          if (res.puntosGanados > 0) AppStore.toast('+' + res.puntosGanados + ' puntos para el cliente (total ' + this.puntosClienteTras(res.puntosGanados - res.puntosUsados) + ').', 'info', 6000);
           this.carrito = [];
           this.montoRecibido = '';
+          this.puntosUsar = 0;
           this.autorizacion = null;
           await this.cargar();
+          this.$nextTick(function () { });
         } catch (e) {
-          if (e.code === 'AUTORIZACION' || e.code === 'FORBIDDEN') {
-            this.authError = e.message;
-            this.abrirAutorizar();
+          /* Adenda 1.6: sin conexión → la venta espera en la cola local */
+          if (e.code === 'NETWORK') {
+            var pend = Api.encolarVenta(payload);
+            AppStore.toast('Sin conexión: la venta quedó guardada en la cola local (' + pend + ' pendiente(s)). Se enviará sola al reconectar.', 'warning', 8000);
+            this.carrito = [];
+            this.montoRecibido = '';
+            this.puntosUsar = 0;
+            this.autorizacion = null;
+          } else {
+            if (e.code === 'AUTORIZACION' || e.code === 'FORBIDDEN') {
+              this.authError = e.message;
+              this.abrirAutorizar();
+            }
+            AppStore.toast(e.message, 'error');
           }
-          AppStore.toast(e.message, 'error');
         } finally { this.procesando = false; }
+      },
+      puntosClienteTras: function (delta) {
+        var base = this.clientePuntos + delta;
+        return base < 0 ? 0 : base;
       },
 
       /* ---------- Ventas en espera ---------- */
@@ -383,7 +492,52 @@
       },
 
       imprimirBoleta: function () { window.print(); },
+      imprimirTermica: function () {
+        if (!this.ventaEmitida) return;
+        NexoDocs.imprimirTermica(this.ventaEmitida, this.detalleEmitido, this.empresaEmitida || {}, this.cfg || {});
+      },
       cerrarBoleta: function () { this.boletaAbierta = false; },
+
+      /* ---------- Adenda 1.6: escáner con la cámara ---------- */
+      abrirScanner: async function () {
+        var self = this;
+        if (!window.ZXing) {
+          try {
+            await new Promise(function (res, rej) {
+              var s = document.createElement('script');
+              s.src = 'https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js';
+              s.onload = res; s.onerror = rej;
+              document.head.appendChild(s);
+            });
+          } catch (e) { AppStore.toast('No se pudo cargar el lector de códigos (¿sin conexión a internet?).', 'error', 6000); return; }
+        }
+        this.scannerAbierto = true;
+        this.$nextTick(function () {
+          var video = document.getElementById('pos-video');
+          if (!video) return;
+          try {
+            self._reader = new window.ZXing.BrowserMultiFormatReader();
+            self._reader.decodeFromVideoDevice(null, video, function (result) {
+              if (result) {
+                var texto = String(result.getText()).trim();
+                self.detenerScanner();
+                var p = self.productos.find(function (x) {
+                  return (x.codigoBarras && x.codigoBarras === texto) || x.sku.toLowerCase() === texto.toLowerCase();
+                });
+                if (p) { self.agregar(p); AppStore.toast('Agregado: ' + p.nombre, 'exito'); }
+                else { self.busqueda = texto; AppStore.toast('Código "' + texto + '" sin coincidencia exacta; revise la lista.', 'warning', 6000); }
+              }
+            });
+          } catch (e) {
+            AppStore.toast('No se pudo abrir la cámara: ' + e.message, 'error', 6000);
+            self.scannerAbierto = false;
+          }
+        });
+      },
+      detenerScanner: function () {
+        if (this._reader) { try { this._reader.reset(); } catch (e) {} this._reader = null; }
+        this.scannerAbierto = false;
+      },
 
       /* ---------- ADENDA 1.4: boleta como IMAGEN PNG ---------- */
       generarPngBoleta: async function () {
@@ -458,7 +612,7 @@
 
   <div v-if="fueraHorario" class="mb-4 flex items-center gap-2 rounded-xl bg-amber-50 ring-1 ring-inset ring-amber-600/20 px-4 py-2.5 text-sm text-amber-800">
     <icon name="warning" clase="w-5 h-5 shrink-0"></icon>
-    Está fuera del horario de atención configurado ({{ horarioInicioTxt }} – {{ horarioFinTxt }}). Puede vender, pero se registrará fuera de hora.
+    Está fuera del horario de atención configurado ({{ cfg.HORARIO_INICIO }} – {{ cfg.HORARIO_FIN }}). Puede vender, pero se registrará fuera de hora.
   </div>
 
   <div v-if="requiereAutorizacion" class="mb-4 rounded-xl bg-rose-50 ring-1 ring-inset ring-rose-600/20 px-4 py-3 text-sm text-rose-800">
@@ -483,7 +637,10 @@
       <div class="nexo-card mb-4">
         <div class="relative">
           <icon name="search" clase="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></icon>
-          <input id="pos-busqueda" v-model="busqueda" @keyup.enter="buscarEnter" type="text" class="input-texto pl-10" placeholder="Buscar por nombre o SKU · escanee el código y presione Enter para agregar..." autofocus>
+          <input id="pos-busqueda" v-model="busqueda" @keyup.enter="buscarEnter" type="text" class="input-texto pl-10 pr-24" placeholder="Buscar por nombre o SKU · escanee el código y presione Enter para agregar..." autofocus>
+          <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 btn-secundario !py-1 !px-2 text-xs" title="Escanear código de barras con la cámara" @click="abrirScanner">
+            <icon name="search" clase="w-4 h-4"></icon> Cámara
+          </button>
         </div>
         <div v-if="categorias.length" class="flex flex-wrap gap-1.5 mt-3">
           <button type="button" @click="catSel = ''" class="text-xs font-medium rounded-full px-2.5 py-1 transition-colors"
@@ -550,8 +707,13 @@
             <div class="flex items-center justify-between mt-1.5">
               <div class="flex items-center gap-1.5">
                 <button type="button" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors" @click="menos(l)">−</button>
-                <input v-model.number="l.cantidad" type="number" min="1" :max="l.stockVenta" class="input-texto w-14 text-center py-1">
+                <input v-model.number="l.cantidad" type="number" min="1" :max="maxDeLinea(l)" class="input-texto w-14 text-center py-1">
                 <button type="button" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-colors" @click="mas(l)">+</button>
+                <button v-if="l.fraccionActiva && l.unidadFraccion" type="button" class="text-[10px] font-bold rounded-md px-1.5 py-1 transition-colors"
+                  :class="l.unidadVenta === l.unidadBase ? 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700' : 'bg-blue-600 text-white'"
+                  :title="'Cambiar entre ' + l.unidadBase + ' y ' + l.unidadFraccion" @click="cambiarUnidad(l)">
+                  ×{{ l.unidadVenta === l.unidadBase ? l.unidadFraccion : l.unidadBase }}
+                </button>
               </div>
               <span class="text-sm font-bold tabular-nums" :class="l.esRegalo ? 'text-fuchsia-700' : 'text-slate-900'">{{ moneda }} {{ importeLinea(l).toFixed(2) }}</span>
             </div>
@@ -605,6 +767,42 @@
             </div>
           </div>
 
+          <!-- Adenda 1.6: vendedor y canje de puntos -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="label-forma">Vendedor</label>
+              <select v-model="vendedor" class="input-texto py-1.5">
+                <option value="">— yo (@{{ estUsuario }}) —</option>
+                <option v-for="v in vendedores" :key="v.usuarioId" :value="v.usuario">{{ v.nombre }} ({{ v.comisionPct }}%)</option>
+              </select>
+            </div>
+            <div v-if="fidelActiva && clienteSeleccionado">
+              <label class="label-forma">Canjear puntos <span class="text-emerald-600">({{ clientePuntos }} disp.)</span></label>
+              <input v-model.number="puntosUsar" type="number" :min="0" :max="clientePuntos" step="1" class="input-texto py-1.5" placeholder="0">
+            </div>
+          </div>
+
+          <!-- Adenda 1.6: plan de cuotas para Crédito -->
+          <div v-if="creditoActivo" class="rounded-xl px-4 py-3 text-sm ring-1 ring-inset" :class="!clienteSeleccionado ? 'bg-amber-50 ring-amber-300' : 'bg-sky-50 ring-sky-200'">
+            <p class="font-semibold text-sky-800 flex items-center gap-1.5"><icon name="dinero" clase="w-4 h-4"></icon> Venta a crédito (Cuentas por Cobrar)</p>
+            <template v-if="!clienteSeleccionado">
+              <p class="text-xs mt-1 text-amber-700">Seleccione un cliente registrado — el crédito no aplica a "Público General".</p>
+            </template>
+            <template v-else>
+              <div class="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <label class="label-forma text-xs">N° de cuotas</label>
+                  <input v-model.number="planCredito.cuotas" type="number" min="1" max="60" class="input-texto py-1.5">
+                </div>
+                <div>
+                  <label class="label-forma text-xs">Días entre cuotas</label>
+                  <input v-model.number="planCredito.diasEntre" type="number" min="1" class="input-texto py-1.5">
+                </div>
+              </div>
+              <p class="text-xs mt-1.5 text-sky-700">{{ planCredito.cuotas }} cuota(s) de ≈ {{ moneda }} {{ (totalConCanje / Math.max(1, planCredito.cuotas)).toFixed(2) }} cada {{ planCredito.diasEntre }} días. Se cobra desde <b>Cobranzas</b>.</p>
+            </template>
+          </div>
+
           <div v-if="metodoEfectivo">
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -649,9 +847,10 @@
           <div class="rounded-xl bg-slate-50 ring-1 ring-slate-200 px-4 py-3 space-y-1 text-sm">
             <div class="flex justify-between text-slate-500"><span>Subtotal (lista)</span><span class="tabular-nums">{{ moneda }} {{ totalLista.toFixed(2) }}</span></div>
             <div v-if="totalDescuentos > 0" class="flex justify-between font-medium text-emerald-600"><span>Descuentos y regalos</span><span class="tabular-nums">-{{ moneda }} {{ totalDescuentos.toFixed(2) }}</span></div>
+            <div v-if="valorCanje > 0" class="flex justify-between font-medium text-emerald-600"><span>Canje de puntos ({{ puntosUsar }} pts)</span><span class="tabular-nums">-{{ moneda }} {{ valorCanje.toFixed(2) }}</span></div>
             <div class="flex justify-between text-slate-500"><span>Op. gravadas</span><span class="tabular-nums">{{ moneda }} {{ totales.subtotal.toFixed(2) }}</span></div>
-            <div class="flex justify-between text-slate-500"><span>IGV {{ cfg.IGV_TASA || 18 }}% {{ totales.incluir ? '(incluido)' : '' }}</span><span class="tabular-nums">{{ moneda }} {{ totales.igv.toFixed(2) }}</span></div>
-            <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-200"><span>TOTAL</span><span class="tabular-nums">{{ moneda }} {{ totales.total.toFixed(2) }}</span></div>
+            <div class="flex justify-between text-slate-500"><span>{{ cfg.IMPUESTO_NOMBRE || 'IGV' }} {{ cfg.IGV_TASA || 18 }}% {{ totales.incluir ? '(incluido)' : '' }}</span><span class="tabular-nums">{{ moneda }} {{ totales.igv.toFixed(2) }}</span></div>
+            <div class="flex justify-between text-base font-bold text-slate-900 pt-1 border-t border-slate-200"><span>TOTAL</span><span class="tabular-nums">{{ moneda }} {{ totalConCanje.toFixed(2) }}</span></div>
           </div>
 
           <button type="button" class="btn-primario w-full justify-center py-2.5" :disabled="!puedeCobrar" @click="cobrar">
@@ -710,17 +909,35 @@
   </modal>
 
   <!-- Boleta emitida -->
-  <modal :abierto="boletaAbierta" titulo="Boleta de Venta emitida" :subtitulo="ventaEmitida ? 'Comprobante ' + ventaEmitida.boleta : ''" ancho="max-w-md">
+  <modal :abierto="boletaAbierta" :titulo="ventaEmitida && ventaEmitida.tipoComprobante ? ventaEmitida.tipoComprobante + ' emitida' : 'Boleta de Venta emitida'" :subtitulo="ventaEmitida ? 'Comprobante ' + (ventaEmitida.compNumero || ventaEmitida.boleta) : ''" ancho="max-w-md">
     <venta-boleta v-if="ventaEmitida" :venta="ventaEmitida" :detalle="detalleEmitido" :empresa="empresaEmitida"></venta-boleta>
+    <div v-if="ventaEmitida && ['Yape', 'Plin'].indexOf(ventaEmitida.metodoPago) !== -1 && ((ventaEmitida.metodoPago === 'Yape' && cfg.QR_YAPE_NUMERO) || (ventaEmitida.metodoPago === 'Plin' && cfg.QR_PLIN_NUMERO))" class="mt-3 rounded-xl bg-violet-50 ring-1 ring-violet-200 px-4 py-3 text-sm">
+      <p class="font-semibold text-violet-800">Pagar con {{ ventaEmitida.metodoPago }}</p>
+      <p class="text-violet-700 mt-0.5">Al número: <b class="font-mono text-base">{{ ventaEmitida.metodoPago === 'Yape' ? cfg.QR_YAPE_NUMERO : cfg.QR_PLIN_NUMERO }}</b></p>
+      <p class="text-violet-700">Por el importe exacto: <b>{{ moneda }} {{ Number(ventaEmitida.total).toFixed(2) }}</b></p>
+      <p class="text-[11px] text-violet-500 mt-1">Configure su número en Ajustes → Pagos QR para imprimirlo en la boleta.</p>
+    </div>
     <template #pie>
       <button type="button" class="btn-secundario" @click="cerrarBoleta">Cerrar</button>
+      <button type="button" class="btn-secundario" @click="imprimirTermica" title="Ticket térmico 58/80mm">
+        <icon name="boleta" clase="w-4 h-4"></icon> Térmica
+      </button>
       <button type="button" class="btn-secundario" :disabled="waEnviando" @click="descargarImagenBoleta" title="Descargar la boleta como imagen PNG">
         <icon name="download" clase="w-4 h-4"></icon> Imagen PNG
       </button>
       <button type="button" class="btn-secundario !text-emerald-700 hover:!bg-emerald-50" @click="abrirWhatsapp">
-        <icon name="whatsapp" clase="w-4 h-4 text-emerald-600"></icon> Enviar por WhatsApp
+        <icon name="whatsapp" clase="w-4 h-4 text-emerald-600"></icon> WhatsApp
       </button>
-      <button type="button" class="btn-primario" @click="imprimirBoleta"><icon name="boleta" clase="w-4 h-4"></icon> Imprimir boleta</button>
+      <button type="button" class="btn-primario" @click="imprimirBoleta"><icon name="boleta" clase="w-4 h-4"></icon> Imprimir</button>
+    </template>
+  </modal>
+
+  <!-- Modal escáner de cámara (Adenda 1.6) -->
+  <modal :abierto="scannerAbierto" titulo="Escanear código de barras" subtitulo="Apunte la cámara al código; se cierra solo al leerlo" ancho="max-w-sm" @cerrar="detenerScanner">
+    <video id="pos-video" class="w-full rounded-lg bg-black" style="max-height: 55vh" autoplay muted playsinline></video>
+    <p class="text-xs text-slate-400 mt-2 text-center">Busca por código de barras o SKU exacto. Si el producto tiene código registrado, se agrega directo al carrito.</p>
+    <template #pie>
+      <button type="button" class="btn-secundario" @click="detenerScanner">Cancelar</button>
     </template>
   </modal>
 

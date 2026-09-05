@@ -35,6 +35,13 @@ function productosList_(c) {
       categoria: p.categoria, unidad: p.unidad,
       costoStd: numero_(p.costoStd), precioVenta: numero_(p.precioVenta),
       precioMinimo: numero_(p.precioMinimo),   // Adenda 1.2: piso de negociación en POS
+      /* Adenda 1.6: escalas mayoristas, fraccionamiento y código de barras */
+      precio2: numero_(p.precio2), escala2Min: numero_(p.escala2Min),
+      precio3: numero_(p.precio3), escala3Min: numero_(p.escala3Min),
+      fraccionActiva: boolStr_(p.fraccionActiva),
+      unidadFraccion: String(p.unidadFraccion || ''),
+      factorFraccion: numero_(p.factorFraccion),
+      codigoBarras: String(p.codigoBarras || ''),
       stockMin: numero_(p.stockMin), stockMax: numero_(p.stockMax),
       requiereLote: boolStr_(p.requiereLote), requiereSerie: boolStr_(p.requiereSerie),
       perecedero: boolStr_(p.perecedero), estado: p.estado,
@@ -72,6 +79,13 @@ function productosSave_(c) {
     categoria: it.categoria || 'General', unidad: it.unidad,
     costoStd: numero_(it.costoStd), precioVenta: numero_(it.precioVenta),
     precioMinimo: numero_(it.precioMinimo),   // Adenda 1.2
+    /* Adenda 1.6: escalas, fraccionamiento, código de barras */
+    precio2: numero_(it.precio2), escala2Min: numero_(it.escala2Min),
+    precio3: numero_(it.precio3), escala3Min: numero_(it.escala3Min),
+    fraccionActiva: boolStr_(it.fraccionActiva) ? 'Sí' : 'No',
+    unidadFraccion: String(it.unidadFraccion || ''),
+    factorFraccion: numero_(it.factorFraccion),
+    codigoBarras: String(it.codigoBarras || '').trim(),
     stockMin: numero_(it.stockMin), stockMax: numero_(it.stockMax),
     requiereLote: boolStr_(it.requiereLote) ? 'Sí' : 'No',
     requiereSerie: boolStr_(it.requiereSerie) ? 'Sí' : 'No',
@@ -205,7 +219,8 @@ function clientesList_(c) {
   requiereSesion_(c);
   return appOk_(dbLeer_(APP.SHEETS.CLIENTES).map(function (p) {
     return { id: p.id, documento: p.documento, razonSocial: p.razonSocial, contacto: p.contacto, telefono: p.telefono, email: p.email, direccion: p.direccion, estado: p.estado,
-      limiteFiado: numero_(p.limiteFiado), saldoFiado: numero_(p.saldoFiado) };
+      limiteFiado: numero_(p.limiteFiado), saldoFiado: numero_(p.saldoFiado),
+      puntos: entero_(p.puntos), tipoPrecio: String(p.tipoPrecio || '') };
   }));
 }
 
@@ -215,11 +230,14 @@ function clientesSave_(c) {
   var it = c.item || {};
   if (!String(it.razonSocial || '').trim()) throw new ApiError_('La razón social o nombre es obligatorio.', 'VALIDATION');
   var datos = { documento: it.documento || '', razonSocial: it.razonSocial, contacto: it.contacto || '', telefono: it.telefono || '', email: it.email || '', direccion: it.direccion || '', estado: it.estado || 'ACTIVO',
-    limiteFiado: numero_(it.limiteFiado) };
+    limiteFiado: numero_(it.limiteFiado), tipoPrecio: String(it.tipoPrecio || '') };
   // Adenda 1.3: el saldo de fiado NUNCA se toca desde el catálogo —
   // solo lo modifican las ventas fiadas (12_Fiados.gs) y los abonos.
+  // Adenda 1.6: los puntos tampoco se tocan desde el catálogo —
+  // los mueven las ventas (20_Fidelizacion.gs) y los ajustes manuales.
   if (it.id) { dbActualizar_(APP.SHEETS.CLIENTES, it.id, datos); return appOk_({ id: it.id, actualizado: true }); }
   datos.saldoFiado = 0;
+  datos.puntos = 0;
   var id = dbSiguienteId_(APP.SHEETS.CLIENTES, 'CLI-', 4);
   dbInsertar_(APP.SHEETS.CLIENTES, Object.assign({ id: id }, datos));
   registrarAuditoria_(ses.usuarioId, ses.usuario, ses.rol, 'CLIENTE', 'Creó ' + datos.razonSocial);

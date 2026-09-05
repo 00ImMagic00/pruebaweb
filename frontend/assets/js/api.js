@@ -54,7 +54,10 @@ var Api = (function () {
       var errB = new Error(json.error || 'Error del servidor');
       errB.code = json.code;
       if (errB.code === 'UNAUTHORIZED' || errB.code === 'SESSION_EXPIRED') {
-        if (window.AppStore) AppStore.forzarLogout();
+        /* v1.5.1: el fallo del propio login o de la autorización de
+         * supervisor NO debe destruir la sesión actual del cajón. */
+        var mantiene = (action === 'login' || action === 'ventas_autorizar');
+        if (!mantiene && window.AppStore) AppStore.forzarLogout();
       }
       throw errB;
     }
@@ -125,8 +128,116 @@ var Api = (function () {
     marcarWhatsapp: function (id, telefono) { return llamar('ventas_marcar_whatsapp', { id: id, telefono: telefono || '' }); },
     ventasAnalitica: function (f) { return llamar('ventas_analitica', f || {}); },
     rentabilidadProducto: function (f) { return llamar('rentabilidad_producto', f || {}); },
-    panelControl: function () { return llamar('panel_control'); }
+    panelControl: function () { return llamar('panel_control'); },
+
+    /* --- Adenda 1.5: asistente de inicio desde cero --- */
+    sistemaEstado: function () { return llamar('sistema_estado'); },
+
+    /* --- Adenda 1.6: país, comprobantes, finanzas, compras, RRHH --- */
+    paises: function () { return llamar('paises_list'); },
+    aplicarPais: function (pais, soloVacios) { return llamar('pais_aplicar', { pais: pais, soloVacios: soloVacios }); },
+    tcConsultar: function () { return llamar('tc_consultar'); },
+
+    comprobantes: function (f) { return llamar('comprobantes_list', f || {}); },
+    comprobanteJson: function (id) { return llamar('comprobantes_json', { id: id }); },
+    comprobanteCrearApi: function (id) { return llamar('comprobantes_crear_api', { id: id }); },
+    comprobanteEnviar: function (id) { return llamar('comprobantes_enviar', { id: id }); },
+    comprobanteEstado: function (id, estado, cdrCodigo, cdrDescripcion, observaciones) {
+      return llamar('comprobantes_estado', { id: id, estado: estado, cdrCodigo: cdrCodigo || '', cdrDescripcion: cdrDescripcion || '', observaciones: observaciones || '' });
+    },
+    crearNotaCredito: function (p) { return llamar('comprobantes_nota', p); },
+    asignarGuia: function (ventaId, numero) { return llamar('comprobantes_guia', { ventaId: ventaId, numero: numero }); },
+    libroVentas: function (mes, formato) { return llamar('comprobantes_libro', { mes: mes, formato: formato || 'CSV' }); },
+    resumenDiario: function (fecha) { return llamar('comprobantes_resumen_diario', { fecha: fecha }); },
+    comprobantesSeries: function () { return llamar('comprobantes_series'); },
+
+    gastos: function (f) { return llamar('gastos_list', f || {}); },
+    registrarGasto: function (item) { return llamar('gastos_registrar', { item: item }); },
+    anularGasto: function (id) { return llamar('gastos_anular', { id: id }); },
+    gastosCategorias: function () { return llamar('gastos_categorias'); },
+    guardarGastoCategoria: function (item) { return llamar('gastos_categorias_save', { item: item }); },
+    eliminarGastoCategoria: function (id) { return llamar('gastos_categorias_delete', { id: id }); },
+    finanzasResumen: function (mes) { return llamar('finanzas_resumen', { mes: mes }); },
+    presupuestoList: function (mes) { return llamar('presupuesto_list', { mes: mes }); },
+    presupuestoSave: function (item) { return llamar('presupuesto_save', { item: item }); },
+    presupuestoResumen: function (mes) { return llamar('presupuesto_resumen', { mes: mes }); },
+
+    ocList: function (f) { return llamar('oc_list', f || {}); },
+    ocGet: function (id) { return llamar('oc_get', { id: id }); },
+    ocSave: function (item) { return llamar('oc_save', { item: item }); },
+    ocEstado: function (id, estado) { return llamar('oc_estado', { id: id, estado: estado }); },
+    ocOfertaAgregar: function (p) { return llamar('oc_oferta_agregar', p); },
+    ocOfertaElegir: function (p) { return llamar('oc_oferta_elegir', p); },
+    ocRecepcionar: function (p) { return llamar('oc_recepcionar', p); },
+    ocSugeridas: function () { return llamar('oc_sugeridas'); },
+    cxpList: function (f) { return llamar('cxp_list', f || {}); },
+    cxpPago: function (p) { return llamar('cxp_pago', p); },
+
+    cuotas: function (f) { return llamar('cuotas_list', f || {}); },
+    pagarCuota: function (p) { return llamar('cuota_pagar', p); },
+    creditosAging: function () { return llamar('creditos_aging'); },
+    creditosDeVenta: function (ventaId) { return llamar('creditos_de_venta', { ventaId: ventaId }); },
+
+    fidelAjuste: function (clienteId, puntos, nota) { return llamar('fidel_ajuste', { clienteId: clienteId, puntos: puntos, nota: nota }); },
+    fidelHistorial: function (clienteId) { return llamar('fidel_historial', { clienteId: clienteId }); },
+    fidelRanking: function () { return llamar('fidel_ranking'); },
+
+    rrhhVendedores: function () { return llamar('rrhh_vendedores'); },
+    rrhhGuardarVendedor: function (item) { return llamar('rrhh_vendedor_save', { item: item }); },
+    rrhhMarcar: function (tipo) { return llamar('rrhh_asistencia_marcar', { tipo: tipo }); },
+    rrhhAsistenciaEstado: function () { return llamar('rrhh_asistencia_estado'); },
+    rrhhAsistencia: function (f) { return llamar('rrhh_asistencia_list', f || {}); },
+    rrhhComisiones: function (mes) { return llamar('rrhh_comisiones', { mes: mes }); },
+
+    notificaciones: function () { return llamar('notificaciones_list'); },
+    notificacionesLeer: function (id) { return llamar('notificaciones_leer', id ? { id: id } : {}); },
+    tareasInstalar: function (desactivar) { return llamar('tareas_instalar', { desactivar: desactivar ? 'Sí' : 'No' }); },
+    tareasEjecutar: function () { return llamar('tareas_ejecutar'); },
+    backupAhora: function () { return llamar('backup_ahora'); },
+    sistemaPestanas: function () { return llamar('sistema_pestanas'); },
+
+    catalogoEstado: function () { return llamar('catalogo_estado'); },
+    catalogoToken: function () { return llamar('catalogo_token'); },
+    catalogoPublico: function (tokenPublico) { return llamar('catalogo_publico', { tokenPublico: tokenPublico }); },
+
+    /* --- Adenda 1.6: analítica extendida --- */
+    analiticaAbc: function (f) { return llamar('analitica_abc', f || {}); },
+    analiticaMuertos: function (dias) { return llamar('analitica_muertos', { dias: dias }); }
   };
 
-  return Object.assign({ llamar: llamar, esDemo: esDemo }, metodos);
+  /* ---------- Adenda 1.6: cola offline de ventas (PWA) ---------- */
+  var COLA_CLAVE = 'nexoerp_cola_ventas_v1';
+  function colaLeer() {
+    try { return JSON.parse(localStorage.getItem(COLA_CLAVE) || '[]'); } catch (e) { return []; }
+  }
+  function colaEscribir(arr) {
+    try { localStorage.setItem(COLA_CLAVE, JSON.stringify(arr)); } catch (e) { /* storage lleno */ }
+    if (window.AppStore) AppStore.estado.pendientesOffline = arr.length;
+  }
+  function encolarVenta(payload) {
+    var arr = colaLeer();
+    arr.push({ id: 'OFF-' + Date.now(), fecha: new Date().toISOString(), payload: payload });
+    colaEscribir(arr);
+    return arr.length;
+  }
+  async function procesarCola() {
+    var arr = colaLeer();
+    if (!arr.length) return { enviados: 0, pendientes: 0 };
+    var enviados = 0, restantes = [];
+    for (var i = 0; i < arr.length; i++) {
+      try {
+        await llamar('ventas_registrar', arr[i].payload);
+        enviados++;
+      } catch (e) {
+        /* Los errores de negocio (VALIDATION...) no se reintentan sin fin:
+         * se conserva la venta para revisión manual en el POS. */
+        restantes.push(arr[i]);
+      }
+    }
+    colaEscribir(restantes);
+    if (window.AppStore && enviados) AppStore.toast(enviados + ' venta(s) sincronizada(s) tras reconectar.', 'exito', 6000);
+    return { enviados: enviados, pendientes: restantes.length };
+  }
+
+  return Object.assign({ llamar: llamar, esDemo: esDemo, encolarVenta: encolarVenta, procesarCola: procesarCola, pendientesOffline: function () { return colaLeer().length; } }, metodos);
 })();

@@ -226,7 +226,9 @@ function ventasAnalitica_(c) {
  * Los regalos cuentan como costo puro (ingresos 0).
  */
 function rentabilidadProducto_(c) {
-  requiereSesion_(c);
+  var ses = requiereSesion_(c);
+  /* Seguridad v1.5.1: expone costos y márgenes reales — solo admin/gerente. */
+  requierePermiso_(ses, 'panel:read');
   var cfg = configLeer_();
   var hoy = fechaDiaStr_(fechaNow_());
 
@@ -328,10 +330,7 @@ function panelControl_(c) {
       /* Venta fuera del horario de atención configurado. */
       if (horarioInicio && horarioFin) {
         var mins = parseInt(fechaStr_(v.fecha).substring(11, 13), 10) * 60 + parseInt(fechaStr_(v.fecha).substring(14, 16), 10);
-        var p = function (s) {
-          var m = String(s).match(/(\d{1,2}):(\d{2})/);
-          return m ? (parseInt(m[1], 10) || 0) * 60 + (parseInt(m[2], 10) || 0) : 0;
-        };
+        var p = function (s) { var t2 = String(s).split(':'); return (parseInt(t2[0], 10) || 0) * 60 + (parseInt(t2[1], 10) || 0); };
         if (mins < p(horarioInicio) || mins > p(horarioFin)) {
           fueraHorarioMes++;
           alertas.push({ severidad: 'media', tipo: 'HORARIO', texto: v.boleta + ' emitida fuera del horario (' + horarioInicio + '–' + horarioFin + ') por ' + v.usuario, fecha: fechaStr_(v.fecha) });
@@ -425,4 +424,87 @@ function panelControl_(c) {
     alertas: alertas.slice(0, 40),
     auditoria: auditoria
   });
+}
+
+/* ==================== Adenda 1.6: ABC, muertos y rotación ==================== */
+
+/**
+ * Curva ABC de Pareto de productos por ingresos del período.
+ * A = 80% de los ingresos, B = siguiente 15%, C = último 5%.
+ */
+function analiticaAbc_(c) {
+  requiereSesion_(c);
+  var desde = String(c.desde || ''), hasta = String(c.hasta || '');
+  var filas = dbLeer_(APP.SHEETS.VENTA_DETALLE);
+  var ventasIdx = {};
+  dbLeer_(APP.SHEETS.VENTAS).forEach(function (v) {
+    if (String(v.estado).toUpperCase() !== 'EMITIDA') return;
+    var dia = fechaDiaStr_(v.fecha);
+    if (desde && dia < desde) return;
+    if (hasta && dia > hasta) return;
+    ventasIdx[String(v.id)] = true;
+  });
+  var porProducto = {};
+  filas.forEach(function (d) {
+    if (!ventasIdx[String(d.ventaId)]) return;
+    var k = String(d.sku || d.productoId);
+    if (!porProducto[k]) porProducto[k] = { sku: d.sku, nombre: d.descripcion, ingresos: 0, unidades: 0, n: 0 };
+    porProducto[k].ingresos = redondear_(porProducto[k].ingresos + numero_(d.subtotal));
+    porProducto[k].unidades = redondear_(porProducto[k].unidades + numero_(d.cantidad));
+    porProducto[k].n++;
+  });
+  var lista = Object.keys(porProducto).map(function (k) { return porProducto[k]; })
+    .sort(function (a, b) { return b.ingresos - a.ingresos; });
+  var total = 0;
+  lista.forEach(function (x) { total += x.ingresos; });
+  var acumulado = 0;
+  lista.forEach(function (x) {
+    var pctTotal = total > 0 ? (x.ingresos / total) * 100 : 0;
+    acumulado += pctTotal;
+    x.clase = acumulado <= 80 ? 'A' : (acumulado <= 95 ? 'B' : 'C');
+    x.pctIngresos = redondear_(pctTotal, 2);
+    x.pctAcumulado = redondear_(Math.min(100, acumulado), 2);
+  });
+  return appOk_({ total: redondear_(total), productos: lista });
+}
+
+/** Productos muertos: sin ventas en los últimos N días (default 30). */
+function analiticaMuertos_(c) {
+  requiereSesion_(c);
+  var dias = Math.max(7, entero_(c.dias, 30) || 30);
+  var limite = Date.now() - dias * 86400000;
+  var vendidos = {};
+  dbLeer_(APP.SHEETS.VENTA_DETALLE).forEach(function (d) { vendidos[String(d.productoId)] = true; });
+  var fechasVenta = {};
+  dbLeer_(APP.SHEETS.VENTAS).forEach(function (v) {
+    if (String(v.estado).toUpperCase() !== 'EMITIDA') return;
+    fechasVenta[String(v.id)] = new Date(fechaDiaStr_(v.fecha) + 'T12:00:00').getTime();
+  });
+  var ultimaVentaPorProducto = {};
+  dbLeer_(APP.SHEETS.VENTA_DETALLE).forEach(function (d) {
+    var t = fechasVenta[String(d.ventaId)];
+    if (!t || t < limite) return;
+    var k = String(d.productoId);
+    if (!ultimaVentaPorProducto[k] || t > ultimaVentaPorProducto[k]) ultimaVentaPorProducto[k] = t;
+  });
+  var stock = dbLeer_(APP.SHEETS.STOCK);
+  var totalPorProd = {};
+  stock.forEach(function (s) { totalPorProd[String(s.productoId)] = (totalPorProd[String(s.productoId)] || 0) + numero_(s.cantidad); });
+  var muertos = [];
+  dbLeer_(APP.SHEETS.PRODUCTOS).forEach(function (p) {
+    if (String(p.estado).toUpperCase() !== 'ACTIVO') return;
+    var t = ultimaVentaPorProducto[String(p.id)];
+    if (t) return; // tuvo ventas recientes
+    var sinVentasNunca = !vendidos[String(p.id)];
+    var saldo = totalPorProd[String(p.id)] || 0;
+    if (saldo > 0 || sinVentasNunca) {
+      muertos.push({
+        productoId: p.id, sku: p.sku, nombre: p.nombre, unidad: p.unidad,
+        stock: saldo, costoInmovilizado: redondear_(saldo * numero_(p.costoStd)),
+        nuncaVendido: sinVentasNunca
+      });
+    }
+  });
+  muertos.sort(function (a, b) { return b.costoInmovilizado - a.costoInmovilizado; });
+  return appOk_({ dias: dias, productos: muertos });
 }

@@ -43,7 +43,8 @@
     },
     methods: {
       formVacio: function () {
-        return { id: '', sku: '', nombre: '', descripcion: '', categoria: '', unidad: 'Unidad', costoStd: 0, precioVenta: 0, precioMinimo: 0, stockMin: 0, stockMax: 0, requiereLote: false, requiereSerie: false, perecedero: false, estado: 'ACTIVO' };
+        return { id: '', sku: '', nombre: '', descripcion: '', categoria: '', unidad: 'Unidad', costoStd: 0, precioVenta: 0, precioMinimo: 0, stockMin: 0, stockMax: 0, requiereLote: false, requiereSerie: false, perecedero: false, estado: 'ACTIVO',
+          precio2: 0, escala2Min: 0, precio3: 0, escala3Min: 0, fraccionActiva: false, unidadFraccion: '', factorFraccion: 0, codigoBarras: '' };
       },
       cargar: async function () {
         this.cargando = true;
@@ -90,6 +91,9 @@
           id: p.id, sku: p.sku, nombre: p.nombre, descripcion: p.descripcion || '',
           categoria: p.categoria, unidad: p.unidad, costoStd: p.costoStd, precioVenta: p.precioVenta,
           precioMinimo: p.precioMinimo || 0,
+          precio2: p.precio2 || 0, escala2Min: p.escala2Min || 0, precio3: p.precio3 || 0, escala3Min: p.escala3Min || 0,
+          fraccionActiva: !!p.fraccionActiva, unidadFraccion: p.unidadFraccion || '', factorFraccion: p.factorFraccion || 0,
+          codigoBarras: p.codigoBarras || '',
           stockMin: p.stockMin, stockMax: p.stockMax,
           requiereLote: !!p.requiereLote, requiereSerie: !!p.requiereSerie, perecedero: !!p.perecedero,
           estado: p.estado
@@ -203,6 +207,48 @@
         <label class="label-forma">Precio mínimo de venta</label>
         <input v-model.number="form.precioMinimo" type="number" step="0.01" min="0" class="input-texto">
         <p class="mt-1 text-[11px] text-slate-400">Piso de negociación en el POS: vender por debajo exige autorización de gerente (0 = sin límite).</p>
+      </div>
+      <div>
+        <label class="label-forma">Código de barras</label>
+        <input v-model="form.codigoBarras" type="text" class="input-texto font-mono" placeholder="7750123456789">
+      </div>
+      <div class="sm:col-span-2 rounded-xl bg-blue-50/50 ring-1 ring-inset ring-blue-600/10 p-3">
+        <p class="text-xs font-semibold text-blue-900 mb-2">Precios por escala (mayorista) — se aplican solos en el POS al alcanzar la cantidad</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="label-forma text-xs">Precio 2</label>
+            <input v-model.number="form.precio2" type="number" step="0.01" min="0" class="input-texto py-1.5">
+          </div>
+          <div>
+            <label class="label-forma text-xs">Desde N unidades</label>
+            <input v-model.number="form.escala2Min" type="number" step="1" min="0" class="input-texto py-1.5">
+          </div>
+          <div>
+            <label class="label-forma text-xs">Precio 3</label>
+            <input v-model.number="form.precio3" type="number" step="0.01" min="0" class="input-texto py-1.5">
+          </div>
+          <div>
+            <label class="label-forma text-xs">Desde N unidades</label>
+            <input v-model.number="form.escala3Min" type="number" step="1" min="0" class="input-texto py-1.5">
+          </div>
+        </div>
+      </div>
+      <div class="sm:col-span-2 rounded-xl bg-violet-50/50 ring-1 ring-inset ring-violet-600/10 p-3">
+        <p class="text-xs font-semibold text-violet-900 mb-2">Fraccionamiento — vender por bulto: el stock está en la unidad menor y el POS alterna al bulto (ej. stock en Unidad, vender Caja de 24)</p>
+        <div class="grid grid-cols-3 gap-3 items-end">
+          <div>
+            <label class="label-forma text-xs">¿Fraccionable?</label>
+            <select v-model="form.fraccionActiva" class="input-texto py-1.5"><option :value="false">No</option><option :value="true">Sí</option></select>
+          </div>
+          <div>
+            <label class="label-forma text-xs">Unidad de fracción</label>
+            <input v-model="form.unidadFraccion" type="text" class="input-texto py-1.5" placeholder="Unidad">
+          </div>
+          <div>
+            <label class="label-forma text-xs">Unidades por bulto (factor)</label>
+            <input v-model.number="form.factorFraccion" type="number" min="0" step="1" class="input-texto py-1.5">
+          </div>
+        </div>
       </div>
       <div>
         <label class="label-forma">Stock mínimo</label>

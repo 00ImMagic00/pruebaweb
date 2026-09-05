@@ -48,6 +48,12 @@ function cajaEstado_(c) {
   var fiadoEmitido = 0;
   resumen.forEach(function (r) { if (r.metodo === 'Fiado') fiadoEmitido = r.total; });
 
+  /* Adenda 1.6: cobranzas de cuotas (crédito) y egresos del día. */
+  var cuotasDia = pagosCuotaDia_(dia);
+  var cuotasEfectivo = 0, cuotasTotal = 0;
+  cuotasDia.forEach(function (a) { cuotasTotal = redondear_(cuotasTotal + a.total); if (a.metodo === 'Efectivo') cuotasEfectivo = a.total; });
+  var egresosDia = gastosEfectivoDia_(dia);
+
   return appOk_({
     abierta: !!abierta,
     caja: abierta ? serializarCaja_(abierta) : null,
@@ -59,6 +65,10 @@ function cajaEstado_(c) {
     abonosFiadoTotal: abonosTotal,
     abonosFiadoEfectivo: abonosEfectivo,
     fiadoEmitidoDia: fiadoEmitido,
+    cobranzasCuotas: cuotasDia,
+    cobranzasCuotasTotal: cuotasTotal,
+    cobranzasCuotasEfectivo: cuotasEfectivo,
+    egresosEfectivoDia: egresosDia,
     moneda: cfg.MONEDA_SIMBOLO || 'S/',
     metodoPagoDefault: cfg.METODO_PAGO_DEFAULT || 'Efectivo',
     horarioInicio: cfg.HORARIO_INICIO || '',
@@ -148,23 +158,29 @@ function cajaCerrar_(c) {
       if (r.metodo === 'Efectivo') efectivoVentas = r.total;
     });
 
-    /* Adenda 1.3: los abonos de fiado en efectivo también entran a caja. */
+    /* Adenda 1.3: los abonos de fiado en efectivo también entran a caja.
+     * Adenda 1.6: cobranzas de cuotas entran; gastos en efectivo salen. */
     var abonos = abonosFiadoDia_(dia);
     var abonosEfectivo = 0;
     abonos.forEach(function (a) { if (a.metodo === 'Efectivo') abonosEfectivo = a.total; });
+    var cuotasDia = pagosCuotaDia_(dia);
+    var cuotasEfectivo = 0;
+    cuotasDia.forEach(function (a) { if (a.metodo === 'Efectivo') cuotasEfectivo = a.total; });
+    var egresosDia = gastosEfectivoDia_(dia);
 
-    // Efectivo que debería haber en caja = fondo inicial + ventas en efectivo + abonos de fiado en efectivo.
-    var esperadoEnCaja = redondear_(numero_(abierta.montoInicial) + efectivoVentas + abonosEfectivo);
+    // Efectivo esperado = fondo inicial + ventas en efectivo + abonos de fiado
+    // en efectivo + cobranzas de cuotas en efectivo − gastos en efectivo.
+    var esperadoEnCaja = redondear_(numero_(abierta.montoInicial) + efectivoVentas + abonosEfectivo + cuotasEfectivo - egresosDia);
 
     var fila = {
       id: abierta.id, estado: 'CERRADA', cierreAt: fechaNow_(),
       montoSistema: esperadoEnCaja, montoContado: redondear_(montoContado),
       diferencia: redondear_(montoContado - esperadoEnCaja),
-      detalle: String(c.detalle || '')
+      detalle: String(c.detalle || '') + (egresosDia > 0 ? ' · Egresos efectivo: ' + egresosDia : '')
     };
     dbActualizar_(APP.SHEETS.CAJA, abierta.id, fila);
     registrarAuditoria_(ses.usuarioId, ses.usuario, ses.rol, 'CAJA',
-      'Cerró caja ' + abierta.id + '. Ventas del día: ' + redondear_(totalDia) + '. Abonos fiado (efectivo): ' + abonosEfectivo + '. Efectivo esperado: ' + esperadoEnCaja + '. Diferencia: ' + fila.diferencia);
+      'Cerró caja ' + abierta.id + '. Ventas del día: ' + redondear_(totalDia) + '. Abonos fiado (efectivo): ' + abonosEfectivo + '. Cobranzas cuotas (efectivo): ' + cuotasEfectivo + '. Egresos (efectivo): ' + egresosDia + '. Efectivo esperado: ' + esperadoEnCaja + '. Diferencia: ' + fila.diferencia);
 
     var cerrada = dbPorId_(APP.SHEETS.CAJA, abierta.id);
     return appOk_({

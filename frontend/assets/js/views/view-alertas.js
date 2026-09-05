@@ -6,8 +6,11 @@
   window.NEXO_VISTAS = window.NEXO_VISTAS || {};
 
   window.NEXO_VISTAS['alertas'] = {
+    components: { modal: NEXO_UI.Modal },
     data: function () {
-      return { dash: null, lotesRes: null, lotesCriticos: [], cargando: true };
+      return { dash: null, lotesRes: null, lotesCriticos: [], cargando: true,
+        /* Adenda 1.6: sugerencias de compra → OC */
+        sugeridas: [], modalOc: false, proveedores: [], ocForm: { proveedorId: '', condicionPago: 'CONTADO', diasCredito: 30, items: [] }, guardandoOc: false };
     },
     computed: {
       criticos: function () { return (this.dash && this.dash.stockCritico) || []; },
@@ -22,17 +25,41 @@
           this.dash = res[0];
           this.lotesRes = res[1].resumen;
           this.lotesCriticos = res[1].filas.filter(function (l) { return l.estadoLote !== 'OK' && l.estadoLote !== 'SIN_VENCIMIENTO'; }).slice(0, 15);
+          /* Adenda 1.6: sugerencias de compra */
+          try { this.sugeridas = await Api.ocSugeridas(); } catch (e2) { this.sugeridas = []; }
         } catch (e) { AppStore.toast(e.message, 'error'); }
         finally { this.cargando = false; }
       },
       irMovimiento: function () { AppStore.irA('movimientos'); },
-      irLotes: function () { AppStore.irA('lotes'); }
+      irLotes: function () { AppStore.irA('lotes'); },
+      /* Adenda 1.6: crea una OC con las sugerencias marcadas */
+      abrirOc: async function () {
+        if (!this.sugeridas.length) return;
+        try { this.proveedores = await Api.proveedores(); } catch (e) { this.proveedores = []; }
+        this.ocForm = { proveedorId: (this.proveedores[0] && this.proveedores[0].id) || '', condicionPago: 'CONTADO', diasCredito: 30,
+          items: this.sugeridas.map(function (s) { return { productoId: s.productoId, sku: s.sku, nombre: s.nombre, cantidad: s.sugerido, costoUnit: s.costoStd, seleccionado: true }; }) };
+        this.modalOc = true;
+      },
+      guardarOc: async function () {
+        var items = this.ocForm.items.filter(function (i) { return i.seleccionado && parseFloat(i.cantidad) > 0; })
+          .map(function (i) { return { productoId: i.productoId, cantidad: i.cantidad, costoUnit: i.costoUnit }; });
+        if (!this.ocForm.proveedorId || !items.length) { AppStore.toast('Seleccione proveedor y al menos un producto.', 'warning'); return; }
+        this.guardandoOc = true;
+        try {
+          await Api.ocSave(Object.assign({}, this.ocForm, { items: items }));
+          AppStore.toast('Orden de compra creada desde sugerencias. Revísela en Órdenes de Compra.', 'exito', 7000);
+          this.modalOc = false;
+          AppStore.irA('compras');
+        } catch (e) { AppStore.toast(e.message, 'error', 7000); }
+        finally { this.guardandoOc = false; }
+      }
     },
     template: `
 <div>
   <page-header titulo="Centro de Alertas" subtitulo="Indicadores automáticos de stock crítico y vencimientos próximos">
     <template #acciones>
       <button type="button" class="btn-secundario" @click="cargar" :disabled="cargando"><icon name="refresh" clase="w-4 h-4" :class="cargando ? 'animate-spin' : ''"></icon> Actualizar</button>
+      <button type="button" class="btn-secundario" :disabled="!sugeridas.length" @click="abrirOc"><icon name="cajas" clase="w-4 h-4"></icon> Sugerencias de compra ({{ sugeridas.length }})</button>
       <button type="button" class="btn-primario" @click="irMovimiento"><icon name="plus" clase="w-4 h-4"></icon> Atender con movimiento</button>
     </template>
   </page-header>
@@ -114,6 +141,42 @@
       <p v-if="!dash.topSalidas.length" class="text-sm text-slate-400 text-center py-4">Sin salidas registradas este mes.</p>
     </div>
   </div>
+
+  <!-- Adenda 1.6: modal OC desde sugerencias -->
+  <modal :abierto="modalOc" titulo="Crear orden de compra sugerida" subtitulo="Productos en o bajo su stock mínimo" ancho="max-w-2xl" @cerrar="modalOc = false">
+    <form class="space-y-4" @submit.prevent="guardarOc">
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="label-forma">Proveedor</label>
+          <select v-model="ocForm.proveedorId" class="input-texto">
+            <option value="">— elegir —</option>
+            <option v-for="p in proveedores" :key="p.id" :value="p.id">{{ p.razonSocial }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="label-forma">Condición</label>
+          <select v-model="ocForm.condicionPago" class="input-texto"><option value="CONTADO">Contado</option><option value="CREDITO">Crédito</option></select>
+        </div>
+        <div v-if="ocForm.condicionPago === 'CREDITO'">
+          <label class="label-forma">Días de crédito</label>
+          <input v-model.number="ocForm.diasCredito" type="number" min="1" class="input-texto">
+        </div>
+      </div>
+      <div class="border-t border-slate-100 pt-3">
+        <div v-for="i in ocForm.items" :key="i.productoId" class="flex items-center gap-3 py-1.5 border-b border-slate-50 last:border-0 text-sm">
+          <input v-model="i.seleccionado" type="checkbox" class="rounded">
+          <span class="flex-1 truncate">{{ i.sku }} — {{ i.nombre }}</span>
+          <span class="text-xs text-slate-400">sugerido</span>
+          <input v-model.number="i.cantidad" type="number" min="0" step="1" class="input-texto py-1 w-20 text-center">
+          <input v-model.number="i.costoUnit" type="number" min="0" step="0.01" class="input-texto py-1 w-24 text-center" title="Costo unitario">
+        </div>
+      </div>
+    </form>
+    <template #pie>
+      <button type="button" class="btn-secundario" @click="modalOc = false">Cancelar</button>
+      <button type="button" class="btn-primario" :disabled="guardandoOc" @click="guardarOc">{{ guardandoOc ? 'Creando...' : 'Crear OC' }}</button>
+    </template>
+  </modal>
 </div>`
   };
 })();

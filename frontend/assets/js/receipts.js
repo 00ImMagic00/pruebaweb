@@ -450,6 +450,148 @@
 
   /* ============================ Exportación ============================ */
 
+  /* -------- Adenda 1.6: QR generador (qrcode-generator, lazy CDN) -------- */
+  function cargarQrLib() {
+    return new Promise(function (resolve) {
+      if (window.qrcode) return resolve(true);
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
+      s.onload = function () { resolve(true); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+      setTimeout(function () { resolve(!!window.qrcode); }, 6000);
+    });
+  }
+
+  /** Devuelve un dataURL PNG del QR, o null si no está disponible. */
+  async function qrDataUrl(texto, px) {
+    px = px || 180;
+    var ok = await cargarQrLib();
+    if (!ok || !window.qrcode) return null;
+    try {
+      var qr = window.qrcode(0, 'M');
+      qr.addData(String(texto));
+      qr.make();
+      var modulos = qr.getModuleCount();
+      var celda = Math.max(2, Math.floor(px / modulos));
+      var canvas = document.createElement('canvas');
+      canvas.width = canvas.height = celda * modulos + 16;
+      var ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000000';
+      for (var f = 0; f < modulos; f++) {
+        for (var c = 0; c < modulos; c++) {
+          if (qr.isDark(f, c)) ctx.fillRect(8 + c * celda, 8 + f * celda, celda, celda);
+        }
+      }
+      return canvas.toDataURL('image/png');
+    } catch (e) { return null; }
+  }
+
+  /* -------- Adenda 1.6: impresión térmica 58/80 mm -------- */
+
+  /**
+   * Abre una ventana de impresión con el ticket en formato térmico
+   * (CSS width 80mm, compatible con impresoras ticketeras 58/80mm).
+   * La salida es no fiscal: el usuario elige la impresora del sistema.
+   */
+  function imprimirTermica(venta, detalle, empresa, cfg) {
+    var m = monedaDe(empresa);
+    var W = 80; // mm
+    var incluir = empresa && empresa.igvIncluido;
+    var tasa = empresa && empresa.igvTasa ? empresa.igvTasa : 18;
+    var nombreImpuesto = (cfg && cfg.IMPUESTO_NOMBRE) || 'IGV';
+    var esFactura = String(venta.tipoComprobante || '').toUpperCase() === 'FACTURA';
+    var docTipo = esFactura ? 'FACTURA' : 'BOLETA DE VENTA';
+    var numDoc = venta.compNumero || venta.boleta;
+
+    var filas = detalle.map(function (d) {
+      var reg = esRegalo(d) ? '<span style="color:#a21caf">[REGALO]</span> ' : '';
+      var unidad = d.unidadVenta || d.unidad || '';
+      return '<tr>' +
+        '<td style="padding:2px 0">' + reg + limpiarNombre(d.descripcion).replace(/_/g, ' ') + '<br>' +
+        '<span style="color:#555">' + d.cantidad + ' ' + unidad + ' × ' + m + Number(d.precioUnit).toFixed(2) + '</span></td>' +
+        '<td style="text-align:right;white-space:nowrap">' + m + Number(d.subtotal).toFixed(2) + '</td></tr>';
+    }).join('');
+
+    var bloquePago = '';
+    var yape = String((cfg && cfg.QR_YAPE_NUMERO) || ''), plin = String((cfg && cfg.QR_PLIN_NUMERO) || '');
+    var metodo = String(venta.metodoPago || '');
+    var numeroPago = metodo === 'Yape' ? yape : (metodo === 'Plin' ? plin : '');
+    if (numeroPago) {
+      bloquePago = '<div style="margin-top:6px;text-align:center;font-size:10px">' +
+        '<b>Pagar con ' + metodo + '</b><br>Celular: <b>' + numeroPago + '</b><br>Importe exacto: ' + m + Number(venta.total).toFixed(2) +
+        (String(cfg && cfg.QR_BANCO || '') ? '<br>' + cfg.QR_BANCO : '') + '</div>';
+    }
+    var qrImg = '';
+    if (numeroPago) {
+      /* QR con los datos del pago (texto plano, se imprime en el ticket) */
+      qrImg = '<div id="nexo-qr" style="text-align:center;margin-top:6px"></div>';
+    }
+
+    var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + numDoc + '</title>' +
+      '<style>' +
+      '@page { size: ' + W + 'mm auto; margin: 4mm }' +
+      'body { font-family: "Courier New", monospace; font-size: 11px; width: ' + (W - 8) + 'mm; margin: 0 auto; color: #000 }' +
+      'h1 { font-size: 13px; text-align: center; margin: 0 0 2px }' +
+      '.centro { text-align: center } .der { text-align: right } .gris { color: #444 }' +
+      'table { width: 100%; border-collapse: collapse; font-size: 10.5px }' +
+      '.sep { border-top: 1px dashed #000; margin: 6px 0 }' +
+      '.tot { font-size: 13px; font-weight: bold }' +
+      '</style></head><body>' +
+      '<h1>' + (empresa.razonSocial || 'MI NEGOCIO') + '</h1>' +
+      '<div class="centro gris">' +
+      (empresa.ruc ? 'RUC: ' + empresa.ruc + '<br>' : '') +
+      (empresa.direccion ? String(empresa.direccion) + '<br>' : '') +
+      (empresa.telefono ? 'Tel: ' + empresa.telefono + '<br>' : '') +
+      '</div><div class="sep"></div>' +
+      '<div class="centro"><b>' + docTipo + ' ELECTRÓNICA</b><br>' + numDoc + '</div>' +
+      '<div class="sep"></div>' +
+      '<div>Fecha: ' + String(venta.fecha).replace('T', ' ').slice(0, 16) + '<br>' +
+      'Cliente: ' + (venta.clienteNombre || 'Público General') + '<br>' +
+      (venta.clienteDocNumero ? (venta.clienteDocTipo || 'Doc') + ': ' + venta.clienteDocNumero + '<br>' : '') +
+      'Cajero: ' + (venta.usuario || '') + (venta.vendedor && venta.vendedor !== venta.usuario ? ' · Vendedor: ' + venta.vendedor : '') + '<br>' +
+      'Pago: ' + metodo + (venta.estadoPago === 'CREDITO' ? ' (CRÉDITO)' : '') + '</div>' +
+      '<div class="sep"></div>' +
+      '<table>' + filas + '</table>' +
+      '<div class="sep"></div>' +
+      '<table>' +
+      '<tr><td>Op. gravadas</td><td class="der">' + m + Number(venta.subtotal).toFixed(2) + '</td></tr>' +
+      (Number(venta.descuentoTotal) > 0 ? '<tr><td>Descuentos</td><td class="der">-' + m + Number(venta.descuentoTotal).toFixed(2) + '</td></tr>' : '') +
+      '<tr><td>' + nombreImpuesto + ' ' + tasa + '%' + (incluir ? ' (incluido)' : '') + '</td><td class="der">' + m + Number(venta.igv).toFixed(2) + '</td></tr>' +
+      '<tr class="tot"><td>TOTAL</td><td class="der">' + m + Number(venta.total).toFixed(2) + '</td></tr>' +
+      (venta.vuelto > 0 ? '<tr><td>Efectivo</td><td class="der">' + m + Number(venta.montoRecibido).toFixed(2) + '</td></tr><tr><td>Vuelto</td><td class="der">' + m + Number(venta.vuelto).toFixed(2) + '</td></tr>' : '') +
+      (venta.puntosGanados > 0 ? '<tr><td colspan="2" class="centro">+ ' + venta.puntosGanados + ' puntos de fidelidad</td></tr>' : '') +
+      '</table>' +
+      bloquePago + qrImg +
+      '<div class="sep"></div>' +
+      '<div class="centro gris" style="font-size:10px">' + (empresa.mensajeBoleta || '¡Gracias por su compra!') + '<br>' +
+      (venta.guiaRemision ? 'Guía de remisión: ' + venta.guiaRemision + '<br>' : '') +
+      'Representación impresa del comprobante' + (venta.compNumero ? ' electrónico' : '') + '</div>' +
+      '</body></html>';
+
+    var win = window.open('', '_blank', 'width=420,height=640');
+    if (!win) { throw new Error('El navegador bloqueó la ventana de impresión.'); }
+    win.document.write(html);
+    win.document.close();
+    win.onload = function () { };
+    win.focus();
+    /* Inserta QR de pago si corresponde */
+    if (numeroPago) {
+      var textoQr = metodo + ' ' + numeroPago + ' · ' + m + Number(venta.total).toFixed(2) + ' · ' + numDoc;
+      qrDataUrl(textoQr, 150).then(function (url) {
+        if (url) {
+          var cont = win.document.getElementById('nexo-qr');
+          if (cont) cont.innerHTML = '<img src="' + url + '" width="110" height="110" alt="QR de pago">';
+        }
+      });
+      setTimeout(function () { try { win.print(); } catch (e) {} }, 800);
+    } else {
+      setTimeout(function () { try { win.print(); } catch (e) {} }, 300);
+    }
+  }
+
   window.NexoDocs = {
     boletaCanvas: boletaCanvas,
     proformaPDF: proformaPDF,
@@ -457,6 +599,8 @@
     descargarArchivo: descargarArchivo,
     dataURLaBlob: dataURLaBlob,
     boletaNombreArchivo: boletaNombreArchivo,
-    proformaNombreArchivo: proformaNombreArchivo
+    proformaNombreArchivo: proformaNombreArchivo,
+    qrDataUrl: qrDataUrl,
+    imprimirTermica: imprimirTermica
   };
 })();

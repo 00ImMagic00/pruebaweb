@@ -5,11 +5,23 @@
  * un dataset de demostración completo (catálogos + 63 movimientos
  * históricos de 30 días con kardex valorizado consistente).
  * ================================================================
- * USO (una sola vez):
+ * USO (una sola vez) — elija según el tipo de instalación:
  *   1. Abra el editor de Apps Script vinculado a su hoja de cálculo.
- *   2. Ejecute la función  setupSystem  desde la barra superior.
+ *   2. Ejecute UNA de estas funciones desde la barra superior:
+ *        · setupSystem      → instala ESTRUCTURA + DATOS DEMO (para evaluar).
+ *        · setupDesdeCero   → instala SOLO la estructura para una empresa
+ *                             nueva: pestañas, configuración y el usuario
+ *                             admin inicial (sin productos ni datos demo).
+ *                             Al abrir el sistema se activará el ASISTENTE
+ *                             DE INICIO para cargar su empresa, almacén,
+ *                             categorías, productos y clientes.
  *   3. Autorice los permisos cuando Google los solicite.
  *   4. Revise las pestañas creadas y el log de ejecución.
+ *
+ * ¿Instaló la demo y ahora quiere operar en serio? Ejecute
+ *   borrarDatosDemo  → limpia los datos de demostración (productos,
+ *   movimientos, ventas, etc.) conservando usuarios y configuración;
+ *   el asistente de inicio se activa en el siguiente inicio de sesión.
  *
  * Para borrar TODO y regenerar: ejecute  resetSystem  (¡destructivo!).
  */
@@ -36,7 +48,21 @@ var CABECERAS = {
   /* --- Adenda 1.3: fiados y cotizaciones --- */
   PagosFiado:  ['id', 'fecha', 'clienteId', 'clienteNombre', 'ventaId', 'monto', 'metodoPago', 'usuario', 'nota'],
   Cotizaciones: ['id', 'numero', 'fecha', 'clienteId', 'clienteDocTipo', 'clienteDocNumero', 'clienteNombre', 'clienteTelefono', 'subtotal', 'igv', 'total', 'validezHasta', 'validezDias', 'estado', 'usuario', 'convertidoA', 'nota'],
-  CotizacionDetalle: ['id', 'cotizacionId', 'productoId', 'sku', 'descripcion', 'cantidad', 'precioUnit', 'esRegalo', 'subtotal']
+  CotizacionDetalle: ['id', 'cotizacionId', 'productoId', 'sku', 'descripcion', 'cantidad', 'precioUnit', 'esRegalo', 'subtotal'],
+  /* --- Adenda 1.6: comprobantes, finanzas, compras, RRHH --- */
+  Comprobantes: ['id', 'ventaId', 'tipo', 'serie', 'correlativo', 'numero', 'fecha', 'clienteDocTipo', 'clienteDocNumero', 'clienteNombre', 'moneda', 'subtotal', 'igv', 'total', 'modoEnvio', 'estado', 'sunatId', 'cdrCodigo', 'cdrDescripcion', 'apiDocId', 'respuesta', 'payload', 'observaciones', 'usuario', 'creado'],
+  Cuotas: ['id', 'ventaId', 'clienteId', 'clienteNombre', 'nCuota', 'totalCuotas', 'fechaVenc', 'monto', 'saldo', 'estado', 'pagadoAt', 'metodoPago', 'usuario', 'observaciones'],
+  Gastos: ['id', 'fecha', 'categoria', 'descripcion', 'monto', 'metodoPago', 'numeroDoc', 'usuario', 'estado', 'creado'],
+  GastosCategorias: ['id', 'nombre', 'tipo', 'estado'],
+  OrdenesCompra: ['id', 'numero', 'proveedorId', 'proveedorNombre', 'fecha', 'fechaEsperada', 'estado', 'condicionPago', 'diasCredito', 'moneda', 'subtotal', 'igv', 'total', 'observaciones', 'usuario', 'creado'],
+  OcItems: ['id', 'ocId', 'productoId', 'sku', 'descripcion', 'unidad', 'cantidadPedida', 'cantidadRecibida', 'costoUnit'],
+  OcOfertas: ['id', 'ocId', 'proveedorNombre', 'costoTotal', 'plazoDias', 'comentario', 'elegida'],
+  CuentasPagar: ['id', 'ocId', 'numero', 'proveedorId', 'proveedorNombre', 'fecha', 'fechaVenc', 'monto', 'saldo', 'estado', 'pagadoAt', 'metodoPago', 'usuario'],
+  Notificaciones: ['id', 'fecha', 'clave', 'tipo', 'severidad', 'titulo', 'mensaje', 'referencia', 'leido'],
+  Asistencia: ['id', 'fecha', 'usuarioId', 'usuario', 'entrada', 'salida', 'minutos', 'nota', 'estado'],
+  Vendedores: ['id', 'usuarioId', 'usuario', 'comisionPct', 'estado'],
+  FidHistorial: ['id', 'fecha', 'clienteId', 'clienteNombre', 'tipo', 'puntos', 'ventaId', 'nota', 'usuario', 'saldoDespues'],
+  Presupuesto: ['id', 'mes', 'categoria', 'monto', 'actualizadoAt']
 };
 
 /* --------------------------- DATASET DEMO --------------------------- */
@@ -186,6 +212,7 @@ function setupSystem() {
     sembrarCotizacionesDemo_(); // Adenda 1.3: proformas de ejemplo
     migrarAdendaV12_();     // Adenda 1.2: columnas y claves de POS Pro
     migrarAdendaV13_();     // Adenda 1.3: fiados, cotizaciones y columnas nuevas
+    migrarAdendaV16_();     // Adenda 1.6: país, comprobantes, finanzas, compras, RRHH
     SpreadsheetApp.flush();
     var resumen = {
       productos: dbLeer_(APP.SHEETS.PRODUCTOS).length,
@@ -212,6 +239,158 @@ function resetSystem() {
   });
   SpreadsheetApp.flush();
   return setupSystem();
+}
+
+/* ------------------- ADENDA 1.5: INSTALACIÓN DESDE CERO ------------------- */
+
+/**
+ * Instalación para una EMPRESA NUEVA (producción): crea las pestañas con
+ * sus cabeceras, la configuración por defecto, la numeración y UN único
+ * usuario admin (admin / admin123). NO siembra productos, almacenes,
+ * clientes ni movimientos de demostración.
+ *
+ * Tras ejecutarla, al iniciar sesión como admin el sistema detecta que
+ * está vacío y lanza el ASISTENTE DE INICIO (categorías, productos con
+ * stock inicial, clientes, fondo de caja, etc.).
+ * ¡Cambie la contraseña del admin desde el asistente (paso 2)!
+ */
+function setupDesdeCero() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(300000);
+  var inicio = Date.now();
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    Object.keys(CABECERAS).forEach(function (nombre) {
+      crearHojaSiFalta_(ss, nombre, CABECERAS[nombre]);
+    });
+    SpreadsheetApp.flush();
+
+    // 1) Configuración por defecto (incluye ASISTENTE_COMPLETADO = No).
+    Object.keys(CONFIG_CLAVES).forEach(function (k) { configGuardar_(k, CONFIG_CLAVES[k]); });
+    // Sin datos aún: no apunte el POS a un almacén inexistente; el
+    // asistente (paso 3) fijará ALMACEN_VENTA con el almacén creado.
+    configGuardar_('ALMACEN_VENTA', '');
+
+    // 2) Usuario admin inicial (idempotente: no duplica si ya existe).
+    var usuarios = dbLeer_(APP.SHEETS.USUARIOS);
+    var hayAdmin = usuarios.some(function (u) { return String(u.usuario).trim().toLowerCase() === 'admin'; });
+    if (!hayAdmin) {
+      var salt = Utilities.getUuid().replace(/-/g, '').substring(0, 16);
+      insertarUsuario_({
+        id: dbSiguienteId_(APP.SHEETS.USUARIOS, 'USR-', 4),
+        usuario: 'admin', nombre: 'Administrador', rol: 'admin',
+        salt: salt, hash: hashV2_(salt, 'admin123'),
+        estado: 'ACTIVO', ultimoAcceso: '', creado: fechaNow_()
+      });
+    }
+
+    // 3) Numeración de comprobantes en cero.
+    var filasNum = dbLeer_(APP.SHEETS.NUMERACION);
+    var tipos = {};
+    filasNum.forEach(function (f) { tipos[String(f.tipo).toUpperCase()] = true; });
+    if (!tipos['BOLETA'])    dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'BOLETA',    prefijo: String(CONFIG_CLAVES.PREFIJO_BOLETA), correlativo: 0 });
+    if (!tipos['VENTA'])     dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'VENTA',     prefijo: 'V-',  correlativo: 0 });
+    if (!tipos['COTIZACION'])dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'COTIZACION',prefijo: 'COT-',correlativo: 0 });
+
+    // 4) Migraciones de adendas (idempotentes; mantienen compatibilidad).
+    migrarAdendaV12_();
+    migrarAdendaV13_();
+    migrarAdendaV16_();
+    SpreadsheetApp.flush();
+
+    var resumen = {
+      modo: 'DESDE_CERO',
+      pestañas: Object.keys(CABECERAS).length,
+      usuarios: dbLeer_(APP.SHEETS.USUARIOS).length,
+      productos: dbLeer_(APP.SHEETS.PRODUCTOS).length,
+      credencialesIniciales: 'admin / admin123 (cámbielas en el asistente)',
+      segundos: Math.round((Date.now() - inicio) / 1000)
+    };
+    console.log('setupDesdeCero OK: ' + JSON.stringify(resumen));
+    return resumen;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Limpia los DATOS de demostración de una instalación existente para
+ * pasar a producción con datos reales (vía asistente de inicio).
+ *  · Vacía: movimientos, kardex, lotes, stock, productos, categorías,
+ *    almacenes, proveedores, clientes, ventas, detalle, cotizaciones,
+ *    pagos de fiado, caja, auditoría y sesiones abiertas.
+ *  · Reinicia la numeración de boletas/ventas/cotizaciones a 0.
+ *  · CONSERVA: usuarios (con sus contraseñas) y configuración general;
+ *    marca ASISTENTE_COMPLETADO = No para relanzar el asistente.
+ */
+function borrarDatosDemo() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(300000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var vaciar = [APP.SHEETS.MOVIMIENTOS, APP.SHEETS.KARDEX, APP.SHEETS.LOTES, APP.SHEETS.STOCK,
+                  APP.SHEETS.PRODUCTOS, APP.SHEETS.CATEGORIAS, APP.SHEETS.ALMACENES,
+                  APP.SHEETS.PROVEEDORES, APP.SHEETS.CLIENTES, APP.SHEETS.VENTAS,
+                  APP.SHEETS.VENTA_DETALLE, APP.SHEETS.COTIZACIONES, APP.SHEETS.COTIZACION_DETALLE,
+                  APP.SHEETS.PAGOS_FIADO, APP.SHEETS.CAJA, APP.SHEETS.AUDITORIA, APP.SHEETS.SESIONES,
+                  APP.SHEETS.COMPROBANTES, APP.SHEETS.CUOTAS, APP.SHEETS.GASTOS, APP.SHEETS.ORDENES,
+                  APP.SHEETS.OC_ITEMS, APP.SHEETS.OC_OFERTAS, APP.SHEETS.CUENTAS_PAGAR,
+                  APP.SHEETS.NOTIFICACIONES, APP.SHEETS.ASISTENCIA, APP.SHEETS.FIDEL_HIST];
+    vaciar.forEach(function (nombre) {
+      var hoja = ss.getSheetByName(nombre);
+      if (hoja && hoja.getLastRow() > 1) hoja.deleteRows(2, hoja.getLastRow() - 1);
+    });
+
+    // Numeración en cero.
+    var num = ss.getSheetByName(APP.SHEETS.NUMERACION);
+    if (num && num.getLastRow() > 1) {
+      var ultima = num.getLastColumn();
+      var rango = num.getRange(2, 1, num.getLastRow() - 1, ultima);
+      var datos = rango.getValues().map(function (f) { f[2] = 0; return f; });
+      rango.setValues(datos);
+    }
+
+    configGuardar_('ASISTENTE_COMPLETADO', 'No');
+    SpreadsheetApp.flush();
+    var resumen = {
+      modo: 'DEMO_BORRADA',
+      usuariosConservados: dbLeer_(APP.SHEETS.USUARIOS).length,
+      productos: dbLeer_(APP.SHEETS.PRODUCTOS).length,
+      movimientos: dbLeer_(APP.SHEETS.MOVIMIENTOS).length
+    };
+    console.log('borrarDatosDemo OK: ' + JSON.stringify(resumen));
+    return resumen;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Adenda 1.5 — Estado del sistema para el ASISTENTE DE INICIO.
+ * Devuelve conteos de catálogos y si el asistente está pendiente
+ * (sistema sin productos y con la marca ASISTENTE_COMPLETADO = No).
+ */
+function sistemaEstado_(c) {
+  requiereSesion_(c);
+  var activos = function (f) { return String(f.estado || '').toUpperCase() === 'ACTIVO'; };
+  var productos = dbLeer_(APP.SHEETS.PRODUCTOS);
+  var cfg = configLeer_();
+  var completado = String(cfg.ASISTENTE_COMPLETADO || 'No').trim().toUpperCase();
+  var esSi = completado === 'SÍ' || completado === 'SI';
+  var productosActivos = productos.filter(activos).length;
+  return appOk_({
+    version: APP.VERSION,
+    asistenteCompletado: esSi,
+    necesitaAsistente: !esSi && productosActivos === 0,
+    conteo: {
+      productos: productosActivos,
+      almacenes: dbLeer_(APP.SHEETS.ALMACENES).filter(activos).length,
+      categorias: dbLeer_(APP.SHEETS.CATEGORIAS).filter(activos).length,
+      clientes: dbLeer_(APP.SHEETS.CLIENTES).filter(activos).length,
+      usuarios: dbLeer_(APP.SHEETS.USUARIOS).filter(activos).length,
+      ventas: dbLeer_(APP.SHEETS.VENTAS).filter(function (v) { return String(v.estado).toUpperCase() === 'EMITIDA'; }).length
+    }
+  });
 }
 
 /**
@@ -308,12 +487,6 @@ function crearHojaSiFalta_(ss, nombre, cabeceras) {
 }
 
 function sembrarCatalogos_() {
-  if (dbLeer_(APP.SHEETS.PRODUCTOS).length > 0) {
-    var mapExistente = {};
-    dbLeer_(APP.SHEETS.PRODUCTOS).forEach(function (p) { mapExistente[p.sku] = p.id; });
-    return mapExistente;
-  }
-
   // Config
   Object.keys(CONFIG_CLAVES).forEach(function (k) { configGuardar_(k, CONFIG_CLAVES[k]); });
 
@@ -326,9 +499,9 @@ function sembrarCatalogos_() {
   ];
   usuarios.forEach(function (u) {
     var salt = Utilities.getUuid().replace(/-/g, '').substring(0, 16);
-    dbInsertar_(APP.SHEETS.USUARIOS, {
+    insertarUsuario_({
       id: u[0], usuario: u[1], nombre: u[2], rol: u[3],
-      salt: salt, hash: hashSha256_(salt + u[4]),
+      salt: salt, hash: hashV2_(salt, u[4]),
       estado: 'ACTIVO', ultimoAcceso: '', creado: fechaNow_()
     });
   });
@@ -389,15 +562,9 @@ function sembrarCajaDemo_() {
 
 /** Reproduce los movimientos semilla (ordenados por día) con el motor real. */
 function sembrarMovimientos_() {
-  if (dbLeer_(APP.SHEETS.MOVIMIENTOS).length > 0) return;
-
   var prods = dbLeer_(APP.SHEETS.PRODUCTOS);
   var skuAId = {};
-  var skuAProd = {};
-  prods.forEach(function (p) {
-    skuAId[p.sku] = p.id;
-    skuAProd[p.sku] = p;
-  });
+  prods.forEach(function (p) { skuAId[p.sku] = p.id; });
 
   var todos = SEED_MOVIMIENTOS.concat(SEED_MOVIMIENTOS_EXTRA);
   todos.sort(function (a, b) {
@@ -418,14 +585,9 @@ function sembrarMovimientos_() {
       venc = Utilities.formatDate(new Date(fechaMov.getTime() + vencDias * 86400000), APP.TZ, 'yyyy-MM-dd');
     }
 
-    var prod = skuAProd[sku] || dbPorId_(APP.SHEETS.PRODUCTOS, skuAId[sku]);
-    var reqLote = prod ? boolStr_(prod.requiereLote) : false;
-    var reqSerie = prod ? boolStr_(prod.requiereSerie) : false;
-
     var datos = {
       tipo: tipo,
       productoId: skuAId[sku],
-      producto: prod,
       cantidad: cantidad,
       costoUnitario: costo,
       lote: lote || '',
@@ -436,10 +598,7 @@ function sembrarMovimientos_() {
       documentoRef: docRef || '',
       observaciones: 'Carga inicial de demostración',
       motivo: tipo === 'AJUSTE_NEGATIVO' ? 'Merma por unidades dañadas' : (tipo === 'AJUSTE_POSITIVO' ? 'Ajuste por conteo físico' : ''),
-      fechaOverride: fechaMov,
-      requiereLote: reqLote,
-      requiereSerie: reqSerie,
-      permitirNegativo: true
+      fechaOverride: fechaMov
     };
 
     var sesU = Object.assign({}, sesSeed, { usuario: usuario });
@@ -611,5 +770,125 @@ function migrarAdendaV13_() {
     }
   });
 
+  return res;
+}
+
+/* ------------------- ADENDA 1.6: LOCALIZACIÓN, SUNAT, FINANZAS ------------------- */
+
+/**
+ * Migración v1.6 (idempotente; se ejecuta sola en setupSystem /
+ * setupDesdeCero, o manualmente con migrarAdendaV16()):
+ *   · Crea las pestañas nuevas (Comprobantes, Cuotas, Gastos, Cajas de
+ *     categorías de gasto, Órdenes de compra + items/ofertas, Cuentas
+ *     por pagar, Notificaciones, Asistencia, Vendedores, FidHistorial
+ *     y Presupuesto) si faltan.
+ *   · Columnas nuevas: Productos (escalas de precio, fraccionamiento y
+ *     código de barras), Clientes (puntos), Ventas (vendedor, puntos y
+ *     comprobante), VentaDetalle (unidad de venta/factor).
+ *   · Numeración: FACTURA, NOTA_CREDITO, NOTA_DEBITO, ORDEN_COMPRA.
+ *   · Semillas: categorías de gasto + claves de configuración 1.6.
+ */
+function migrarAdendaV16() {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(120000);
+  try {
+    var r = migrarAdendaV16_();
+    console.log('migrarAdendaV16 OK: ' + JSON.stringify(r));
+    return r;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function migrarAdendaV16_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var res = { pestanas: [], columnas: [], numeracion: false, categoriasGasto: 0, claves: [] };
+
+  // 1) Pestañas nuevas.
+  Object.keys(CABECERAS).forEach(function (nombre) {
+    if (['Comprobantes', 'Cuotas', 'Gastos', 'GastosCategorias', 'OrdenesCompra', 'OcItems',
+         'OcOfertas', 'CuentasPagar', 'Notificaciones', 'Asistencia', 'Vendedores',
+         'FidHistorial', 'Presupuesto'].indexOf(nombre) !== -1) {
+      if (!ss.getSheetByName(nombre)) {
+        crearHojaSiFalta_(ss, nombre, CABECERAS[nombre]);
+        res.pestanas.push(nombre);
+      }
+    }
+  });
+
+  // 2) Columnas nuevas en pestañas existentes.
+  function ensureCol(nombreHoja, col, defecto) {
+    var hoja = ss.getSheetByName(nombreHoja);
+    if (!hoja) return;
+    var ultima = hoja.getLastColumn();
+    var cab = hoja.getRange(1, 1, 1, ultima).getValues()[0].map(function (h) { return String(h).trim(); });
+    if (cab.indexOf(col) !== -1) return;
+    hoja.insertColumnAfter(ultima);
+    hoja.getRange(1, ultima + 1).setValue(col);
+    if (defecto !== undefined && defecto !== '') {
+      var nFilas = hoja.getLastRow();
+      if (nFilas > 1) hoja.getRange(2, ultima + 1, nFilas - 1).setValue(defecto);
+    }
+    res.columnas.push(nombreHoja + '.' + col);
+  }
+  ensureCol(APP.SHEETS.PRODUCTOS, 'precio2', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'escala2Min', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'precio3', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'escala3Min', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'fraccionActiva', 'No');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'unidadFraccion', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'factorFraccion', '');
+  ensureCol(APP.SHEETS.PRODUCTOS, 'codigoBarras', '');
+  ensureCol(APP.SHEETS.CLIENTES, 'puntos', 0);
+  ensureCol(APP.SHEETS.CLIENTES, 'tipoPrecio', '');
+  ensureCol(APP.SHEETS.VENTAS, 'vendedor', '');
+  ensureCol(APP.SHEETS.VENTAS, 'puntosUsados', 0);
+  ensureCol(APP.SHEETS.VENTAS, 'puntosGanados', 0);
+  ensureCol(APP.SHEETS.VENTAS, 'tipoComprobante', '');
+  ensureCol(APP.SHEETS.VENTAS, 'compNumero', '');
+  ensureCol(APP.SHEETS.VENTAS, 'guiaRemision', '');
+  ensureCol(APP.SHEETS.VENTA_DETALLE, 'unidadVenta', '');
+  ensureCol(APP.SHEETS.VENTA_DETALLE, 'factorFraccion', '');
+
+  // 3) Numeración de comprobantes y órdenes.
+  var filasNum = dbLeer_(APP.SHEETS.NUMERACION);
+  var tipos = {};
+  filasNum.forEach(function (f) { tipos[String(f.tipo).toUpperCase()] = true; });
+  if (!tipos['FACTURA'])       dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'FACTURA',       prefijo: 'F001', correlativo: 0 });
+  if (!tipos['NOTA_CREDITO'])  dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'NOTA_CREDITO',  prefijo: 'FC01', correlativo: 0 });
+  if (!tipos['NOTA_DEBITO'])   dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'NOTA_DEBITO',   prefijo: 'FD01', correlativo: 0 });
+  if (!tipos['ORDEN_COMPRA'])  dbInsertar_(APP.SHEETS.NUMERACION, { tipo: 'ORDEN_COMPRA',  prefijo: 'OC-',  correlativo: 0 });
+  res.numeracion = true;
+
+  // 4) Categorías de gasto por defecto.
+  var cats = dbLeer_(APP.SHEETS.GASTOS_CATEGORIAS);
+  if (!cats.length) {
+    SEED_GASTOS_CATEGORIAS.forEach(function (c, i) {
+      dbInsertar_(APP.SHEETS.GASTOS_CATEGORIAS, {
+        id: 'GCA-' + String(i + 1).padStart(3, '0'), nombre: c[0], tipo: c[1], estado: 'ACTIVO'
+      });
+    });
+    res.categoriasGasto = SEED_GASTOS_CATEGORIAS.length;
+  }
+
+  // 5) Claves de configuración 1.6.
+  var claves16 = ['PAIS', 'IMPUESTO_NOMBRE', 'SERIE_BOLETA', 'SERIE_FACTURA', 'SERIE_NC', 'SERIE_ND',
+    'COMPROBANTE_AUTO', 'SUNAT_MODO', 'SUNAT_API_URL', 'SUNAT_API_USUARIO', 'SUNAT_API_PASSWORD',
+    'SUNAT_COMPANY_ID', 'SUNAT_BRANCH_ID', 'SUNAT_METODO_ENVIO', 'SUNAT_TIPO_OPERACION',
+    'TC_USD', 'TC_FECHA', 'TC_API_URL', 'QR_YAPE_NUMERO', 'QR_PLIN_NUMERO', 'QR_BANCO',
+    'FIDEL_ACTIVA', 'FIDEL_MONTO_PUNTO', 'FIDEL_VALOR_PUNTO', 'FIDEL_MIN_CANJE',
+    'RECORD_ACTIVO', 'RECORD_EMAIL', 'BACKUP_ACTIVO', 'BACKUP_RETENCION',
+    'CATALOGO_ACTIVO', 'CATALOGO_TOKEN', 'CATALOGO_MENSAJE', 'ALMACEN_RECEPCION'];
+  var filasCfg = dbLeer_(APP.SHEETS.CONFIG);
+  var existentes = {};
+  filasCfg.forEach(function (f) { existentes[String(f.clave)] = true; });
+  claves16.forEach(function (k) {
+    if (!existentes[k]) {
+      dbInsertar_(APP.SHEETS.CONFIG, { clave: k, valor: CONFIG_CLAVES[k] });
+      res.claves.push(k);
+    }
+  });
+
+  SpreadsheetApp.flush();
   return res;
 }

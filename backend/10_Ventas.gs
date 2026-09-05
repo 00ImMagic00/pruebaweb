@@ -43,6 +43,9 @@ function empresaSnapshot_(cfg) {
   return {
     razonSocial: cfg.RAZON_SOCIAL || cfg.NOMBRE_EMPRESA || '',
     ruc: cfg.RUC || '',
+    /* Adenda 1.5: contacto impreso en la cabecera del PDF de proforma. */
+    direccion: cfg.DIRECCION_EMPRESA || '',
+    telefono: cfg.TELEFONO_EMPRESA || '',
     logoUrl: cfg.LOGO_URL || '',
     logoBase64: cfg.LOGO_BASE64 || '',
     moneda: cfg.MONEDA_SIMBOLO || 'S/',
@@ -77,7 +80,7 @@ function calcularTotalesVenta_(cfg, bruto) {
 
 /** Resuelve el cliente de la boleta (registro existente o Público General). */
 function clienteDeVenta_(clienteId, clienteNombreOverride) {
-  var docTipo = 'DNI', docNumero = '00000000', nombre = 'Público General', id = '', telefono = '';
+  var docTipo = 'DNI', docNumero = '00000000', nombre = 'Público General', id = '', telefono = '', direccion = '';
   if (clienteId && String(clienteId) !== 'PUBLICO') {
     var cli = dbPorId_(APP.SHEETS.CLIENTES, clienteId);
     if (!cli) throw new ApiError_('Cliente no encontrado: ' + clienteId, 'NOT_FOUND');
@@ -86,10 +89,11 @@ function clienteDeVenta_(clienteId, clienteNombreOverride) {
     docNumero = cli.documento || docNumero;
     docTipo = String(docNumero).length === 11 ? 'RUC' : 'DNI';
     telefono = String(cli.telefono || '').trim();
+    direccion = String(cli.direccion || '').trim();
   } else if (clienteNombreOverride) {
     nombre = String(clienteNombreOverride);
   }
-  return { id: id, docTipo: docTipo, docNumero: docNumero, nombre: nombre, telefono: telefono };
+  return { id: id, docTipo: docTipo, docNumero: docNumero, nombre: nombre, telefono: telefono, direccion: direccion };
 }
 
 /* ------------------- Autorización de supervisor (Adenda 1.2) ------------------- */
@@ -107,20 +111,26 @@ function validarAutorizacion_(auth) {
   if (!usuario || !password) {
     throw new ApiError_('Esta venta incluye descuentos o regalos que requieren la autorización de un gerente o administrador.', 'AUTORIZACION');
   }
+  /* Fuerza bruta: un operador no puede adivinar credenciales de supervisor. */
+  if (rlBloqueado_('autorizar', usuario)) {
+    throw new ApiError_('Demasiados intentos de autorización fallidos. Espere 5 minutos antes de reintentar.', 'RATE_LIMIT');
+  }
   var usuarios = dbLeer_(APP.SHEETS.USUARIOS);
   var fila = null;
   for (var i = 0; i < usuarios.length; i++) {
-    if (String(usuarios[i].usuario).toLowerCase() === usuario) { fila = usuarios[i]; break; }
+    if (String(usuarios[i].usuario).trim().toLowerCase() === usuario) { fila = usuarios[i]; break; }
   }
-  if (!fila || String(fila.estado).toUpperCase() !== 'ACTIVO' ||
+  if (!fila || String(fila.estado).trim().toUpperCase() !== 'ACTIVO' ||
       !verificarPassword_(password, fila.salt, fila.hash)) {
+    rlRegistrarFallo_('autorizar', usuario);
     throw new ApiError_('Credenciales del supervisor inválidas. La venta requiere autorización de admin/gerente.', 'AUTORIZACION');
   }
-  var rol = String(fila.rol).toLowerCase();
+  rlLimpiar_('autorizar', usuario);
+  var rol = String(fila.rol).trim().toLowerCase();
   if (['admin', 'gerente'].indexOf(rol) === -1) {
     throw new ApiError_('El usuario "' + fila.usuario + '" (' + rol + ') no tiene autoridad para aprobar descuentos ni regalos.', 'FORBIDDEN');
   }
-  return fila.nombre + ' (' + fila.usuario + ')';
+  return fila.nombre + ' (' + String(fila.usuario).trim() + ')';
 }
 
 /* ---------------------- Registrar venta (POS) ---------------------- */
@@ -156,7 +166,7 @@ function registrarVentaCore_(ses, c) {
     if (!almacen || String(almacen.estado).toUpperCase() !== 'ACTIVO') {
       throw new ApiError_('El almacén de venta "' + almacenVenta + '" no existe o está inactivo. Revise ALMACEN_VENTA en Configuración.', 'VALIDATION');
     }
-    var permitirNegativo = String(cfg.PERMITIR_STOCK_NEGATIVO).toUpperCase() === 'SI' || String(cfg.PERMITIR_STOCK_NEGATIVO).toUpperCase() === 'YES';
+    var permitirNegativo = boolStr_(cfg.PERMITIR_STOCK_NEGATIVO);
 
     /* --- 1) Validación de ítems, precios, descuentos, regalos y stock --- */
     var lineas = [];
@@ -171,36 +181,69 @@ function registrarVentaCore_(ses, c) {
       var cant = numero_(it.cantidad, 0);
       if (cant <= 0) throw new ApiError_('Cantidad inválida para "' + prod.nombre + '".', 'VALIDATION');
 
-      /* Adenda 1.2: precio editable + REGALO (precio 0, sigue descontando stock). */
+      /* Adenda 1.6: fraccionamiento — vender en unidad secundaria
+       * (ej. compro caja x24 y vender por unidad: factor 24). */
+      var factor = Math.max(1, numero_(it.factorFraccion, 1) || 1);
+      var unidadVenta = String(it.unidadVenta || prod.unidad || '').trim() || String(prod.unidad);
+      var cantBase = redondear_(cant * factor, 3);
+
+      /* Adenda 1.2: precio editable + REGALO (precio 0, sigue descontando stock).
+       * Adenda 1.6: precios por escala (mayorista) automáticos según cantidad. */
       var esRegalo = boolStr_(it.esRegalo);
       var precioOrig = numero_(prod.precioVenta);
-      var precio = esRegalo ? 0 : ((it.precio === '' || it.precio === undefined || it.precio === null) ? precioOrig : numero_(it.precio));
+      var precioAuto = '';
+      var precio;
+      if (esRegalo) {
+        precio = 0;
+      } else if (it.precio === '' || it.precio === undefined || it.precio === null) {
+        if (factor > 1) {
+          /* Venta por bulto: el precio se multiplica por el factor */
+          precio = redondear_(precioOrig * factor, 2);
+        } else {
+          precio = precioOrig;
+          if (numero_(prod.escala3Min) > 0 && cant >= numero_(prod.escala3Min) && numero_(prod.precio3) > 0) {
+            precio = numero_(prod.precio3); precioAuto = 'escala 3';
+          } else if (numero_(prod.escala2Min) > 0 && cant >= numero_(prod.escala2Min) && numero_(prod.precio2) > 0) {
+            precio = numero_(prod.precio2); precioAuto = 'escala 2';
+          }
+        }
+      } else {
+        precio = numero_(it.precio);
+      }
       if (precio < 0) throw new ApiError_('Precio inválido para "' + prod.nombre + '".', 'VALIDATION');
+
+      /* Precio de referencia para el descuento (por unidad de venta). */
+      var precioRef = factor > 1 ? redondear_(precioOrig * factor, 2) : precioOrig;
       var desc = esRegalo ? 0 : Math.max(0, numero_(it.descuento, 0));
       var importe = redondear_(cant * precio - desc);
       if (importe < 0) throw new ApiError_('El descuento de la línea "' + prod.nombre + '" excede su importe.', 'VALIDATION');
-      var descLinea = redondear_(cant * precioOrig - importe);
+      var descLinea = redondear_(Math.max(0, cant * precioRef - importe));
 
       var disponible = stockCantidad_(prod.id, almacenVenta);
-      if (!permitirNegativo && cant > disponible) {
+      if (!permitirNegativo && cantBase > disponible) {
         throw new ApiError_('Stock insuficiente de "' + prod.nombre + '" en ' + almacen.nombre + '. Disponible: ' + disponible + ' ' + prod.unidad + '.', 'VALIDATION');
       }
       bruto += importe;
       descuentoTotal = redondear_(descuentoTotal + descLinea);
 
-      /* ¿Requiere autorización de gerente? (regalo, precio bajo mínimo o
-       * descuento que excede DESCUENTO_MAX_PCT si la política está activa) */
+      /* ¿La línea usa una escala mayorista válida? (no exige gerente) */
+      var escalaPermite = false;
+      if (numero_(prod.escala2Min) > 0 && cant >= numero_(prod.escala2Min) && numero_(prod.precio2) > 0 && precio >= numero_(prod.precio2) - 0.001) escalaPermite = true;
+      else if (numero_(prod.escala3Min) > 0 && cant >= numero_(prod.escala3Min) && numero_(prod.precio3) > 0 && precio >= numero_(prod.precio3) - 0.001) escalaPermite = true;
+
+      /* ¿Requiere autorización de gerente? (regalo, precio bajo el mínimo
+       * fuera de escala o descuento que excede DESCUENTO_MAX_PCT) */
       var motivoAut = '';
       if (esRegalo && boolStr_(cfg.REGALO_REQUIERE_AUTORIZACION)) {
         motivoAut = 'regalo';
       } else {
         var precioMin = numero_(prod.precioMinimo);
-        if (precioMin > 0 && precio < precioMin) {
+        if (precioMin > 0 && precio < precioMin && !escalaPermite) {
           motivoAut = 'precio bajo el mínimo (' + cfg.MONEDA_SIMBOLO + ' ' + precioMin.toFixed(2) + ')';
         } else {
           var maxPct = numero_(cfg.DESCUENTO_MAX_PCT, 0);
-          if (boolStr_(cfg.DESCUENTO_REQUIERE_AUTORIZACION) && maxPct > 0 && cant * precioOrig > 0) {
-            var pct = (descLinea / (cant * precioOrig)) * 100;
+          if (boolStr_(cfg.DESCUENTO_REQUIERE_AUTORIZACION) && maxPct > 0 && cant * precioRef > 0) {
+            var pct = (descLinea / (cant * precioRef)) * 100;
             if (pct > maxPct) motivoAut = 'descuento ' + pct.toFixed(1) + '% > ' + maxPct + '%';
           }
         }
@@ -209,7 +252,8 @@ function registrarVentaCore_(ses, c) {
 
       lineas.push({
         productoId: prod.id, sku: prod.sku, descripcion: prod.nombre, unidad: prod.unidad,
-        cantidad: cant, precioUnit: precio, precioOriginal: precioOrig,
+        cantidad: cantBase, cantVenta: cant, unidadVenta: unidadVenta, factorFraccion: factor,
+        precioUnit: precio, precioOriginal: precioRef,
         esRegalo: esRegalo, descuento: desc, subtotal: importe, descLinea: descLinea,
         requiereLote: boolStr_(prod.requiereLote), producto: prod
       });
@@ -225,7 +269,23 @@ function registrarVentaCore_(ses, c) {
     var corB = siguienteCorrelativo_('BOLETA');
     var corV = siguienteCorrelativo_('VENTA');
     var boleta = corB.texto;
-    var totales = calcularTotalesVenta_(cfg, bruto);
+
+    var cliente = clienteDeVenta_(c.clienteId, c.clienteNombre);
+
+    /* Adenda 1.6: canje de puntos de fidelización (descuento global). */
+    var puntosUsados = 0, descuentoCanje = 0;
+    if (boolStr_(cfg.FIDEL_ACTIVA) && cliente.id && entero_(c.puntosUsar, 0) > 0) {
+      var cliP = dbPorId_(APP.SHEETS.CLIENTES, cliente.id) || {};
+      var saldoPts = entero_(cliP.puntos);
+      puntosUsados = entero_(c.puntosUsar);
+      var minCanje = entero_(cfg.FIDEL_MIN_CANJE, 0);
+      if (puntosUsados < minCanje) throw new ApiError_('El canje mínimo es de ' + minCanje + ' puntos.', 'VALIDATION');
+      if (puntosUsados > saldoPts) throw new ApiError_('El cliente solo tiene ' + saldoPts + ' puntos disponibles.', 'VALIDATION');
+      descuentoCanje = redondear_(Math.min(puntosUsados * numero_(cfg.FIDEL_VALOR_PUNTO, 0), bruto));
+    }
+
+    var totales = calcularTotalesVenta_(cfg, Math.max(0, bruto - descuentoCanje));
+    descuentoTotal = redondear_(descuentoTotal + descuentoCanje);
 
     var montoRecibido = numero_(c.montoRecibido, 0);
     if (metodoPago === 'Efectivo' && montoRecibido > 0 && montoRecibido < totales.total) {
@@ -233,7 +293,6 @@ function registrarVentaCore_(ses, c) {
     }
     var vuelto = (metodoPago === 'Efectivo' && montoRecibido > 0) ? redondear_(montoRecibido - totales.total) : 0;
 
-    var cliente = clienteDeVenta_(c.clienteId, c.clienteNombre);
     var fecha = fechaNow_();
     var ventaId = corV.texto;
 
@@ -253,6 +312,14 @@ function registrarVentaCore_(ses, c) {
         throw new ApiError_('Límite de fiado excedido para "' + cliFila.razonSocial + '". Saldo actual: ' + saldoActual.toFixed(2) + ' · Límite: ' + limite.toFixed(2) + ' · Esta venta: ' + totales.total.toFixed(2) + '.', 'VALIDATION');
       }
       estadoPago = 'FIADO';
+    }
+
+    /* Adenda 1.6: venta a crédito con plan de cuotas (CxC). */
+    if (metodoPago === 'Credito') {
+      if (!cliente.id) {
+        throw new ApiError_('La venta a crédito requiere un cliente registrado en el catálogo (no "Público General").', 'VALIDATION');
+      }
+      estadoPago = 'CREDITO';
     }
 
     /* --- 3) Descarga de stock con el motor real (SALIDA por ítem) --- */
@@ -282,6 +349,7 @@ function registrarVentaCore_(ses, c) {
       detalle.push({
         id: '', ventaId: ventaId, productoId: lin.productoId, sku: lin.sku,
         descripcion: lin.descripcion, cantidad: lin.cantidad,
+        unidadVenta: lin.unidadVenta, factorFraccion: lin.factorFraccion,
         precioUnit: lin.precioUnit, precioOriginal: lin.precioOriginal,
         esRegalo: lin.esRegalo ? 'Sí' : 'No', descuento: lin.descuento, subtotal: lin.subtotal,
         costoUnit: res.costoUnitario,   // Adenda 1.3: costo real de la salida (rentabilidad)
@@ -297,7 +365,10 @@ function registrarVentaCore_(ses, c) {
       subtotal: totales.subtotal, igv: totales.igv, total: totales.total,
       descuentoTotal: descuentoTotal, metodoPago: metodoPago, montoRecibido: redondear_(montoRecibido), vuelto: vuelto,
       almacenId: almacenVenta, usuario: ses.usuario, autorizadoPor: autorizadoPor, estado: 'EMITIDA', anuladoMotivo: '',
-      estadoPago: estadoPago, enviadoWhatsapp: 'No'
+      estadoPago: estadoPago, enviadoWhatsapp: 'No',
+      vendedor: String(c.vendedorUsuario || ses.usuario).trim(),
+      puntosUsados: puntosUsados, puntosGanados: 0,
+      tipoComprobante: '', compNumero: '', guiaRemision: ''
     };
     dbInsertar_(APP.SHEETS.VENTAS, venta);
     for (var k = 0; k < detalle.length; k++) {
@@ -311,6 +382,53 @@ function registrarVentaCore_(ses, c) {
       dbActualizar_(APP.SHEETS.CLIENTES, cliente.id, { saldoFiado: redondear_(numero_(cliRef.saldoFiado) + totales.total) });
     }
 
+    /* --- 5) Adenda 1.6: fidelización, cuotas, comprobante y avisos --- */
+    var puntosGanados = 0;
+    if (boolStr_(cfg.FIDEL_ACTIVA) && cliente.id) {
+      if (puntosUsados > 0) {
+        var saldoTrasCanje = Math.max(0, entero_((dbPorId_(APP.SHEETS.CLIENTES, cliente.id) || {}).puntos) - puntosUsados);
+        dbActualizar_(APP.SHEETS.CLIENTES, cliente.id, { puntos: saldoTrasCanje });
+        fidelHistorialInsertar_(cliente, 'CANJE', -puntosUsados, venta.id, 'Canje venta ' + venta.boleta, saldoTrasCanje);
+      }
+      var porPunto = numero_(cfg.FIDEL_MONTO_PUNTO, 0);
+      puntosGanados = porPunto > 0 ? Math.floor(Math.max(0, totales.total) / porPunto) : 0;
+      if (puntosGanados > 0) {
+        var saldoFinal = entero_((dbPorId_(APP.SHEETS.CLIENTES, cliente.id) || {}).puntos) + puntosGanados;
+        dbActualizar_(APP.SHEETS.CLIENTES, cliente.id, { puntos: saldoFinal });
+        fidelHistorialInsertar_(cliente, 'ACUMULO', puntosGanados, venta.id, 'Acumulación venta ' + venta.boleta, saldoFinal);
+      }
+      dbActualizar_(APP.SHEETS.VENTAS, venta.id, { puntosUsados: puntosUsados, puntosGanados: puntosGanados });
+    }
+
+    /* Plan de cuotas para ventas a crédito (Cuentas por cobrar). */
+    var planCuotas = [];
+    if (estadoPago === 'CREDITO') {
+      var plan = c.planCredito || {};
+      planCuotas = generarPlanCuotas_(venta, {
+        cuotas: plan.cuotas || c.cuotas || 1,
+        diasEntre: plan.diasEntre || c.diasEntreCuotas || 15,
+        fechaInicio: plan.fechaInicio || c.fechaInicioCredito || '',
+        observaciones: plan.observaciones || ''
+      });
+    }
+
+    /* Comprobante electrónico (Perú / SUNAT) si está activado. */
+    var comprobante = comprobanteRegistrarDespuesDeVenta_(ses, cfg, venta, detalle);
+    if (comprobante && comprobante.numero) {
+      dbActualizar_(APP.SHEETS.VENTAS, venta.id, { tipoComprobante: comprobante.tipo, compNumero: comprobante.numero });
+      venta.tipoComprobante = comprobante.tipo;
+      venta.compNumero = comprobante.numero;
+    }
+
+    /* Avisos flotantes: productos que quedaron en stock crítico. */
+    var avisos = [];
+    lineas.forEach(function (lin) {
+      var disp = stockCantidad_(lin.productoId, almacenVenta);
+      if (numero_(lin.producto.stockMin) > 0 && disp <= numero_(lin.producto.stockMin)) {
+        avisos.push(lin.descripcion + ' quedó en stock crítico (' + disp + ' ' + lin.unidad + ')');
+      }
+    });
+
     registrarAuditoria_(ses.usuarioId, ses.usuario, ses.rol, 'VENTA',
       'Emitió boleta ' + boleta + ' por ' + cfg.MONEDA_SIMBOLO + ' ' + totales.total + ' (' + metodoPago + ')' +
       (estadoPago === 'FIADO' ? ' [FIADO]' : '') +
@@ -322,7 +440,13 @@ function registrarVentaCore_(ses, c) {
       venta: serializarVenta_(venta, almacen.nombre, cfg),
       detalle: detalle,
       empresa: empresaSnapshot_(cfg),
-      almacenVenta: almacen.nombre
+      almacenVenta: almacen.nombre,
+      /* Adenda 1.6: extras para notificaciones y comprobantes */
+      comprobante: comprobante,
+      puntosUsados: puntosUsados,
+      puntosGanados: puntosGanados,
+      cuotas: planCuotas.length,
+      avisos: avisos
     });
   } finally {
     lock.releaseLock();
@@ -333,7 +457,7 @@ function serializarVenta_(v, almacenNombre, cfg) {
   return {
     id: v.id, boleta: v.boleta, fecha: fechaStr_(v.fecha),
     clienteId: v.clienteId, clienteDocTipo: v.clienteDocTipo, clienteDocNumero: v.clienteDocNumero, clienteNombre: v.clienteNombre,
-    clienteTelefono: String(v.clienteTelefono || ''),
+    clienteTelefono: String(v.clienteTelefono || ''), clienteDireccion: String(v.clienteDireccion || ''),
     subtotal: numero_(v.subtotal), igv: numero_(v.igv), total: numero_(v.total),
     descuentoTotal: numero_(v.descuentoTotal),
     metodoPago: v.metodoPago, montoRecibido: numero_(v.montoRecibido), vuelto: numero_(v.vuelto),
@@ -341,6 +465,10 @@ function serializarVenta_(v, almacenNombre, cfg) {
     usuario: v.usuario, autorizadoPor: v.autorizadoPor || '', estado: v.estado, anuladoMotivo: v.anuladoMotivo,
     estadoPago: String(v.estadoPago || (String(v.metodoPago) === 'Fiado' ? 'FIADO' : 'PAGADO')),
     enviadoWhatsapp: String(v.enviadoWhatsapp || 'No'),
+    vendedor: String(v.vendedor || v.usuario || ''),
+    puntosUsados: entero_(v.puntosUsados), puntosGanados: entero_(v.puntosGanados),
+    tipoComprobante: String(v.tipoComprobante || ''), compNumero: String(v.compNumero || ''),
+    guiaRemision: String(v.guiaRemision || ''),
     igvIncluido: boolStr_(cfg && cfg.IGV_INCLUIDO), igvTasa: cfg ? numero_(cfg.IGV_TASA, 18) : 18
   };
 }

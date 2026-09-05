@@ -12,12 +12,12 @@
  *       API_URL: 'https://script.google.com/macros/s/AKfy.../exec'
  */
 var CONFIG_APP = {
-  API_URL: 'https://script.google.com/macros/s/AKfycby10uueNeE3iYodjGm0sRZo5YKrAYLhiKiya53h480iUsZz7Y0Iqf8_UQnEGTgcTro5/exec',
+  API_URL: '',                       // <-- URL del Web App de Google Apps Script
   NOMBRE_APP: 'NexoERP',
-  VERSION: '1.4.0',
+  VERSION: '1.6.1',
   TOKEN_CLAVE: 'nexoerp_token',
   USUARIO_CLAVE: 'nexoerp_user',
   EXPIRA_CLAVE: 'nexoerp_expira',
-  DB_DEMO: 'nexoerp_demo_db_v4',     // v1.4: documentos PDF/PNG y categorías (sin cambios de datos)
+  DB_DEMO: 'nexoerp_demo_db_v6',     // v1.6: comprobantes, gastos, OC, cuotas, RRHH, fidelización
   TTL_TOKEN_HORAS: 8
 };

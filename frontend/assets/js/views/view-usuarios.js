@@ -48,6 +48,8 @@
       guardar: async function () {
         if (!this.form.usuario.trim() || !this.form.nombre.trim()) { AppStore.toast('Usuario y nombre son obligatorios.', 'warning'); return; }
         if (!this.form.id && !this.form.password) { AppStore.toast('Defina una contraseña para el nuevo usuario.', 'warning'); return; }
+        if (this.form.password && this.form.password.length < 6) { AppStore.toast('La contraseña debe tener al menos 6 caracteres.', 'warning'); return; }
+        if (this.form.password && this.form.password.trim().toLowerCase() === this.form.usuario.trim().toLowerCase()) { AppStore.toast('La contraseña no puede ser igual al nombre de usuario.', 'warning'); return; }
         this.guardando = true;
         try {
           await Api.guardarUsuario(this.form);

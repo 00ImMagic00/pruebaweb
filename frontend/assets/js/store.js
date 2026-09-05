@@ -20,7 +20,12 @@ var AppStore = (function () {
     menuAbierto: false,        // sidebar móvil
     toasts: [],
     confirmacion: null,        // {titulo, mensaje, okLabel, peligro, resolve}
-    cargandoGlobal: false
+    cargandoGlobal: false,
+    /* Adenda 1.6: notificaciones flotantes y estado de conexión */
+    enLinea: (typeof navigator !== 'undefined' && navigator.onLine !== false),
+    pendientesOffline: 0,
+    notificaciones: [],        // centro de avisos (campana)
+    noLeidas: 0
   });
 
   try {
@@ -37,6 +42,23 @@ var AppStore = (function () {
       if (i !== -1) estado.toasts.splice(i, 1);
     }, duracion || 3800);
   }
+
+  /* -------- Adenda 1.6: campana de notificaciones y conexión -------- */
+  async function cargarNotificaciones() {
+    try {
+      var res = await Api.notificaciones();
+      estado.notificaciones = res.notificaciones || [];
+      estado.noLeidas = res.noLeidas || 0;
+    } catch (e) { /* silencioso: la campana es un plus, no un requisito */ }
+  }
+  window.addEventListener('online', function () {
+    estado.enLinea = true;
+    toast('Conexión restablecida.', 'exito');
+  });
+  window.addEventListener('offline', function () {
+    estado.enLinea = false;
+    toast('Sin conexión. Las ventas se guardarán en la cola local del navegador.', 'warning', 6000);
+  });
 
   /* ---------------- Confirmación (Promise) ---------------- */
   function confirmar(opciones) {
@@ -107,6 +129,7 @@ var AppStore = (function () {
   return {
     estado: estado,
     toast: toast,
+    cargarNotificaciones: cargarNotificaciones,
     confirmar: confirmar,
     guardarSesion: guardarSesion,
     limpiarSesion: limpiarSesion,

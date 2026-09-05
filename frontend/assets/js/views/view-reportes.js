@@ -8,15 +8,42 @@
 
   window.NEXO_VISTAS['reportes'] = {
     data: function () {
-      return { reporte: null, tipo: 'stock', almacenId: '', fechaDesde: '', fechaHasta: '', cargando: false, almacenes: [] };
+      return { reporte: null, tipo: 'stock', almacenId: '', fechaDesde: '', fechaHasta: '', cargando: false, almacenes: [],
+        /* Adenda 1.6 */
+        abc: null, muertos: null, muertosDias: 30, cargandoAna: false };
     },
     computed: {
       hayFilas: function () { return !!(this.reporte && this.reporte.filas && this.reporte.filas.length); }
     },
     async mounted() {
       try { this.almacenes = await Api.almacenes({}); } catch (e) { /* */ }
+      this.cargarAnalitica();
     },
     methods: {
+      /* Adenda 1.6: ABC y productos muertos */
+      cargarAnalitica: async function () {
+        this.cargandoAna = true;
+        try {
+          var res = await Promise.all([Api.analiticaAbc({}), Api.analiticaMuertos(this.muertosDias)]);
+          this.abc = res[0];
+          this.muertos = res[1];
+        } catch (e) { /* silencioso */ }
+        finally { this.cargandoAna = false; }
+      },
+      libroVentas: async function () {
+        var mes = prompt('Mes del libro de ventas (YYYY-MM):', new Date().toISOString().slice(0, 7));
+        if (!mes) return;
+        try {
+          var res = await Api.libroVentas(mes, 'CSV');
+          var blob = new Blob([res.contenido], { type: 'text/csv;charset=utf-8' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'libro_ventas_' + mes + '.csv';
+          a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          AppStore.toast('Libro de ventas ' + mes + ' descargado (' + res.filas + ' filas).', 'exito');
+        } catch (e) { AppStore.toast(e.message, 'error'); }
+      },
       cambiarTipo: function (t) { this.tipo = t; this.reporte = null; },
       generar: async function () {
         this.cargando = true;
@@ -68,9 +95,63 @@
 <div>
   <page-header titulo="Reportes Gerenciales" subtitulo="Exportación a CSV compatible con Excel y Google Sheets">
     <template #acciones>
+      <button type="button" class="btn-secundario" @click="libroVentas"><icon name="reportes" clase="w-4 h-4"></icon> Libro de ventas (CSV)</button>
       <button type="button" class="btn-secundario" :disabled="!hayFilas" @click="exportar"><icon name="download" clase="w-4 h-4"></icon> Exportar CSV</button>
     </template>
   </page-header>
+
+  <!-- Adenda 1.6: Curva ABC + Productos muertos -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-4">
+    <div class="nexo-card p-0 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+        <h3 class="font-semibold text-slate-800 text-sm flex items-center gap-2"><icon name="reportes" clase="w-4 h-4 text-blue-600"></icon> Curva ABC (Pareto de ingresos)</h3>
+        <span v-if="abc" class="text-xs text-slate-400">Total: {{ Utils.fmtMoneda(abc.total) }}</span>
+      </div>
+      <div class="max-h-64 overflow-y-auto nexo-scroll">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-xs uppercase text-slate-400 border-b border-slate-100">
+            <th class="px-4 py-2">Producto</th><th class="px-4 py-2 text-right">Ingresos</th><th class="px-4 py-2 text-center">Clase</th>
+          </tr></thead>
+          <tbody>
+            <tr v-for="p in (abc ? abc.productos.slice(0, 12) : [])" :key="p.sku" class="border-b border-slate-50 last:border-0">
+              <td class="px-4 py-1.5 truncate max-w-[220px]">{{ p.nombre }}</td>
+              <td class="px-4 py-1.5 text-right tabular-nums">{{ Utils.fmtMoneda(p.ingresos) }} <span class="text-[10px] text-slate-400">{{ p.pctAcumulado }}%</span></td>
+              <td class="px-4 py-1.5 text-center">
+                <span class="text-[10px] font-bold rounded px-1.5 py-0.5" :class="p.clase === 'A' ? 'bg-emerald-100 text-emerald-700' : p.clase === 'B' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'">{{ p.clase }}</span>
+              </td>
+            </tr>
+            <tr v-if="!abc || !abc.productos.length"><td colspan="3" class="px-4 py-4 text-center text-slate-400">Sin ventas registradas todavía.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="px-4 py-2 text-[11px] text-slate-400 border-t border-slate-50">A = 80% de ingresos · B = 15% · C = 5%. Enfoca el capital en la clase A.</p>
+    </div>
+
+    <div class="nexo-card p-0 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+        <h3 class="font-semibold text-slate-800 text-sm flex items-center gap-2"><icon name="warning" clase="w-4 h-4 text-rose-500"></icon> Productos muertos ({{ muertosDias }} días sin ventas)</h3>
+        <select v-model="muertosDias" class="input-texto w-auto py-1 text-xs" @change="cargarAnalitica">
+          <option :value="30">30 días</option><option :value="60">60 días</option><option :value="90">90 días</option>
+        </select>
+      </div>
+      <div class="max-h-64 overflow-y-auto nexo-scroll">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-xs uppercase text-slate-400 border-b border-slate-100">
+            <th class="px-4 py-2">Producto</th><th class="px-4 py-2 text-right">Stock</th><th class="px-4 py-2 text-right">Costo inmovilizado</th>
+          </tr></thead>
+          <tbody>
+            <tr v-for="p in (muertos ? muertos.productos.slice(0, 12) : [])" :key="p.sku" class="border-b border-slate-50 last:border-0">
+              <td class="px-4 py-1.5 truncate max-w-[220px]">{{ p.nombre }} <span v-if="p.nuncaVendido" class="text-[10px] text-rose-500 font-bold">NUNCA VENDIDO</span></td>
+              <td class="px-4 py-1.5 text-right tabular-nums">{{ p.stock }} {{ p.unidad }}</td>
+              <td class="px-4 py-1.5 text-right tabular-nums text-rose-600">{{ Utils.fmtMoneda(p.costoInmovilizado) }}</td>
+            </tr>
+            <tr v-if="!muertos || !muertos.productos.length"><td colspan="3" class="px-4 py-4 text-center text-slate-400">Todos los productos giran. Bien ahí.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="px-4 py-2 text-[11px] text-slate-400 border-t border-slate-50">Capital inmovilizado total: <b class="text-rose-600">{{ muertos ? Utils.fmtMoneda(muertos.productos.reduce(function(t,p){return t+p.costoInmovilizado;},0)) : '—' }}</b></p>
+    </div>
+  </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
     <button type="button" class="nexo-card text-left p-4 ring-1 transition-all" :class="tipo === 'stock' ? 'ring-blue-500 bg-blue-50/50' : 'ring-transparent hover:ring-slate-200'" @click="cambiarTipo('stock')">

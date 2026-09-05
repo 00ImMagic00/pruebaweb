@@ -93,7 +93,7 @@ function validarMovimiento_(c) {
 
   // Stock suficiente en salidas (si la configuración no lo permite negativo).
   var cfg = configLeer_();
-  d.permitirNegativo = String(cfg.PERMITIR_STOCK_NEGATIVO).toUpperCase() === 'SI' || String(cfg.PERMITIR_STOCK_NEGATIVO).toUpperCase() === 'YES';
+  d.permitirNegativo = boolStr_(cfg.PERMITIR_STOCK_NEGATIVO);
   if ((esSalida || esTransf) && !d.permitirNegativo) {
     var disponible = stockCantidad_(d.productoId, d.almacenOrigenId);
     if (d.cantidad > disponible) {
@@ -125,22 +125,6 @@ function ejecutarMovimiento_(d, ses) {
   var esEntradaTipo = (d.tipo === 'ENTRADA' || d.tipo === 'DEVOLUCION' || d.tipo === 'AJUSTE_POSITIVO');
   var esSalidaTipo  = (d.tipo === 'SALIDA' || d.tipo === 'AJUSTE_NEGATIVO');
   var esTransf      = (d.tipo === 'TRANSFERENCIA');
-
-  if (!d.producto && d.productoId) {
-    d.producto = dbPorId_(APP.SHEETS.PRODUCTOS, d.productoId);
-  }
-  if (!d.producto) {
-    throw new ApiError_('Producto no encontrado para el movimiento: ' + d.productoId, 'NOT_FOUND');
-  }
-  if (d.requiereLote === undefined) {
-    d.requiereLote = boolStr_(d.producto.requiereLote);
-  }
-  if (d.requiereSerie === undefined) {
-    d.requiereSerie = boolStr_(d.producto.requiereSerie);
-  }
-  if (d.permitirNegativo === undefined) {
-    d.permitirNegativo = true;
-  }
 
   var costoStd = numero_(d.producto.costoStd);
   var loteConsumos = [];
