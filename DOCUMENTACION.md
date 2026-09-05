@@ -5,6 +5,9 @@
 > **Sistema Integrado de Gestión Empresarial (ERP) y Administración de Almacenes (WMS)**  
 > **Pila Tecnológica:** Google Apps Script (Backend Serverless) + Google Sheets (Base de Datos Relacional) + Single Page Application (Vue 3 / Tailwind CSS) + PWA Offline.
 
+[![Planificación & Producción - Zai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Zai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://zhipuai.cn/)
+[![Auditoría & Corrección - Google Antigravity (Gemini 3.8 Flash)](https://img.shields.io/badge/Auditor%C3%ADa%20y%20Correcci%C3%B3n-Google%20Antigravity%20%7C%20Gemini%203.8%20Flash-4285F4?style=flat-square&logo=google)](https://deepmind.google/)
+
 ---
 
 ## ÍNDICE GENERAL
@@ -1112,3 +1115,15 @@ La función `ventasRegistrar_` es el núcleo transaccional más sensible del sis
   - `boolStr_(val)`: Interpreta 'Sí', 'SI', 'true', '1' como booleano verdadero.
   - `redondear_(n, decimales)`: Previene desbordamientos de coma flotante de JavaScript.
 - **Respuestas Normalizadas:** Retornar siempre `appOk_(data)` o lanzar `new ApiError_(mensaje, codigo)`.
+
+---
+
+## 19. Créditos y Asistencia de Inteligencia Artificial
+
+Este proyecto ha sido desarrollado, optimizado y documentado con la asistencia de tecnologías avanzadas de inteligencia artificial:
+
+- **🧠 Zai GLM 5.3 Flash:**
+  - **Rol Principal:** Planificación de la arquitectura, diseño conceptual, estructuración del modelo de datos y producción del código base del sistema.
+- **⚡ Google Antigravity (Gemini 3.8 Flash):**
+  - **Rol de Refinamiento y QA:** Auditoría integral del código fuente, depuración y resolución de bugs críticos (rutas de analítica en router, función `stockList_`, corrección de fechas en dashboard, eliminación segura en compras, compatibilidad de stock negativo), suite de pruebas de integración y generación de la documentación técnica en Markdown, HTML y PDF.
+

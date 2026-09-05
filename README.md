@@ -2,6 +2,9 @@
 
 > 📘 **Documentación Técnica Completa:** Para consultar la arquitectura detallada, el modelo de 33 tablas en Google Sheets, el diccionario de las 113 rutas de API y el manual operativo completo, consulte [DOCUMENTACION.md](DOCUMENTACION.md).
 
+[![Planificación & Producción - Zai GLM 5.3 Flash](https://img.shields.io/badge/Planificaci%C3%B3n%20y%20Producci%C3%B3n-Zai%20GLM%205.3%20Flash-blue?style=flat-square&logo=openai)](https://zhipuai.cn/)
+[![Auditoría & Corrección - Google Antigravity (Gemini 3.8 Flash)](https://img.shields.io/badge/Auditor%C3%ADa%20y%20Correcci%C3%B3n-Google%20Antigravity%20%7C%20Gemini%203.8%20Flash-4285F4?style=flat-square&logo=google)](https://deepmind.google/)
+
 **Arquitectura de costo cero:** Vercel (frontend SPA) + Google Apps Script (backend/API) + Google Sheets (base de datos).
 
 Sistema de gestión de almacenes y recursos empresariales con: inventario multi-almacén, kardex físico y valorizado (promedio ponderado), lotes/números de serie con vencimientos y política FEFO, movimientos (entradas, salidas, transferencias, devoluciones, ajustes), centro de alertas, reportes exportables, usuarios con roles, auditoría y tokens de sesión. Incluye POS de mostrador con boletas, cuadre de caja, fiados, cotizaciones, rentabilidad real, panel de control interno y dashboard comparativo.
@@ -278,3 +281,14 @@ Todas las peticiones son `POST` JSON al Web App: `{ action, token, ...payload }`
 - **Cuotas de Apps Script (cuenta gratuita):** ~20.000 lecturas de celdas y ~90 min de ejecución al día; para el volumen típico de PYME (decenas de movimientos diarios) el margen es amplio.
 - **Backup:** Versiones de Google Sheets (Archivo → Historial de versiones) o copia periódica con *Hacer una copia*.
 - **Re-despliegue del backend:** tras editar código, use *Implementar → Gestionar implementaciones → Editar (✏️) → Versión: Nueva*; la URL `/exec` no cambia.
+
+---
+
+## 🤖 Créditos y Desarrollo Asistido por Inteligencia Artificial
+
+Este proyecto ha sido diseñado, producido y optimizado con la colaboración de modelos de inteligencia artificial de última generación:
+
+- **🧠 Zai GLM 5.3 Flash:**
+  - **Rol Principal:** Planificación estratégica de la arquitectura, diseño conceptual y modelado de negocio (WMS multi-almacén, Punto de Venta, facturación SUNAT y multi-país) y producción integral del núcleo de código.
+- **⚡ Google Antigravity (Gemini 3.8 Flash):**
+  - **Rol de Refinamiento y QA:** Auditoría integral del código fuente, depuración y resolución de bugs críticos (enrutador de API, función `stockList_`, cálculo de fechas en Dashboard, transaccionalidad atómica en órdenes de compra), pruebas automatizadas de integración y generación de la documentación técnica en Markdown, HTML y PDF.
